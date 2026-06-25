@@ -1,33 +1,38 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
+import { GlassCard } from '@/app/components/ui/GlassCard'
+
+/** Three bouncing dots typing indicator — glass-card style */
 export default function TypingIndicator() {
   return (
-    <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: '4px' }}>
-      <div style={{
-        padding: '12px 16px',
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: 'var(--radius-md) var(--radius-md) var(--radius-md) 4px',
-        display: 'flex',
-        gap: '5px',
-        alignItems: 'center',
-      }}>
-        {[0, 1, 2].map((i) => (
-          <span key={i} style={{
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            background: 'var(--text-tertiary)',
-            display: 'block',
-            animation: `typingBounce 1.2s ease-in-out infinite`,
-            animationDelay: `${i * 0.2}s`,
-          }} />
-        ))}
-        <style>{`
-          @keyframes typingBounce {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-            30% { transform: translateY(-5px); opacity: 1; }
-          }
-        `}</style>
-      </div>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 4 }}
+      transition={{ duration: 0.2 }}
+      className="flex justify-start"
+      aria-label="Assistant is typing"
+      role="status"
+    >
+      <GlassCard className="px-4 py-3 rounded-2xl rounded-bl-sm">
+        <div className="flex gap-1.5 items-center">
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-text-tertiary block"
+              animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.2,
+                ease: 'easeInOut',
+                delay: i * 0.18,
+              }}
+            />
+          ))}
+        </div>
+      </GlassCard>
+    </motion.div>
   )
 }

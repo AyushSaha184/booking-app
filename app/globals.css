@@ -1,48 +1,135 @@
-:root {
-  --bg: #0f0f0f;
-  --bg-surface: #1a1a1a;
-  --bg-elevated: #242424;
-  --bg-input: #1f1f1f;
-  --border: #2e2e2e;
-  --border-subtle: #222222;
-  --text-primary: #f0ede8;
-  --text-secondary: #8a8480;
-  --text-tertiary: #5a5755;
-  --accent: #c9b99a;
-  --accent-muted: #2a2520;
-  --accent-text: #f5efe6;
-  --danger: #e05c5c;
-  --success: #5ca882;
+/* ─────────────────────────────────────────────────
+   Tailwind CSS v4 — CSS-first configuration
+   ───────────────────────────────────────────────── */
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────
+   Google Fonts
+   ───────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ─────────────────────────────────────────────────
+   Design Tokens  →  Tailwind theme
+   ───────────────────────────────────────────────── */
+@theme {
+  /* Colors */
+  --color-background:       #0f0f0f;
+  --color-surface:          #1a1a1a;
+  --color-surface-elevated: #242424;
+  --color-input:            #1f1f1f;
+  --color-border:           #2e2e2e;
+  --color-border-subtle:    #222222;
+  --color-text-primary:     #f0ede8;
+  --color-text-secondary:   #8a8480;
+  --color-text-tertiary:    #5a5755;
+  --color-accent:           #c9b99a;
+  --color-accent-muted:     #2a2520;
+  --color-accent-text:      #f5efe6;
+  --color-danger:           #e05c5c;
+  --color-success:          #5ca882;
+
+  /* Border-radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+
+  /* Font family */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+/* ─────────────────────────────────────────────────
+   CSS Custom Properties (legacy compat + shadcn)
+   ───────────────────────────────────────────────── */
+:root {
+  /* Keep legacy vars so any existing inline-style code still works */
+  --bg:             #0f0f0f;
+  --bg-surface:     #1a1a1a;
+  --bg-elevated:    #242424;
+  --bg-input:       #1f1f1f;
+  --border:         #2e2e2e;
+  --border-subtle:  #222222;
+  --text-primary:   #f0ede8;
+  --text-secondary: #8a8480;
+  --text-tertiary:  #5a5755;
+  --accent:         #c9b99a;
+  --accent-muted:   #2a2520;
+  --accent-text:    #f5efe6;
+  --danger:         #e05c5c;
+  --success:        #5ca882;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+  /* shadcn/ui CSS variable mapping */
+  --background:   0 0% 6%;       /* hsl */
+  --foreground:   30 17% 93%;
+  --card:         0 0% 10%;
+  --card-foreground: 30 17% 93%;
+  --popover:      0 0% 10%;
+  --popover-foreground: 30 17% 93%;
+  --primary:      35 30% 69%;    /* accent #c9b99a */
+  --primary-foreground: 0 0% 6%;
+  --secondary:    0 0% 14%;
+  --secondary-foreground: 30 17% 93%;
+  --muted:        0 0% 14%;
+  --muted-foreground: 20 4% 53%;
+  --accent-shadcn: 0 0% 14%;
+  --accent-shadcn-foreground: 30 17% 93%;
+  --destructive:  0 64% 63%;
+  --destructive-foreground: 0 0% 98%;
+  --border-shadcn: 0 0% 18%;
+  --input-shadcn:  0 0% 18%;
+  --ring:         35 30% 69%;
+  --radius: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────────
+   Base reset + global styles
+   ───────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   background: var(--bg);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  min-height: 100%;
 }
 
-* { -webkit-tap-highlight-color: transparent; }
+/* ─────────────────────────────────────────────────
+   Scrollbar styling
+   ───────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 2px; }
 
-html { scroll-behavior: smooth; }
-
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-
+/* ─────────────────────────────────────────────────
+   Form element reset
+   ───────────────────────────────────────────────── */
 input, select, textarea, button {
   font-family: inherit;
   color: inherit;
+}
+
+::placeholder { color: var(--text-tertiary); }
+
+input[type="date"] {
+  -webkit-appearance: none;
+  color-scheme: dark;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
@@ -50,23 +137,80 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a8480' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px !important;
-  cursor: pointer;
-}
-
-::placeholder { color: var(--text-tertiary); }
-
 input:focus, select:focus, textarea:focus {
   border-color: var(--accent) !important;
   outline: none;
 }
 
-input[type="date"] { -webkit-appearance: none; }
+/* ─────────────────────────────────────────────────
+   Custom Utilities  (Tailwind v4 @utility layer)
+   ───────────────────────────────────────────────── */
+@layer utilities {
+  /* Glassmorphism */
+  .glass {
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    background-color: color-mix(in srgb, var(--bg-surface) 70%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 10%, transparent);
+  }
 
+  /* Accent glow box-shadow */
+  .glow {
+    box-shadow: 0 0 20px rgba(201, 185, 154, 0.25),
+                0 0 8px  rgba(201, 185, 154, 0.15);
+  }
+  .glow-sm {
+    box-shadow: 0 0 12px rgba(201, 185, 154, 0.2),
+                0 0 4px  rgba(201, 185, 154, 0.1);
+  }
+
+  /* Accent gradient */
+  .gradient-accent {
+    background: linear-gradient(
+      135deg,
+      #c9b99a 0%,
+      #b8a488 50%,
+      #a8956e 100%
+    );
+  }
+
+  /* Shake animation for form errors */
+  .animate-shake {
+    animation: shake 0.4s ease;
+  }
+}
+
+/* ─────────────────────────────────────────────────
+   Keyframe animations
+   ───────────────────────────────────────────────── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-4px); }
+  40%       { transform: translateX(4px); }
+  60%       { transform: translateX(-3px); }
+  80%       { transform: translateX(3px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─────────────────────────────────────────────────
+   Reduced motion — disable all animations
+   ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────
+   Responsive helpers
+   ───────────────────────────────────────────────── */
 @media (max-width: 380px) {
   .form-grid-2 { grid-template-columns: 1fr !important; }
 }

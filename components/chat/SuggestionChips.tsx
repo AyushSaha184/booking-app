@@ -1,85 +1,90 @@
-export default function SuggestionChips({
-  suggestions,
-  onSelect,
-}: {
-  suggestions: { label: string; prompt: string }[]
+'use client'
+
+import { motion } from 'framer-motion'
+import { staggerContainer, staggerItem } from '@/lib/animations'
+import { GlassCard } from '@/app/components/ui/GlassCard'
+import { FadeIn } from '@/app/components/ui/FadeIn'
+
+interface Suggestion {
+  label: string
+  prompt: string
+}
+
+const SUGGESTION_ICONS: Record<string, string> = {
+  'Book a room': '🛏️',
+  'Show available rooms': '🔍',
+  'Cancel my booking': '✕',
+  'Resort amenities': '🌊',
+}
+
+interface SuggestionChipsProps {
+  suggestions: Suggestion[]
   onSelect: (prompt: string) => void
-}) {
+}
+
+/**
+ * Empty-state screen shown before first message.
+ * Has animated greeting, resort icon, and suggestion chip grid.
+ */
+export default function SuggestionChips({ suggestions, onSelect }: SuggestionChipsProps) {
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100%',
-      padding: '40px 24px',
-      gap: '32px',
-    }}>
-      {/* Resort logo / greeting */}
-      <div style={{ textAlign: 'center' }}>
-        <div style={{
-          width: '56px',
-          height: '56px',
-          borderRadius: '50%',
-          background: 'var(--accent-muted)',
-          border: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          margin: '0 auto 16px',
-          fontSize: '22px',
-        }}>
+    <div className="flex flex-col items-center justify-center min-h-full px-6 py-10 gap-8">
+
+      {/* Greeting */}
+      <FadeIn direction="down" className="text-center">
+        <motion.div
+          initial={{ scale: 0.7, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+          className="w-16 h-16 rounded-2xl bg-accent-muted border border-accent/25 flex items-center justify-center text-3xl mx-auto mb-4 shadow-[0_0_24px_rgba(201,185,154,0.15)]"
+          aria-hidden="true"
+        >
           🏨
-        </div>
-        <h2 style={{ fontSize: '20px', fontWeight: 500, marginBottom: '8px', color: 'var(--text-primary)' }}>
+        </motion.div>
+
+        <h2 className="text-xl font-semibold text-text-primary mb-2">
           Welcome
         </h2>
-        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '260px', lineHeight: 1.6 }}>
-          I can help you book a room, check availability, or manage an existing booking.
+        <p className="text-sm text-text-secondary max-w-xs leading-relaxed">
+          I can help you book a room, check availability, or manage an existing reservation.
         </p>
-      </div>
+      </FadeIn>
 
-      {/* Chips grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '10px',
-        width: '100%',
-        maxWidth: '400px',
-      }}>
+      {/* Chip grid */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 gap-2.5 w-full max-w-sm"
+        role="list"
+        aria-label="Suggested actions"
+      >
         {suggestions.map((s) => (
-          <button
+          <motion.button
             key={s.prompt}
+            variants={staggerItem}
             onClick={() => onSelect(s.prompt)}
-            style={{
-              padding: '14px 16px',
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--text-primary)',
-              fontSize: '14px',
-              fontWeight: 400,
-              textAlign: 'left',
-              cursor: 'pointer',
-              lineHeight: 1.4,
-              minHeight: '52px',
-              /* touch target */
-              WebkitAppearance: 'none',
-              transition: 'background 0.15s, border-color 0.15s',
-            }}
-            onTouchStart={(e) => {
-              e.currentTarget.style.background = 'var(--bg-elevated)'
-              e.currentTarget.style.borderColor = 'var(--accent)'
-            }}
-            onTouchEnd={(e) => {
-              e.currentTarget.style.background = 'var(--bg-surface)'
-              e.currentTarget.style.borderColor = 'var(--border)'
-            }}
+            role="listitem"
+            className={[
+              'group flex flex-col gap-1.5 p-3.5 text-left',
+              'bg-surface/80 backdrop-blur-sm',
+              'border border-border hover:border-accent/40',
+              'rounded-xl transition-all duration-200',
+              'hover:bg-surface-elevated hover:shadow-[0_0_16px_rgba(201,185,154,0.12)]',
+              'active:scale-[0.97]',
+              'min-h-[52px]',          // 44px touch target
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50',
+            ].join(' ')}
           >
-            {s.label}
-          </button>
+            <span className="text-base leading-none" aria-hidden="true">
+              {SUGGESTION_ICONS[s.label] ?? '💬'}
+            </span>
+            <span className="text-sm text-text-primary font-medium leading-snug">
+              {s.label}
+            </span>
+          </motion.button>
         ))}
-      </div>
+      </motion.div>
     </div>
   )
 }

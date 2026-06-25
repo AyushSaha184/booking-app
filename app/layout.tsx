@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Resort Booking',
-  description: 'Book your stay at our resort',
-  // Prevent iOS from auto-linking phone numbers / dates in chat messages
-  other: { 'format-detection': 'telephone=no, date=no' },
+  title: 'Resort Booking — Luxury Stays, Seamlessly Booked',
+  description: 'Book your perfect stay at our resort with AI-powered assistance. Check availability, reserve rooms, and manage bookings effortlessly.',
+  other: {
+    // Prevent iOS from auto-linking phone numbers / dates in chat messages
+    'format-detection': 'telephone=no, date=no',
+  },
 }
 
 export const viewport: Viewport = {
@@ -19,8 +21,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-background text-text-primary antialiased">
+        {children}
+      </body>
     </html>
   )
 }
