@@ -90,7 +90,7 @@ export default function ChatPage() {
 
   return (
     <div
-      className="flex flex-col h-svh bg-background overflow-hidden w-full max-w-2xl mx-auto border-x border-border/40 shadow-2xl relative"
+      className="flex flex-col h-svh bg-background overflow-hidden"
       style={{ background: 'var(--color-background)' }}
     >
       <ChatHeader
