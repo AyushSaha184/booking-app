@@ -36,7 +36,7 @@ interface SuggestionChipsProps {
  */
 export default function SuggestionChips({ suggestions, onSelect }: SuggestionChipsProps) {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-full px-4 py-8 sm:px-6 sm:py-10 gap-8 overflow-hidden">
+    <div className="relative flex flex-col items-center justify-center min-h-full w-full px-4 py-8 sm:px-6 sm:py-10 gap-8 overflow-hidden">
       
       {/* Animated Floating Particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">

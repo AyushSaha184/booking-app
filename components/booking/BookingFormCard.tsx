@@ -193,7 +193,7 @@ export default function BookingFormCard({
           {/* ── Guest Details ── */}
           <div>
             <SectionLabel>Guest details</SectionLabel>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <AnimatedInput
                 label="Full name"
                 placeholder="Your name"
@@ -275,7 +275,7 @@ export default function BookingFormCard({
           {/* ── Stay Details ── */}
           <div>
             <SectionLabel>Stay details</SectionLabel>
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <AnimatedInput
                 label="Check-in"
                 type="date"
