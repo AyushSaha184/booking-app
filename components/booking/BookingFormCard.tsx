@@ -49,7 +49,7 @@ function PriceLine({
       <span
         className={cn(
           'tabular-nums',
-          highlight ? 'text-[#c9b99a] font-bold text-lg tracking-wide' : dimmed ? 'text-text-tertiary font-normal' : 'text-text-primary font-medium'
+          highlight ? 'text-accent font-bold text-lg tracking-wide' : dimmed ? 'text-text-tertiary font-normal' : 'text-text-primary font-medium'
         )}
       >
         {value}
@@ -61,7 +61,7 @@ function PriceLine({
 function getRoomColorClass(roomType: string) {
   const type = roomType.toLowerCase()
   if (type.includes('suite')) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
-  if (type.includes('deluxe')) return 'bg-[#c9b99a]/15 text-[#c9b99a] border-[#c9b99a]/20'
+  if (type.includes('deluxe')) return 'bg-accent/15 text-accent border-accent/20'
   if (type.includes('penthouse') || type.includes('presidential')) return 'bg-purple-500/10 text-purple-400 border-purple-500/25'
   return 'bg-blue-500/10 text-blue-400 border-blue-500/25'
 }
@@ -80,7 +80,7 @@ export default function BookingFormCard({
   useEffect(() => {
     const now = new Date()
     const msUntilMidnight =
-      new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) - now
+      new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime()
     const timer = setTimeout(() => {
       setToday(new Date().toISOString().split('T')[0])
     }, msUntilMidnight)
@@ -195,8 +195,8 @@ export default function BookingFormCard({
       className="overflow-hidden mb-2"
     >
       {/* Header with premium gradient & gold stripe */}
-      <div className="relative px-4 py-3.5 bg-gradient-to-r from-[#c9b99a]/10 via-[#c9b99a]/5 to-transparent border-b border-border/60 flex items-center justify-between">
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#a8956e] via-[#c9b99a] to-[#d6c7ab]" />
+      <div className="relative px-4 py-3.5 bg-linear-to-r from-accent/10 via-accent/5 to-transparent border-b border-border/60 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-[#a8956e] via-accent to-[#d6c7ab]" />
         <span className="text-sm font-bold text-text-primary tracking-wide">Booking details</span>
         <span className="text-xs px-2.5 py-0.5 rounded-full bg-success/10 text-success font-semibold border border-success/20">
           {availableRooms.length} room{availableRooms.length !== 1 ? 's' : ''} available
@@ -244,8 +244,8 @@ export default function BookingFormCard({
                       'flex items-center gap-3.5 p-3.5 rounded-xl border cursor-pointer',
                       'transition-all duration-300',
                       isSelected
-                        ? 'border-[#c9b99a]/50 bg-[#c9b99a]/10 shadow-[0_4px_20px_rgba(201,185,154,0.12)]'
-                        : 'border-border/80 hover:border-[#c9b99a]/30 bg-surface/40 hover:bg-surface/60'
+                        ? 'border-accent/50 bg-accent/10 shadow-[0_4px_20px_rgba(201,185,154,0.12)]'
+                        : 'border-border/80 hover:border-accent/30 bg-surface/40 hover:bg-surface/60'
                     )}
                   >
                     <input
@@ -257,11 +257,11 @@ export default function BookingFormCard({
                     <div
                       className={cn(
                         'w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200',
-                        isSelected ? 'border-[#c9b99a]' : 'border-border'
+                        isSelected ? 'border-accent' : 'border-border'
                       )}
                     >
                       {isSelected && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#c9b99a]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-accent" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -275,7 +275,7 @@ export default function BookingFormCard({
                         </span>
                       </div>
                     </div>
-                    <p className="text-sm font-extrabold text-[#c9b99a] shrink-0 tabular-nums">
+                    <p className="text-sm font-extrabold text-accent shrink-0 tabular-nums">
                       ₹{room.pricePerNight.toLocaleString('en-IN')}
                       <span className="text-xs font-normal text-text-tertiary">/night</span>
                     </p>
@@ -324,7 +324,7 @@ export default function BookingFormCard({
                     if (curr > 1) setValue('guests', curr - 1)
                   }}
                   aria-label="Decrease guests"
-                  className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl bg-surface-elevated border border-border text-text-primary text-lg flex items-center justify-center hover:border-accent/40 transition-colors"
+                  className="w-10 h-10 min-w-11 min-h-11 rounded-xl bg-surface-elevated border border-border text-text-primary text-lg flex items-center justify-center hover:border-accent/40 transition-colors"
                 >
                   −
                 </motion.button>
@@ -340,7 +340,7 @@ export default function BookingFormCard({
                     if (curr < max) setValue('guests', curr + 1)
                   }}
                   aria-label="Increase guests"
-                  className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-xl bg-surface-elevated border border-border text-text-primary text-lg flex items-center justify-center hover:border-accent/40 transition-colors"
+                  className="w-10 h-10 min-w-11 min-h-11 rounded-xl bg-surface-elevated border border-border text-text-primary text-lg flex items-center justify-center hover:border-accent/40 transition-colors"
                 >
                   +
                 </motion.button>
@@ -366,8 +366,8 @@ export default function BookingFormCard({
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="relative overflow-hidden bg-surface/50 backdrop-blur-md border border-[#c9b99a]/20 rounded-xl p-4 flex flex-col gap-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#c9b99a]/5 to-transparent pointer-events-none" />
+                <div className="relative overflow-hidden bg-surface/50 backdrop-blur-md border border-accent/20 rounded-xl p-4 flex flex-col gap-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+                  <div className="absolute inset-0 bg-linear-to-b from-accent/5 to-transparent pointer-events-none" />
                   <SectionLabel>Price summary</SectionLabel>
                   <PriceLine
                     label={`${priceSummary.nights} night${priceSummary.nights !== 1 ? 's' : ''} × ₹${priceSummary.room.pricePerNight.toLocaleString('en-IN')}`}
