@@ -35,6 +35,24 @@ export const CancelBookingSchema = z.object({
   phone: z.string().min(10).max(15).regex(PHONE_REGEX),
 })
 
+export const UpdateBookingSchema = z.object({
+  id: z.string().min(1, 'Booking ID is required').startsWith('BK-', 'Invalid booking ID format'),
+  guestName: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  phone: z.string().min(10, 'Invalid phone number').max(15, 'Invalid phone number').regex(PHONE_REGEX, 'Invalid phone format'),
+  roomId: z.string().min(1, 'Room selection required'),
+  checkIn: z.string().regex(DATE_REGEX, 'Invalid date format'),
+  checkOut: z.string().regex(DATE_REGEX, 'Invalid date format'),
+  guests: z.number().int().min(1, 'At least 1 guest').max(20, 'Too many guests'),
+  status: z.enum(['confirmed', 'cancelled'], { message: 'Status must be "confirmed" or "cancelled"' }),
+}).refine(data => {
+  const checkIn = new Date(data.checkIn)
+  const checkOut = new Date(data.checkOut)
+  return checkOut > checkIn
+}, {
+  message: 'Check-out must be after check-in',
+  path: ['checkOut'],
+})
+
 export const CheckRoomsSchema = z.object({
   checkIn: z.string().regex(DATE_REGEX, 'Invalid date format. Use YYYY-MM-DD'),
   checkOut: z.string().regex(DATE_REGEX, 'Invalid date format. Use YYYY-MM-DD'),

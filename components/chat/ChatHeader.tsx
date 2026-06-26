@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Trash2 } from 'lucide-react'
+import { Trash2, Hotel } from 'lucide-react'
 import { PremiumButton } from '@/app/components/ui/PremiumButton'
 
 interface ChatHeaderProps {
@@ -15,20 +15,23 @@ interface ChatHeaderProps {
  */
 export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderProps) {
   return (
-    <header className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-surface/80 backdrop-blur-md shrink-0"
+    <header className="relative flex items-center justify-between px-4 py-3 bg-surface/85 backdrop-blur-lg shrink-0 z-20 border-b border-border/40"
       style={{ paddingTop: 'calc(12px + env(safe-area-inset-top))' }}
     >
+      {/* Subtle bottom gradient accent line */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c9b99a]/25 to-transparent" />
+
       {/* Branding */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-accent-muted border border-accent/20 flex items-center justify-center text-lg select-none">
-          🏨
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#242424] border border-[#c9b99a]/20 flex items-center justify-center shadow-[0_0_12px_rgba(201,185,154,0.1)]">
+          <Hotel className="w-4.5 h-4.5 text-[#c9b99a]" />
         </div>
         <div>
-          <p className="text-[11px] text-text-tertiary uppercase tracking-widest leading-none mb-0.5">
-            Resort assistant
+          <p className="text-[10px] text-text-secondary uppercase tracking-[0.15em] leading-none mb-1 font-semibold">
+            Palace Assistant
           </p>
-          <h1 className="text-sm font-semibold text-text-primary leading-none">
-            How can I help you?
+          <h1 className="text-sm font-bold text-text-primary leading-none tracking-wide">
+            Luxe Concierge
           </h1>
         </div>
       </div>

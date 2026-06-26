@@ -102,20 +102,97 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(201, 185, 154, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(201, 185, 154, 0.04) 0%, transparent 50%);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   min-height: 100%;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  width: 40vh;
+  height: 40vh;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 185, 154, 0.07) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  top: 15%;
+  left: -10%;
+  animation: floatOrb1 25s infinite ease-in-out alternate;
+}
+
+body::after {
+  bottom: 15%;
+  right: -10%;
+  animation: floatOrb2 30s infinite ease-in-out alternate;
+}
+
+@keyframes floatOrb1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    transform: translate(50px, 80px) scale(1.15);
+  }
+}
+
+@keyframes floatOrb2 {
+  0% {
+    transform: translate(0, 0) scale(1.15);
+  }
+  100% {
+    transform: translate(-60px, -50px) scale(0.9);
+  }
 }
 
 /* ─────────────────────────────────────────────────
    Scrollbar styling
    ───────────────────────────────────────────────── */
-::-webkit-scrollbar        { width: 4px; }
-::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: var(--border); border-radius: 2px; }
+html, body, .scroller, [class*="overflow-y-auto"] {
+  --scrollbar-thumb: var(--border);
+  --scrollbar-track: transparent;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+html:hover, body:hover, .scroller:hover, [class*="overflow-y-auto"]:hover {
+  --scrollbar-thumb: var(--accent);
+}
+
+/* Legacy fallback for WebKit/Blink browsers when scrollbar-color is not supported */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+}
 
 /* ─────────────────────────────────────────────────
    Form element reset
@@ -174,10 +251,51 @@ input:focus, select:focus, textarea:focus {
     );
   }
 
+  /* Gold text gradient styling */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #f5efe6 0%, #c9b99a 50%, #b8a488 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Shimmering border styling */
+  .shimmer-border {
+    position: relative;
+  }
+  .shimmer-border::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(201, 185, 154, 0.1) 30%,
+      rgba(201, 185, 154, 0.4) 50%,
+      rgba(201, 185, 154, 0.1) 70%,
+      transparent 100%
+    );
+    background-size: 200% auto;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    animation: shimmerBorder 6s linear infinite;
+  }
+
   /* Shake animation for form errors */
   .animate-shake {
     animation: shake 0.4s ease;
   }
+}
+
+@keyframes shimmerBorder {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* ─────────────────────────────────────────────────

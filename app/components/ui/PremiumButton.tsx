@@ -21,9 +21,9 @@ interface PremiumButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
 
 const variantClasses: Record<PremiumButtonVariant, string> = {
   primary:
-    'bg-gradient-to-b from-accent to-[#b8a488] text-[#0f0f0f] font-semibold ' +
-    'hover:shadow-[0_0_20px_rgba(201,185,154,0.35)] hover:from-accent-text hover:to-accent ' +
-    'disabled:from-surface-elevated disabled:to-surface-elevated disabled:text-text-tertiary disabled:shadow-none',
+    'bg-gradient-to-r from-[#c9b99a] via-[#f5efe6] to-[#b8a488] bg-[length:200%_auto] bg-left text-[#0f0f0f] font-bold ' +
+    'hover:bg-right hover:shadow-[0_0_22px_rgba(201,185,154,0.45)] ' +
+    'disabled:from-surface-elevated disabled:to-surface-elevated disabled:text-text-tertiary disabled:shadow-none transition-all duration-500',
   secondary:
     'bg-transparent border border-accent/40 text-accent ' +
     'hover:bg-accent/10 hover:border-accent/70 hover:shadow-[0_0_16px_rgba(201,185,154,0.2)] ' +

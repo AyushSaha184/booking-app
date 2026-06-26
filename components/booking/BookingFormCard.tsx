@@ -44,18 +44,26 @@ function PriceLine({
   dimmed?: boolean
 }) {
   return (
-    <div className="flex justify-between text-sm">
-      <span className={dimmed ? 'text-text-tertiary' : 'text-text-secondary'}>{label}</span>
+    <div className="flex justify-between items-center text-sm">
+      <span className={dimmed ? 'text-text-tertiary font-medium' : 'text-text-secondary font-medium'}>{label}</span>
       <span
         className={cn(
-          'font-medium tabular-nums',
-          highlight ? 'text-accent font-semibold text-base' : dimmed ? 'text-text-tertiary' : 'text-text-primary'
+          'tabular-nums',
+          highlight ? 'text-[#c9b99a] font-bold text-lg tracking-wide' : dimmed ? 'text-text-tertiary font-normal' : 'text-text-primary font-medium'
         )}
       >
         {value}
       </span>
     </div>
   )
+}
+
+function getRoomColorClass(roomType: string) {
+  const type = roomType.toLowerCase()
+  if (type.includes('suite')) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
+  if (type.includes('deluxe')) return 'bg-[#c9b99a]/15 text-[#c9b99a] border-[#c9b99a]/20'
+  if (type.includes('penthouse') || type.includes('presidential')) return 'bg-purple-500/10 text-purple-400 border-purple-500/25'
+  return 'bg-blue-500/10 text-blue-400 border-blue-500/25'
 }
 
 // ---------- Main component ----------
@@ -170,10 +178,11 @@ export default function BookingFormCard({
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       className="overflow-hidden mb-2"
     >
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-border-subtle flex items-center justify-between">
-        <span className="text-sm font-semibold text-text-primary">Booking details</span>
-        <span className="text-xs px-2 py-1 rounded-full bg-success/10 text-success font-medium border border-success/20">
+      {/* Header with premium gradient & gold stripe */}
+      <div className="relative px-4 py-3.5 bg-gradient-to-r from-[#c9b99a]/10 via-[#c9b99a]/5 to-transparent border-b border-border/60 flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#a8956e] via-[#c9b99a] to-[#d6c7ab]" />
+        <span className="text-sm font-bold text-text-primary tracking-wide">Booking details</span>
+        <span className="text-xs px-2.5 py-0.5 rounded-full bg-success/10 text-success font-semibold border border-success/20">
           {availableRooms.length} room{availableRooms.length !== 1 ? 's' : ''} available
         </span>
       </div>
@@ -216,11 +225,11 @@ export default function BookingFormCard({
                   <label
                     key={room.id}
                     className={cn(
-                      'flex items-center gap-3 p-3 rounded-xl border cursor-pointer',
-                      'transition-all duration-200',
+                      'flex items-center gap-3.5 p-3.5 rounded-xl border cursor-pointer',
+                      'transition-all duration-300',
                       isSelected
-                        ? 'border-accent/50 bg-accent-muted shadow-[0_0_12px_rgba(201,185,154,0.15)]'
-                        : 'border-border hover:border-border/80 bg-surface/50'
+                        ? 'border-[#c9b99a]/50 bg-[#c9b99a]/10 shadow-[0_4px_20px_rgba(201,185,154,0.12)]'
+                        : 'border-border/80 hover:border-[#c9b99a]/30 bg-surface/40 hover:bg-surface/60'
                     )}
                   >
                     <input
@@ -231,21 +240,26 @@ export default function BookingFormCard({
                     />
                     <div
                       className={cn(
-                        'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
-                        isSelected ? 'border-accent' : 'border-border'
+                        'w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200',
+                        isSelected ? 'border-[#c9b99a]' : 'border-border'
                       )}
                     >
                       {isSelected && (
-                        <div className="w-2 h-2 rounded-full bg-accent" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#c9b99a]" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-text-primary truncate">{room.name}</p>
-                      <p className="text-xs text-text-secondary">
-                        {room.type} · Up to {room.capacity} guests
-                      </p>
+                      <p className="text-sm font-bold text-text-primary truncate leading-snug">{room.name}</p>
+                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider', getRoomColorClass(room.type))}>
+                          {room.type}
+                        </span>
+                        <span className="text-xs text-text-secondary font-medium">
+                          · Up to {room.capacity} guests
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm font-semibold text-accent shrink-0">
+                    <p className="text-sm font-extrabold text-[#c9b99a] shrink-0 tabular-nums">
                       ₹{room.pricePerNight.toLocaleString('en-IN')}
                       <span className="text-xs font-normal text-text-tertiary">/night</span>
                     </p>
@@ -336,7 +350,8 @@ export default function BookingFormCard({
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="bg-surface-elevated/60 border border-border-subtle rounded-xl p-3.5 flex flex-col gap-2">
+                <div className="relative overflow-hidden bg-surface/50 backdrop-blur-md border border-[#c9b99a]/20 rounded-xl p-4 flex flex-col gap-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#c9b99a]/5 to-transparent pointer-events-none" />
                   <SectionLabel>Price summary</SectionLabel>
                   <PriceLine
                     label={`${priceSummary.nights} night${priceSummary.nights !== 1 ? 's' : ''} × ₹${priceSummary.room.pricePerNight.toLocaleString('en-IN')}`}
@@ -347,9 +362,9 @@ export default function BookingFormCard({
                     value={`₹${priceSummary.tax.toLocaleString('en-IN')}`}
                     dimmed
                   />
-                  <div className="h-px bg-border my-0.5" aria-hidden="true" />
+                  <div className="h-px bg-border/60 my-1" aria-hidden="true" />
                   <PriceLine
-                    label="Total"
+                    label="Total Amount"
                     value={`₹${priceSummary.total.toLocaleString('en-IN')}`}
                     highlight
                   />
