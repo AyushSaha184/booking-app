@@ -1,6 +1,6 @@
 import { db } from './client'
 import { bookings } from './schema'
-import { and, eq, ilike, lt, gt, ne, sql } from 'drizzle-orm'
+import { and, eq, lt, gt, ne, sql } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import { CreateBookingSchema, LookupBookingSchema, CancelBookingSchema, UpdateBookingSchema } from '../validation'
 
@@ -8,7 +8,7 @@ export async function createBooking(data: unknown) {
   const validated = CreateBookingSchema.parse(data)
 
   const id = 'BK-' + nanoid(6).toUpperCase()
-  const [booking] = await db.insert(bookings).values({
+  const [booking] = await db().insert(bookings).values({
     guestName: validated.guestName,
     phone: validated.phone,
     roomId: validated.roomId,
@@ -24,12 +24,12 @@ export async function createBooking(data: unknown) {
 export async function lookupBooking(guestName: string, phone: string) {
   const validated = LookupBookingSchema.parse({ guestName, phone })
 
-  const [booking] = await db
+  const [booking] = await db()
     .select()
     .from(bookings)
     .where(
       and(
-        ilike(bookings.guestName, `%${validated.guestName}%`),
+        sql`lower(${bookings.guestName}) = lower(${validated.guestName})`,
         eq(bookings.phone, validated.phone),
         eq(bookings.status, 'confirmed')
       )
@@ -42,7 +42,7 @@ export async function lookupBooking(guestName: string, phone: string) {
 export async function cancelBooking(bookingId: string, guestName: string, phone: string) {
   const validated = CancelBookingSchema.parse({ bookingId, guestName, phone })
 
-  const booking = await db
+  const booking = await db()
     .select()
     .from(bookings)
     .where(
@@ -62,7 +62,7 @@ export async function cancelBooking(bookingId: string, guestName: string, phone:
     return null
   }
 
-  const [updated] = await db
+  const [updated] = await db()
     .update(bookings)
     .set({ status: 'cancelled' })
     .where(eq(bookings.id, validated.bookingId))
@@ -85,7 +85,7 @@ export async function updateBookingFromSheet(data: unknown): Promise<
 
   try {
     // Check that the booking exists
-    const [existing] = await db
+    const [existing] = await db()
       .select()
       .from(bookings)
       .where(eq(bookings.id, validated.id))
@@ -106,7 +106,7 @@ export async function updateBookingFromSheet(data: unknown): Promise<
       )
 
     if (needsOverlapCheck) {
-      const overlapping = await db
+      const overlapping = await db()
         .select({ count: sql<number>`count(*)::int` })
         .from(bookings)
         .where(
@@ -130,7 +130,7 @@ export async function updateBookingFromSheet(data: unknown): Promise<
     }
 
     // Update the booking
-    const [updated] = await db
+    const [updated] = await db()
       .update(bookings)
       .set({
         guestName: validated.guestName,

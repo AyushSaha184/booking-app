@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { atomicCreateBooking } from '@/lib/db/atomic'
 import { syncBookingToSheet } from '@/lib/sheets/sync'
-import { validateRequestSize } from '@/lib/validation'
+import { validateRequestSize, CreateBookingSchema } from '@/lib/validation'
 
 export async function POST(req: Request) {
   try {
@@ -31,7 +31,17 @@ export async function POST(req: Request) {
       )
     }
 
-    const result = await atomicCreateBooking(data as any)
+    let parsed
+    try {
+      parsed = CreateBookingSchema.parse(data)
+    } catch (err: any) {
+      return NextResponse.json(
+        { error: err?.issues?.[0]?.message ?? 'Invalid booking data' },
+        { status: 400 }
+      )
+    }
+
+    const result = await atomicCreateBooking(parsed)
 
     if (!result.success) {
       const statusCode = result.retry ? 409 : 400

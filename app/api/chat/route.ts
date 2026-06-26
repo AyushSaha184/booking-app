@@ -5,7 +5,6 @@ import { systemPrompt } from '@/lib/llm/system-prompt'
 import { withMultiLLMFallback, buildModelConfigs } from '@/lib/llm/multillm'
 import { checkRateLimit } from '@/lib/ratelimit'
 import { validateRequestSize, sanitizeUserInput } from '@/lib/validation'
-import { withSecurityHeaders } from '@/lib/security'
 
 export const maxDuration = 60
 
@@ -34,46 +33,38 @@ export async function POST(req: Request) {
       )
       response.headers.set('X-RateLimit-Remaining', String(remaining))
       response.headers.set('X-RateLimit-Reset', String(reset))
-      return withSecurityHeaders(response, req)
+      return response
     }
 
     const rawBody = await req.text()
 
     if (!validateRequestSize(rawBody, 500_000)) {
-      return withSecurityHeaders(
-        NextResponse.json({ error: 'Request too large' }, { status: 413 }),
-        req
-      )
+      return NextResponse.json({ error: 'Request too large' }, { status: 413 })
     }
 
     let parsed: { messages?: any[] }
     try {
       parsed = JSON.parse(rawBody)
     } catch {
-      return withSecurityHeaders(
-        NextResponse.json({ error: 'Invalid JSON' }, { status: 400 }),
-        req
-      )
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
 
     const messages = parsed.messages
 
     if (!Array.isArray(messages) || messages.length > 100) {
-      return withSecurityHeaders(
-        NextResponse.json({ error: 'Invalid messages format' }, { status: 400 }),
-        req
-      )
+      return NextResponse.json({ error: 'Invalid messages format' }, { status: 400 })
     }
 
-    const sanitizedMessages = messages.map((msg: any) => {
-      if (typeof msg.content === 'string') {
-        return {
-          ...msg,
-          content: sanitizeUserInput(msg.content),
-        }
-      }
-      return msg
-    })
+    const sanitizedMessages = messages.map((msg: any) => ({
+      ...msg,
+      parts: Array.isArray(msg.parts)
+        ? msg.parts.map((p: any) =>
+            p?.type === 'text' && typeof p.text === 'string'
+              ? { ...p, text: sanitizeUserInput(p.text) }
+              : p
+          )
+        : msg.parts,
+    }))
 
     const modelConfigs = buildModelConfigs()
 
@@ -97,29 +88,22 @@ export async function POST(req: Request) {
       }
     )
 
-    const streamResponse = result.toUIMessageStreamResponse()
-    return withSecurityHeaders(streamResponse, req)
+    return result.toUIMessageStreamResponse()
 
   } catch (err: unknown) {
     console.error('Chat API error:', err)
     const message = err instanceof Error ? err.message : 'Internal server error'
 
     if (message.includes('All models failed')) {
-      return withSecurityHeaders(
-        NextResponse.json(
-          { error: 'AI service temporarily unavailable. Please try again.' },
-          { status: 503 }
-        ),
-        req
+      return NextResponse.json(
+        { error: 'AI service temporarily unavailable. Please try again.' },
+        { status: 503 }
       )
     }
 
-    return withSecurityHeaders(
-      NextResponse.json(
-        { error: 'An error occurred processing your request' },
-        { status: 500 }
-      ),
-      req
+    return NextResponse.json(
+      { error: 'An error occurred processing your request' },
+      { status: 500 }
     )
   }
 }

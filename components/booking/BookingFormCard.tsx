@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -75,6 +75,17 @@ export default function BookingFormCard({
 }: BookingFormCardProps) {
   const [submitError, setSubmitError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
+  const [today, setToday] = useState(() => new Date().toISOString().split('T')[0])
+
+  useEffect(() => {
+    const now = new Date()
+    const msUntilMidnight =
+      new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) - now
+    const timer = setTimeout(() => {
+      setToday(new Date().toISOString().split('T')[0])
+    }, msUntilMidnight)
+    return () => clearTimeout(timer)
+  }, [])
 
   const {
     register,
@@ -119,11 +130,16 @@ export default function BookingFormCard({
 
   const onFormSubmit = async (data: FormValues) => {
     setSubmitError('')
+    let success = false
     try {
       await onSubmit(data)
+      success = true
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
+      setSubmitError(message)
+    }
+    if (success) {
       setConfirmed(true)
-    } catch {
-      setSubmitError('Something went wrong. Please try again.')
     }
   }
 
@@ -279,7 +295,7 @@ export default function BookingFormCard({
               <AnimatedInput
                 label="Check-in"
                 type="date"
-                min={new Date().toISOString().split('T')[0]}
+                min={today}
                 leftIcon={<Calendar className="w-4 h-4" />}
                 error={errors.checkIn?.message}
                 {...register('checkIn')}
@@ -287,7 +303,7 @@ export default function BookingFormCard({
               <AnimatedInput
                 label="Check-out"
                 type="date"
-                min={watchedValues.checkIn || new Date().toISOString().split('T')[0]}
+                min={watchedValues.checkIn || today}
                 leftIcon={<Calendar className="w-4 h-4" />}
                 error={errors.checkOut?.message}
                 {...register('checkOut')}

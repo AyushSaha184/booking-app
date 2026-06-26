@@ -1,7 +1,5 @@
-import { neon } from '@neondatabase/serverless'
 import { db } from './client'
 import { bookings } from './schema'
-import { bookings as bookingsTable } from './schema'
 import { and, eq, sql, lt, gt } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 
@@ -19,37 +17,44 @@ export async function atomicCreateBooking(data: {
     try {
       const id = 'BK-' + nanoid(6).toUpperCase()
 
-      const overlapping = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(bookings)
-        .where(
-          and(
-            eq(bookings.roomId, data.roomId),
-            eq(bookings.status, 'confirmed'),
-            lt(bookings.checkIn, data.checkOut),
-            gt(bookings.checkOut, data.checkIn)
-          )
-        )
+      const booking = await db().transaction(
+        async (tx) => {
+          const overlapping = await tx
+            .select({ count: sql<number>`count(*)::int` })
+            .from(bookings)
+            .where(
+              and(
+                eq(bookings.roomId, data.roomId),
+                eq(bookings.status, 'confirmed'),
+                lt(bookings.checkIn, data.checkOut),
+                gt(bookings.checkOut, data.checkIn)
+              )
+            )
 
-      const overlapCount = Number(overlapping[0]?.count ?? 0)
+          const overlapCount = Number(overlapping[0]?.count ?? 0)
 
-      if (overlapCount > 0) {
-        return { success: false, error: 'Room is no longer available for selected dates', retry: false }
-      }
+          if (overlapCount > 0) {
+            throw new Error('Room is no longer available for selected dates')
+          }
 
-      const [booking] = await db
-        .insert(bookings)
-        .values({
-          id,
-          guestName: data.guestName,
-          phone: data.phone,
-          roomId: data.roomId,
-          checkIn: data.checkIn,
-          checkOut: data.checkOut,
-          guests: data.guests,
-          status: 'confirmed',
-        })
-        .returning()
+          const [created] = await tx
+            .insert(bookings)
+            .values({
+              id,
+              guestName: data.guestName,
+              phone: data.phone,
+              roomId: data.roomId,
+              checkIn: data.checkIn,
+              checkOut: data.checkOut,
+              guests: data.guests,
+              status: 'confirmed',
+            })
+            .returning()
+
+          return created
+        },
+        { isolationLevel: 'serializable' }
+      )
 
       return {
         success: true,
@@ -70,17 +75,20 @@ export async function atomicCreateBooking(data: {
       const errorCode = err?.code ?? ''
 
       if (
-        errorMessage.includes('serialization') ||
-        errorMessage.includes('deadlock') ||
         errorCode === '40001' ||
-        errorMessage.includes('lock') ||
-        errorMessage.includes('conflict')
+        errorMessage.includes('serialization') ||
+        errorMessage.includes('could not serialize') ||
+        errorMessage.includes('deadlock')
       ) {
         if (attempt < maxRetries - 1) {
           await new Promise(resolve => setTimeout(resolve, 50 * (attempt + 1)))
           continue
         }
         return { success: false, error: 'Booking failed due to concurrent request. Please try again.', retry: true }
+      }
+
+      if (errorMessage.includes('no longer available')) {
+        return { success: false, error: 'Room is no longer available for selected dates', retry: false }
       }
 
       if (

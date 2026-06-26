@@ -70,22 +70,37 @@ export default function ChatPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     })
-    const data = await res.json() as { success: boolean; booking?: { id: string } }
-    if (data.success && data.booking) {
+    const data = await res.json() as { success: boolean; booking?: { id: string }; error?: string }
+    if (!res.ok || !data.success) {
       setMessages((prev) => [
         ...prev,
         {
-          id: `booking-confirm-${Date.now()}`,
+          id: `booking-error-${Date.now()}`,
           role: 'assistant' as const,
           parts: [
             {
               type: 'text' as const,
-              text: `Your booking is confirmed! Reference: **${data.booking!.id}**. We look forward to welcoming you on ${formData.checkIn}. To cancel, just come back here and say "cancel my booking" with your name and phone number.`,
+              text: `Sorry, I couldn't complete your booking: ${data.error ?? 'Please try again or contact support.'}`,
             },
           ],
         },
       ])
+      return
     }
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `booking-confirm-${Date.now()}`,
+        role: 'assistant' as const,
+        parts: [
+          {
+            type: 'text' as const,
+            text: `Your booking is confirmed! Reference: **${data.booking!.id}**. We look forward to welcoming you on ${formData.checkIn}. To cancel, just come back here and say "cancel my booking" with your name and phone number.`,
+          },
+        ],
+      },
+    ])
   }
 
   return (

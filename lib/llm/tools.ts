@@ -2,7 +2,6 @@ import { tool, zodSchema } from 'ai'
 import { z } from 'zod'
 import { getAvailableRooms } from '../db/rooms'
 import { lookupBooking, cancelBooking } from '../db/bookings'
-import { atomicCreateBooking } from '../db/atomic'
 import { syncBookingToSheet, updateBookingStatusInSheet } from '../sheets/sync'
 import { CheckRoomsSchema, validateRequestSize } from '../validation'
 
@@ -22,15 +21,6 @@ const ShowBookingFormParams = z.object({
   checkIn: z.string().optional(),
   checkOut: z.string().optional(),
   guests: z.number().optional(),
-})
-
-const CreateBookingParams = z.object({
-  guestName: z.string(),
-  phone: z.string(),
-  roomId: z.string(),
-  checkIn: z.string(),
-  checkOut: z.string(),
-  guests: z.number(),
 })
 
 const LookupBookingParams = z.object({
@@ -84,38 +74,6 @@ export const tools = {
       }
 
       return { shown: true }
-    },
-  }),
-
-  createBooking: tool({
-    description: 'Create a confirmed booking after the user submits the booking form.',
-    inputSchema: zodSchema(CreateBookingParams),
-    execute: async (args: unknown) => {
-      if (!validateRequestSize(JSON.stringify(args), 2000)) {
-        return { success: false, error: 'Request too large' }
-      }
-
-      let validated: z.infer<typeof CreateBookingParams>
-      try {
-        validated = CreateBookingParams.parse(args)
-      } catch (err) {
-        return { success: false, error: 'Invalid booking data' }
-      }
-
-      try {
-        const result = await atomicCreateBooking(validated)
-        if (!result.success) {
-          return { success: false, error: result.error }
-        }
-        syncBookingToSheet(result.booking).catch(console.error)
-        return { success: true, bookingId: result.booking.id }
-      } catch (err: any) {
-        const msg = err?.message ?? ''
-        if (msg.includes('no longer available')) {
-          return { success: false, error: 'Room no longer available for selected dates' }
-        }
-        return { success: false, error: 'Failed to create booking' }
-      }
     },
   }),
 

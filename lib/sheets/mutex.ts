@@ -1,21 +1,32 @@
 import { Redis } from '@upstash/redis'
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
+function createRedis() {
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (!url) throw new Error('UPSTASH_REDIS_REST_URL is not configured')
+  if (!token) throw new Error('UPSTASH_REDIS_REST_TOKEN is not configured')
+  return new Redis({ url, token })
+}
+
+let _redis: Redis | null = null
+function getRedis(): Redis {
+  if (!_redis) {
+    _redis = createRedis()
+  }
+  return _redis
+}
 
 const SHEETS_LOCK_KEY = 'resort:google-sheets:lock'
 const SHEETS_LOCK_TTL = 10
 
 export async function acquireSheetsLock(bookingId: string, ttlSeconds: number = SHEETS_LOCK_TTL): Promise<boolean> {
   const lockValue = `${bookingId}:${Date.now()}`
-  const result = await redis.set(SHEETS_LOCK_KEY, lockValue, { nx: true, ex: ttlSeconds })
+  const result = await getRedis().set(SHEETS_LOCK_KEY, lockValue, { nx: true, ex: ttlSeconds })
   return result === 'OK'
 }
 
 export async function releaseSheetsLock(bookingId: string): Promise<void> {
-  await redis.del(SHEETS_LOCK_KEY)
+  await getRedis().del(SHEETS_LOCK_KEY)
 }
 
 export async function withSheetsLock<T>(

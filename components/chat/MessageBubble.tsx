@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Copy, Check, Sparkles } from 'lucide-react'
-import type { UIMessage } from 'ai'
+import type { UIMessage, ToolUIPart } from 'ai'
+import { isToolUIPart, getToolName } from 'ai'
 import { cn } from '@/lib/utils'
 import { GlassCard } from '@/app/components/ui/GlassCard'
 import BookingFormCard from '../booking/BookingFormCard'
@@ -50,23 +51,24 @@ export default function MessageBubble({
 
   const parts = message.parts ?? []
 
-  interface BookingFormArgs {
-    availableRooms: Array<{ id: string; name: string; type: string; capacity: number; pricePerNight: number }>
-    checkIn?: string
-    checkOut?: string
-    guests?: number
-  }
-
-  let bookingFormArgs: BookingFormArgs | null = null
+  let bookingFormArgs:
+    | (ToolUIPart & { toolName: 'showBookingForm' })['input']
+    | null = null
 
   for (const part of parts) {
-    if (
-      part.type === 'tool-invocation' &&
-      (part as { type: string; toolName?: string; state?: string }).toolName === 'showBookingForm' &&
-      (part as { type: string; toolName?: string; state?: string; args?: unknown }).state === 'call'
-    ) {
-      bookingFormArgs = (part as { type: string; toolName?: string; state?: string; args?: unknown }).args as BookingFormArgs
-      break
+    if (isToolUIPart(part) && getToolName(part) === 'showBookingForm') {
+      const input = part.input as
+        | {
+            availableRooms: Array<{ id: string; name: string; type: string; capacity: number; pricePerNight: number }>
+            checkIn?: string
+            checkOut?: string
+            guests?: number
+          }
+        | undefined
+      if (input) {
+        bookingFormArgs = input
+        break
+      }
     }
   }
 

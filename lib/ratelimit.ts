@@ -1,13 +1,24 @@
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
+function createRedis() {
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (!url) throw new Error('UPSTASH_REDIS_REST_URL is not configured')
+  if (!token) throw new Error('UPSTASH_REDIS_REST_TOKEN is not configured')
+  return new Redis({ url, token })
+}
+
+let _redis: Redis | null = null
+function getRedis(): Redis {
+  if (!_redis) {
+    _redis = createRedis()
+  }
+  return _redis
+}
 
 export const ratelimit = new Ratelimit({
-  redis,
+  redis: getRedis(),
   limiter: Ratelimit.slidingWindow(20, '1 m'),
   analytics: true,
   prefix: 'resort-booking',
