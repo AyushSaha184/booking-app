@@ -51,7 +51,7 @@ const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
         {topHighlight && (
           <div
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#c9b99a] to-transparent opacity-80 z-10"
+            className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-accent to-transparent opacity-80 z-10"
           />
         )}
         <div className="relative z-10 w-full h-full">

@@ -80,7 +80,7 @@ const PremiumButton = forwardRef<HTMLButtonElement, PremiumButtonProps>(
           'inline-flex items-center justify-center font-medium transition-all duration-200 ease-out',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
           'disabled:cursor-not-allowed disabled:opacity-60',
-          'min-h-[44px]', // touch target
+          'min-h-11', // touch target
           variantClasses[variant],
           sizeClasses[size],
           className

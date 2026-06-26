@@ -1,4 +1,6 @@
 import { db } from './client'
+import { bookings, rooms } from './schema'
+import { and, eq, lt, gt, not, inArray } from 'drizzle-orm'
 
 export async function getAvailableRooms(checkIn: string, checkOut: string) {
   // Find room IDs that have a confirmed booking overlapping the requested dates

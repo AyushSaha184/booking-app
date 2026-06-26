@@ -51,9 +51,12 @@ export default function MessageBubble({
 
   const parts = message.parts ?? []
 
-  let bookingFormArgs:
-    | (ToolUIPart & { toolName: 'showBookingForm' })['input']
-    | null = null
+  let bookingFormArgs: {
+    availableRooms: Array<{ id: string; name: string; type: string; capacity: number; pricePerNight: number }>
+    checkIn?: string
+    checkOut?: string
+    guests?: number
+  } | null = null
 
   for (const part of parts) {
     if (isToolUIPart(part) && getToolName(part) === 'showBookingForm') {
