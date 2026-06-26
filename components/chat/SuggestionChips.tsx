@@ -2,9 +2,9 @@
 
 import { motion } from 'framer-motion'
 import { staggerContainer, staggerItem } from '@/lib/animations'
-import { GlassCard } from '@/app/components/ui/GlassCard'
 import { FadeIn } from '@/app/components/ui/FadeIn'
 import { Sparkles, Bed, Search, CalendarX, Palmtree } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Suggestion {
   label: string
@@ -122,14 +122,27 @@ export default function SuggestionChips({ suggestions, onSelect }: SuggestionChi
             variants={staggerItem}
             onClick={() => onSelect(s.prompt)}
             role="listitem"
-            className="group active:scale-[0.98] focus-visible:outline-none w-full text-left"
+            whileHover={{ y: -2, borderColor: 'rgba(201, 185, 154, 0.35)' }}
+            whileTap={{ scale: 0.98 }}
+            className={cn(
+              'group relative flex items-center gap-4 p-4 min-h-[72px] h-full text-left w-full overflow-hidden',
+              'bg-surface/80 backdrop-blur-2xl border border-border/80 rounded-xl transition-all duration-300',
+              'hover:shadow-[0_12px_30px_rgba(201,185,154,0.08)]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9b99a]/50 cursor-pointer'
+            )}
           >
-            <GlassCard
-              variant="interactive"
-              className="flex items-center gap-4 p-4 min-h-[72px] h-full border border-border/80 hover:border-[#c9b99a]/35 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
-            >
+            {/* Subtle noise texture overlay */}
+            <div 
+              className="absolute inset-0 pointer-events-none opacity-[0.015] mix-blend-overlay z-0"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+              }}
+            />
+
+            {/* Content wrapped in relative div to be above noise */}
+            <div className="relative z-10 flex items-center gap-4 w-full">
               {/* Icon Container */}
-              <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] border border-border group-hover:border-[#c9b99a]/30 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+              <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] border border-border group-hover:border-[#c9b99a]/35 flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                 {SUGGESTION_ICONS[s.label] ?? <Sparkles className="w-5 h-5 text-[#c9b99a]" />}
               </div>
               
@@ -142,7 +155,7 @@ export default function SuggestionChips({ suggestions, onSelect }: SuggestionChi
                   {SUGGESTION_SUBTITLES[s.label] ?? 'Ask our automated assistant'}
                 </span>
               </div>
-            </GlassCard>
+            </div>
           </motion.button>
         ))}
       </motion.div>

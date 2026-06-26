@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import { Trash2, Hotel } from 'lucide-react'
-import { PremiumButton } from '@/app/components/ui/PremiumButton'
 
 interface ChatHeaderProps {
   onClear: () => void
@@ -14,6 +13,8 @@ interface ChatHeaderProps {
  * Shows resort branding, live connection indicator, and a clear-chat action.
  */
 export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderProps) {
+  const dotColor = isConnected ? '#5ca882' : '#e05c5c'
+
   return (
     <header className="relative flex items-center justify-between px-4 py-3 bg-surface/85 backdrop-blur-lg shrink-0 z-20 border-b border-border/40"
       style={{ paddingTop: 'calc(12px + env(safe-area-inset-top))' }}
@@ -38,28 +39,38 @@ export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderPr
 
       {/* Status + actions */}
       <div className="flex items-center gap-3">
-        {/* Connection dot */}
-        <div className="flex items-center gap-1.5" aria-label={isConnected ? 'Connected' : 'Disconnected'}>
-          <motion.span
-            className={`w-2 h-2 rounded-full ${isConnected ? 'bg-success' : 'bg-danger'}`}
-            animate={isConnected ? { scale: [1, 1.3, 1] } : {}}
-            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-          />
-          <span className="text-xs text-text-tertiary hidden sm:inline">
+        {/* Connection status indicator */}
+        <div className="flex items-center gap-2" aria-label={isConnected ? 'Connected' : 'Disconnected'}>
+          <div className="relative flex items-center justify-center w-2.5 h-2.5">
+            <motion.span
+              className="absolute w-2 h-2 rounded-full opacity-75"
+              style={{ 
+                backgroundColor: dotColor,
+                boxShadow: `0 0 8px ${dotColor}`
+              }}
+              animate={isConnected ? { scale: [1, 1.4, 1] } : {}}
+              transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+            />
+            <span 
+              className="relative w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: dotColor }}
+            />
+          </div>
+          <span className="text-xs text-text-tertiary font-semibold hidden sm:inline">
             {isConnected ? 'Live' : 'Offline'}
           </span>
         </div>
 
-        {/* Clear chat */}
-        <PremiumButton
-          variant="ghost"
-          size="sm"
+        {/* Clear chat button */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.05 }}
           onClick={onClear}
           aria-label="Clear chat history"
-          className="h-8 w-8 p-0 rounded-lg text-text-tertiary hover:text-danger"
+          className="h-9 w-9 rounded-xl text-text-secondary hover:text-danger bg-[#1f1f1f] hover:bg-[#2a2a2a] border border-border/60 hover:border-danger/30 flex items-center justify-center transition-all duration-200 cursor-pointer shadow-sm shrink-0"
         >
           <Trash2 className="h-4 w-4" aria-hidden="true" />
-        </PremiumButton>
+        </motion.button>
       </div>
     </header>
   )
