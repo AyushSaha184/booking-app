@@ -2,11 +2,10 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Copy, Check, Sparkles } from 'lucide-react'
-import type { UIMessage, ToolUIPart } from 'ai'
+import { Copy, Check } from 'lucide-react'
+import type { UIMessage } from 'ai'
 import { isToolUIPart, getToolName } from 'ai'
 import { cn } from '@/lib/utils'
-import { GlassCard } from '@/app/components/ui/GlassCard'
 import BookingFormCard from '../booking/BookingFormCard'
 import type { BookingFormData } from '@/app/types/booking'
 
@@ -26,7 +25,7 @@ function parseMessageContent(text: string) {
   return parts.map((part, idx) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={idx} className="font-bold text-[#c9b99a]">
+        <strong key={idx} className="font-semibold text-[#B93C3C]">
           {part.slice(2, -2)}
         </strong>
       )
@@ -36,10 +35,7 @@ function parseMessageContent(text: string) {
 }
 
 /**
- * Renders a single chat message:
- * - AI messages: GlassCard, left-aligned, fade+slide entrance
- * - User messages: gradient accent bubble, right-aligned
- * - Booking form: rendered inline when AI calls showBookingForm tool
+ * Renders a single chat message in the Luxe Concierge cream & red design style.
  */
 export default function MessageBubble({
   message,
@@ -87,7 +83,7 @@ export default function MessageBubble({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-        className="max-w-full"
+        className="max-w-full my-2"
       >
         <BookingFormCard
           availableRooms={bookingFormArgs.availableRooms}
@@ -115,7 +111,7 @@ export default function MessageBubble({
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // clipboard not available — silently ignore
+      // ignore
     }
   }
 
@@ -124,18 +120,15 @@ export default function MessageBubble({
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-      className={cn('flex gap-3 items-start', isUser ? 'justify-end' : 'justify-start')}
+      className={cn('flex gap-3 items-start my-1.5 max-w-[640px] mx-auto w-full', isUser ? 'justify-end' : 'justify-start')}
     >
       {/* AI Avatar */}
       {!isUser && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.1, type: 'spring', stiffness: 400 }}
-          className="flex-shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#242424] border border-[#c9b99a]/25 grid place-items-center shadow-[0_2px_8px_rgba(201,185,154,0.1)]"
-        >
-          <Sparkles className="w-4 h-4 text-[#c9b99a]" />
-        </motion.div>
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[rgba(185,60,60,0.08)] border border-[rgba(185,60,60,0.25)] flex items-center justify-center mt-0.5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-4 h-4 text-[#B93C3C]">
+            <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+          </svg>
+        </div>
       )}
 
       {/* Message Content */}
@@ -144,49 +137,35 @@ export default function MessageBubble({
         isUser ? 'order-first' : ''
       )}>
         {isUser ? (
-          <motion.div
-            whileHover={{ scale: 1.01 }}
-            className={cn(
-              'px-4 py-2.5 rounded-2xl rounded-br-md',
-              'bg-gradient-to-tr from-[#a8956e] via-[#c9b99a] to-[#d6c7ab]',
-              'text-[#0f0f0f] font-semibold text-sm leading-relaxed',
-              'break-words',
-              'shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.2)]'
-            )}
-          >
+          <div className="px-4 py-2.5 rounded-2xl rounded-tr-sm bg-gradient-to-r from-[#B93C3C] to-[#9E2B2B] text-white font-medium text-sm leading-relaxed shadow-sm break-words">
             {content}
-          </motion.div>
+          </div>
         ) : (
           <div className="relative">
-            <div className={cn(
-              'px-4 py-3 rounded-2xl rounded-bl-md',
-              'bg-surface-elevated/80 backdrop-blur-xl',
-              'border border-border/80',
-              'shadow-[0_4px_24px_rgba(0,0,0,0.2)]'
-            )}>
-              <div className="text-sm leading-relaxed text-text-primary break-words whitespace-pre-wrap">
+            <div className="px-4 py-3 rounded-2xl rounded-tl-sm bg-[rgba(255,255,255,0.75)] backdrop-blur-md border border-[rgba(185,60,60,0.15)] shadow-sm">
+              <div className="text-sm leading-relaxed text-[#2A1A1A] break-words whitespace-pre-wrap font-normal">
                 {parseMessageContent(content)}
               </div>
             </div>
 
-            {/* Copy button — fixed alignment: grid centering */}
+            {/* Copy button */}
             <button
               onClick={handleCopy}
               aria-label="Copy message"
               className={cn(
                 'absolute -top-2 -right-2',
-                'w-7 h-7 rounded-lg bg-surface-elevated border border-border',
+                'w-6 h-6 rounded-md bg-white border border-[rgba(185,60,60,0.2)]',
                 'grid place-items-center',
-                'text-text-tertiary hover:text-text-primary',
+                'text-[rgba(150,60,60,0.6)] hover:text-[#B93C3C]',
                 'transition-all duration-200',
                 'opacity-0 group-hover:opacity-100 focus:opacity-100',
-                'shadow-sm z-10'
+                'shadow-xs z-10 cursor-pointer'
               )}
             >
               {copied ? (
-                <Check className="w-3.5 h-3.5 text-success" />
+                <Check className="w-3 h-3 text-emerald-600" />
               ) : (
-                <Copy className="w-3.5 h-3.5" />
+                <Copy className="w-3 h-3" />
               )}
             </button>
           </div>
@@ -195,14 +174,9 @@ export default function MessageBubble({
 
       {/* User Avatar */}
       {isUser && (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.1, type: 'spring', stiffness: 400 }}
-          className="flex-shrink-0 w-8 h-8 rounded-xl bg-surface-elevated border border-border grid place-items-center"
-        >
-          <span className="text-xs text-text-secondary font-bold">U</span>
-        </motion.div>
+        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[rgba(185,60,60,0.1)] border border-[rgba(185,60,60,0.2)] flex items-center justify-center text-xs font-semibold text-[#B93C3C] mt-0.5">
+          U
+        </div>
       )}
     </motion.div>
   )

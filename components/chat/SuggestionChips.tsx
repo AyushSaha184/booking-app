@@ -1,24 +1,42 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { staggerContainer, staggerItem } from '@/lib/animations'
-import { FadeIn } from '@/app/components/ui/FadeIn'
-import { Sparkles, Bed, Search, CalendarX, Palmtree } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface Suggestion {
   label: string
   prompt: string
 }
 
-const SUGGESTION_ICONS: Record<string, React.ReactNode> = {
-  'Book a room': <Bed className="w-5 h-5 text-[#c9b99a]" />,
-  'Show available rooms': <Search className="w-5 h-5 text-[#c9b99a]" />,
-  'Cancel my booking': <CalendarX className="w-5 h-5 text-[#c9b99a]" />,
-  'Resort amenities': <Palmtree className="w-5 h-5 text-[#c9b99a]" />,
+const CARD_ICONS: Record<string, React.ReactNode> = {
+  'Book a room': (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="w-[15px] h-[15px] text-[#B93C3C]">
+      <rect x="1" y="6" width="14" height="9" rx="1.5"/>
+      <path d="M4 6V4.5a4 4 0 018 0V6"/>
+      <path d="M6 10h4"/>
+    </svg>
+  ),
+  'Show available rooms': (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="w-[15px] h-[15px] text-[#B93C3C]">
+      <circle cx="7" cy="7" r="5"/>
+      <path d="M12 12l2.5 2.5"/>
+    </svg>
+  ),
+  'Cancel my booking': (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="w-[15px] h-[15px] text-[#B93C3C]">
+      <rect x="2" y="2" width="12" height="12" rx="1.5"/>
+      <path d="M5 7h6M5 10h4M5 4h6"/>
+    </svg>
+  ),
+  'Resort amenities': (
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="w-[15px] h-[15px] text-[#B93C3C]">
+      <circle cx="8" cy="6" r="4"/>
+      <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/>
+      <path d="M11 9.5l1 1.5M13 8l1.5.5"/>
+    </svg>
+  ),
 }
 
-const SUGGESTION_SUBTITLES: Record<string, string> = {
+const CARD_SUBTITLES: Record<string, string> = {
   'Book a room': 'Reserve your perfect suite',
   'Show available rooms': 'Browse luxury options',
   'Cancel my booking': 'Modify your current stay',
@@ -31,136 +49,91 @@ interface SuggestionChipsProps {
 }
 
 /**
- * Empty-state screen shown before first message.
- * Has animated greeting, resort icon, and suggestion chip grid.
+ * Empty-state landing screen matching luxe_concierge_cream_red.html (.lc-content).
  */
 export default function SuggestionChips({ suggestions, onSelect }: SuggestionChipsProps) {
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-full px-4 py-8 sm:px-6 sm:py-10 gap-8 overflow-hidden">
-      
-      {/* Animated Floating Particles */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <motion.div
-          animate={{
-            y: [0, -25, 0],
-            x: [0, 15, 0],
-            opacity: [0.2, 0.5, 0.2]
-          }}
-          transition={{
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-[#c9b99a]/30 blur-[1px]"
-        />
-        <motion.div
-          animate={{
-            y: [0, -35, 0],
-            x: [0, -20, 0],
-            opacity: [0.1, 0.4, 0.1]
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1
-          }}
-          className="absolute top-1/3 right-1/4 w-3.5 h-3.5 rounded-full bg-[#c9b99a]/20 blur-[2px]"
-        />
-        <motion.div
-          animate={{
-            y: [0, -20, 0],
-            x: [0, 10, 0],
-            opacity: [0.15, 0.35, 0.15]
-          }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 2
-          }}
-          className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 rounded-full bg-[#c9b99a]/25 blur-[0.5px]"
-        />
-      </div>
-
-      {/* Greeting Header */}
-      <FadeIn direction="down" className="text-center z-10 w-full max-w-md">
+    <div className="flex flex-col items-center justify-center min-h-full px-6 py-12 relative z-1">
+      <div className="flex flex-col items-center w-full max-w-[540px]">
+        
+        {/* Luxury Star Badge */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-          className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-[#1a1a1a] to-[#242424] border border-[#c9b99a]/20 flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(201,185,154,0.15)] shimmer-border"
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="relative w-[56px] h-[56px] rounded-full bg-[rgba(185,60,60,0.08)] border border-[rgba(185,60,60,0.25)] flex items-center justify-center mb-6"
         >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-[#c9b99a]/5 to-[#c9b99a]/20 pointer-events-none"
-          />
-          <Sparkles className="w-8 h-8 text-[#c9b99a] animate-pulse" />
+          <div className="absolute -inset-[6px] rounded-full border border-[rgba(185,60,60,0.1)] pointer-events-none" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-[22px] h-[22px] text-[#B93C3C]">
+            <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
+            <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/>
+            <path d="M5 15l.6 1.4L7 17l-1.4.6L5 19l-.6-1.4L3 17l1.4-.6L5 15z"/>
+          </svg>
         </motion.div>
 
-        <h1 className="text-3xl font-extrabold tracking-tight mb-2">
-          <span className="text-gradient-gold">Your Luxury Stay Awaits</span>
-        </h1>
-        <p className="text-sm text-text-secondary max-w-sm mx-auto leading-relaxed">
+        {/* Vertical Rule Line */}
+        <div className="w-[1px] h-[32px] bg-gradient-to-b from-transparent via-[rgba(185,60,60,0.4)] to-transparent mb-5" />
+
+        {/* Headline */}
+        <motion.h1
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="font-serif text-[32px] font-medium text-[#2A1A1A] text-center tracking-[-0.01em] leading-[1.2] mb-3"
+        >
+          Your Luxury Stay <em className="italic text-[#B93C3C]">Awaits</em>
+        </motion.h1>
+
+        {/* Subtitle */}
+        <motion.p
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.15 }}
+          className="text-[13px] text-[rgba(80,40,40,0.55)] text-center leading-[1.7] max-w-[360px] font-light tracking-[0.01em] mb-9"
+        >
           Welcome to our elite concierge. I can assist you with seamless room bookings, availability updates, and resort experiences.
-        </p>
-      </FadeIn>
+        </motion.p>
 
-      {/* Chip grid */}
-      <motion.div
-        variants={staggerContainer}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full max-w-lg z-10"
-        role="list"
-        aria-label="Suggested actions"
-      >
-        {suggestions.map((s) => (
-          <motion.button
-            key={s.prompt}
-            variants={staggerItem}
-            onClick={() => onSelect(s.prompt)}
-            role="listitem"
-            whileHover={{ y: -2, borderColor: 'rgba(201, 185, 154, 0.35)' }}
-            whileTap={{ scale: 0.98 }}
-            className={cn(
-              'group relative flex items-center gap-4 p-4 min-h-[72px] h-full text-left w-full overflow-hidden',
-              'bg-surface/80 backdrop-blur-2xl border border-border/80 rounded-xl transition-all duration-300',
-              'hover:shadow-[0_12px_30px_rgba(201,185,154,0.08)]',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9b99a]/50 cursor-pointer'
-            )}
-          >
-            {/* Subtle noise texture overlay */}
-            <div 
-              className="absolute inset-0 pointer-events-none opacity-[0.015] mix-blend-overlay z-0"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-              }}
-            />
+        {/* Horizontal Divider */}
+        <div className="w-full max-w-[400px] h-[0.5px] bg-gradient-to-r from-transparent via-[rgba(185,60,60,0.2)] to-transparent mb-8" />
 
-            {/* Content wrapped in relative div to be above noise */}
-             <div className="relative z-10 flex items-center gap-4 w-full">
-               {/* Icon Container — fixed: grid centering */}
-               <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] border border-border grid place-items-center transition-all duration-300 group-hover:scale-110 group-hover:border-[#c9b99a]/35">
-                 <span className="grid place-items-center text-[#c9b99a]">
-                   {SUGGESTION_ICONS[s.label] ?? <Sparkles className="w-5 h-5" />}
-                 </span>
-               </div>
-              
-              {/* Text content */}
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm font-semibold text-text-primary group-hover:text-[#c9b99a] transition-colors duration-200">
-                  {s.label}
-                </span>
-                <span className="text-xs text-text-secondary mt-0.5 line-clamp-1">
-                  {SUGGESTION_SUBTITLES[s.label] ?? 'Ask our automated assistant'}
-                </span>
+        {/* 2-Column Action Cards Grid */}
+        <motion.div
+          initial={{ y: 15, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full max-w-[480px]"
+          role="list"
+        >
+          {suggestions.map((s) => (
+            <button
+              key={s.prompt}
+              onClick={() => onSelect(s.prompt)}
+              role="listitem"
+              className="group relative flex items-center gap-3 p-[14px_16px] bg-[rgba(255,255,255,0.6)] border border-[rgba(185,60,60,0.12)] rounded-[10px] text-left w-full cursor-pointer transition-all duration-200 hover:bg-[rgba(185,60,60,0.05)] hover:border-[rgba(185,60,60,0.25)] active:scale-[0.98] overflow-hidden"
+            >
+              {/* Hover Red Accent Line on Left */}
+              <span className="absolute left-0 top-0 bottom-0 w-[2px] bg-transparent transition-colors duration-200 group-hover:bg-[rgba(185,60,60,0.65)]" />
+
+              {/* Icon Container */}
+              <div className="w-8 h-8 rounded-[7px] bg-[rgba(185,60,60,0.07)] border border-[rgba(185,60,60,0.18)] flex items-center justify-center shrink-0">
+                {CARD_ICONS[s.label] ?? CARD_ICONS['Book a room']}
               </div>
-            </div>
-          </motion.button>
-        ))}
-      </motion.div>
+
+              {/* Text Content */}
+              <div className="flex-1 min-w-0">
+                <div className="text-[13px] font-medium text-[#2A1A1A] tracking-[0.01em] truncate">
+                  {s.label}
+                </div>
+                <div className="text-[11px] text-[rgba(150,60,60,0.5)] mt-0.5 font-light truncate">
+                  {CARD_SUBTITLES[s.label] ?? 'Explore options'}
+                </div>
+              </div>
+            </button>
+          ))}
+        </motion.div>
+
+      </div>
     </div>
   )
 }

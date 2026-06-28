@@ -8,13 +8,9 @@ interface AnimatedInputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string
   leftIcon?: ReactNode
   rightIcon?: ReactNode
-  /** Extra wrapper class */
   wrapperClassName?: string
 }
 
-/**
- * Styled input with icon slots, accent focus ring, and error state with shake animation.
- */
 const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
   ({ label, error, leftIcon, rightIcon, className, wrapperClassName, id, ...props }, ref) => {
     const inputId = id ?? `input-${label?.toLowerCase().replace(/\s+/g, '-')}`
@@ -24,7 +20,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-xs font-medium text-text-secondary tracking-wide uppercase"
+            className="text-[11px] font-medium text-[rgba(80,40,40,0.65)] tracking-wide uppercase"
           >
             {label}
           </label>
@@ -32,14 +28,14 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
         <div
           className={cn(
             'relative flex items-center',
-            'bg-input border rounded-lg transition-all duration-200',
+            'bg-[rgba(255,255,255,0.8)] border rounded-lg transition-all duration-200',
             error
-              ? 'border-danger/70 animate-shake'
-              : 'border-border hover:border-border/80 focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(201,185,154,0.15)]'
+              ? 'border-[#B93C3C] animate-shake'
+              : 'border-[rgba(185,60,60,0.2)] hover:border-[rgba(185,60,60,0.35)] focus-within:border-[#B93C3C] focus-within:shadow-[0_0_0_3px_rgba(185,60,60,0.1)]'
           )}
         >
           {leftIcon && (
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none grid place-items-center">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgba(150,60,60,0.55)] pointer-events-none grid place-items-center">
               {leftIcon}
             </span>
           )}
@@ -47,10 +43,10 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full bg-transparent outline-none text-text-primary placeholder:text-text-tertiary',
-              'text-base py-3',
-              leftIcon ? 'pl-10' : 'pl-3',
-              rightIcon ? 'pr-10' : 'pr-3',
+              'w-full bg-transparent outline-none text-[#2A1A1A] placeholder:text-[rgba(150,60,60,0.45)]',
+              'text-sm py-2.5',
+              leftIcon ? 'pl-9' : 'pl-3',
+              rightIcon ? 'pr-9' : 'pr-3',
               className
             )}
             aria-invalid={error ? 'true' : 'false'}
@@ -58,7 +54,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             {...props}
           />
           {rightIcon && (
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none grid place-items-center">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgba(150,60,60,0.55)] pointer-events-none grid place-items-center">
               {rightIcon}
             </span>
           )}
@@ -67,7 +63,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
           <p
             id={`${inputId}-error`}
             role="alert"
-            className="text-xs text-danger mt-0.5"
+            className="text-xs text-[#B93C3C] mt-0.5"
           >
             {error}
           </p>

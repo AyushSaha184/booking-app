@@ -26,7 +26,7 @@ interface BookingFormCardProps {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-semibold uppercase tracking-widest text-text-tertiary mb-3">
+    <p className="text-[10px] font-semibold uppercase tracking-widest text-[rgba(150,60,60,0.6)] mb-2.5">
       {children}
     </p>
   )
@@ -44,12 +44,12 @@ function PriceLine({
   dimmed?: boolean
 }) {
   return (
-    <div className="flex justify-between items-center text-sm">
-      <span className={dimmed ? 'text-text-tertiary font-medium' : 'text-text-secondary font-medium'}>{label}</span>
+    <div className="flex justify-between items-center text-xs sm:text-sm">
+      <span className={dimmed ? 'text-[rgba(150,60,60,0.6)] font-medium' : 'text-[#2A1A1A]/80 font-medium'}>{label}</span>
       <span
         className={cn(
           'tabular-nums',
-          highlight ? 'text-accent font-bold text-lg tracking-wide' : dimmed ? 'text-text-tertiary font-normal' : 'text-text-primary font-medium'
+          highlight ? 'text-[#B93C3C] font-bold text-base tracking-wide' : dimmed ? 'text-[rgba(150,60,60,0.6)] font-normal' : 'text-[#2A1A1A] font-medium'
         )}
       >
         {value}
@@ -60,10 +60,10 @@ function PriceLine({
 
 function getRoomColorClass(roomType: string) {
   const type = roomType.toLowerCase()
-  if (type.includes('suite')) return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
-  if (type.includes('deluxe')) return 'bg-accent/15 text-accent border-accent/20'
-  if (type.includes('penthouse') || type.includes('presidential')) return 'bg-purple-500/10 text-purple-400 border-purple-500/25'
-  return 'bg-blue-500/10 text-blue-400 border-blue-500/25'
+  if (type.includes('suite')) return 'bg-emerald-500/10 text-emerald-700 border-emerald-500/25'
+  if (type.includes('deluxe')) return 'bg-[#B93C3C]/10 text-[#B93C3C] border-[#B93C3C]/20'
+  if (type.includes('penthouse') || type.includes('presidential')) return 'bg-purple-500/10 text-purple-700 border-purple-500/25'
+  return 'bg-amber-500/10 text-amber-800 border-amber-500/25'
 }
 
 // ---------- Main component ----------
@@ -150,14 +150,14 @@ export default function BookingFormCard({
         variants={bounceIn}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-4 py-8 px-4"
+        className="flex flex-col items-center gap-4 py-8 px-4 bg-[rgba(255,255,255,0.75)] backdrop-blur-md border border-[rgba(185,60,60,0.2)] rounded-2xl max-w-[540px] mx-auto"
       >
         <div className="relative w-16 h-16">
           <motion.div
             variants={bounceIn}
             initial="hidden"
             animate="visible"
-            className="w-16 h-16 rounded-full bg-success/15 border border-success/30 flex items-center justify-center"
+            className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-300 flex items-center justify-center"
           >
             <svg viewBox="0 0 40 40" className="w-8 h-8" aria-hidden="true">
               <motion.path
@@ -165,7 +165,7 @@ export default function BookingFormCard({
                 initial="hidden"
                 animate="visible"
                 d="M8 20 L16 28 L32 12"
-                stroke="#5ca882"
+                stroke="#059669"
                 strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -175,9 +175,9 @@ export default function BookingFormCard({
           </motion.div>
         </div>
         <div className="text-center">
-          <p className="text-text-primary font-semibold text-base">Booking confirmed!</p>
-          <p className="text-text-secondary text-sm mt-1">
-            You'll receive confirmation details shortly.
+          <p className="text-[#2A1A1A] font-semibold text-base">Booking confirmed!</p>
+          <p className="text-[rgba(80,40,40,0.65)] text-sm mt-1">
+            We look forward to hosting your luxurious stay.
           </p>
         </div>
       </motion.div>
@@ -192,24 +192,24 @@ export default function BookingFormCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="overflow-hidden mb-2"
+      className="overflow-hidden mb-4 max-w-[540px] mx-auto border-[rgba(185,60,60,0.2)] bg-[rgba(255,255,255,0.85)]"
     >
-      {/* Header with premium gradient & gold stripe */}
-      <div className="relative px-4 py-3.5 bg-linear-to-r from-accent/10 via-accent/5 to-transparent border-b border-border/60 flex items-center justify-between">
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-[#a8956e] via-accent to-[#d6c7ab]" />
-        <span className="text-sm font-bold text-text-primary tracking-wide">Booking details</span>
-        <span className="text-xs px-2.5 py-0.5 rounded-full bg-success/10 text-success font-semibold border border-success/20">
+      {/* Header with crimson line */}
+      <div className="relative px-4 py-3.5 bg-[rgba(185,60,60,0.04)] border-b border-[rgba(185,60,60,0.15)] flex items-center justify-between">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#B93C3C] to-transparent" />
+        <span className="text-sm font-semibold text-[#2A1A1A] tracking-wide">Reservation Details</span>
+        <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#B93C3C]/10 text-[#B93C3C] font-medium border border-[#B93C3C]/20">
           {availableRooms.length} room{availableRooms.length !== 1 ? 's' : ''} available
         </span>
       </div>
 
       <form onSubmit={handleSubmit(onFormSubmit)} noValidate>
-        <div className="p-4 flex flex-col gap-5">
+        <div className="p-4 flex flex-col gap-4">
 
           {/* ── Guest Details ── */}
           <div>
             <SectionLabel>Guest details</SectionLabel>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <AnimatedInput
                 label="Full name"
                 placeholder="Your name"
@@ -233,7 +233,7 @@ export default function BookingFormCard({
 
           {/* ── Room Selection ── */}
           <div>
-            <SectionLabel>Room</SectionLabel>
+            <SectionLabel>Room Selection</SectionLabel>
             <div className="flex flex-col gap-2">
               {availableRooms.map((room) => {
                 const isSelected = watchedValues.roomId === room.id
@@ -241,11 +241,11 @@ export default function BookingFormCard({
                   <label
                     key={room.id}
                     className={cn(
-                      'flex items-center gap-3.5 p-3.5 rounded-xl border cursor-pointer',
-                      'transition-all duration-300',
+                      'flex items-center gap-3.5 p-3 rounded-xl border cursor-pointer',
+                      'transition-all duration-200',
                       isSelected
-                        ? 'border-accent/50 bg-accent/10 shadow-[0_4px_20px_rgba(201,185,154,0.12)]'
-                        : 'border-border/80 hover:border-accent/30 bg-surface/40 hover:bg-surface/60'
+                        ? 'border-[#B93C3C] bg-[#B93C3C]/5 shadow-xs'
+                        : 'border-[rgba(185,60,60,0.15)] hover:border-[rgba(185,60,60,0.3)] bg-white/50 hover:bg-white/80'
                     )}
                   >
                     <input
@@ -254,36 +254,36 @@ export default function BookingFormCard({
                       className="sr-only"
                       {...register('roomId')}
                     />
-                     <div
-                       className={cn(
-                         'w-5 h-5 rounded-full border-2 grid place-items-center shrink-0 transition-all duration-200',
-                         isSelected ? 'border-accent' : 'border-border'
-                       )}
-                     >
-                       {isSelected && (
-                         <div className="w-2.5 h-2.5 rounded-full bg-accent" />
-                       )}
-                     </div>
-                     <div className="flex-1 min-w-0">
-                       <p className="text-sm font-bold text-text-primary truncate leading-snug">{room.name}</p>
-                       <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                         <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider', getRoomColorClass(room.type))}>
-                           {room.type}
-                         </span>
-                         <span className="text-xs text-text-secondary font-medium">
-                           · Up to {room.capacity} guests
-                         </span>
-                       </div>
-                     </div>
-                     <p className="text-sm font-extrabold text-accent shrink-0 tabular-nums text-right">
-                       ₹{room.pricePerNight.toLocaleString('en-IN')}
-                       <span className="text-xs font-normal text-text-tertiary">/night</span>
-                     </p>
+                    <div
+                      className={cn(
+                        'w-4 h-4 rounded-full border grid place-items-center shrink-0 transition-all duration-200',
+                        isSelected ? 'border-[#B93C3C]' : 'border-[rgba(185,60,60,0.3)]'
+                      )}
+                    >
+                      {isSelected && (
+                        <div className="w-2 h-2 rounded-full bg-[#B93C3C]" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs sm:text-sm font-semibold text-[#2A1A1A] truncate">{room.name}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider', getRoomColorClass(room.type))}>
+                          {room.type}
+                        </span>
+                        <span className="text-xs text-[rgba(150,60,60,0.6)] font-normal">
+                          · Up to {room.capacity} guests
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs sm:text-sm font-bold text-[#B93C3C] shrink-0 tabular-nums text-right">
+                      ₹{room.pricePerNight.toLocaleString('en-IN')}
+                      <span className="text-[10px] font-normal text-[rgba(150,60,60,0.6)]">/night</span>
+                    </p>
                   </label>
                 )
               })}
               {errors.roomId && (
-                <p className="text-xs text-danger">{errors.roomId.message}</p>
+                <p className="text-xs text-[#B93C3C]">{errors.roomId.message}</p>
               )}
             </div>
           </div>
@@ -291,7 +291,7 @@ export default function BookingFormCard({
           {/* ── Stay Details ── */}
           <div>
             <SectionLabel>Stay details</SectionLabel>
-            <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
               <AnimatedInput
                 label="Check-in"
                 type="date"
@@ -310,11 +310,10 @@ export default function BookingFormCard({
               />
             </div>
 
-            {/* Guests stepper — controlled via setValue, field registered separately */}
+            {/* Guests stepper */}
             <div className="flex flex-col gap-1.5">
-              {/* Register guests field so RHF tracks it */}
               <input type="hidden" {...register('guests', { valueAsNumber: true })} />
-              <p className="text-xs font-medium text-text-secondary tracking-wide uppercase">Guests</p>
+              <p className="text-[11px] font-medium text-[rgba(80,40,40,0.65)] tracking-wide uppercase">Guests</p>
               <div className="flex items-center gap-3">
                 <motion.button
                   type="button"
@@ -324,11 +323,11 @@ export default function BookingFormCard({
                     if (curr > 1) setValue('guests', curr - 1)
                   }}
                   aria-label="Decrease guests"
-                  className="w-11 h-11 rounded-xl bg-surface-elevated border border-border grid place-items-center text-text-primary hover:border-accent/40 transition-colors"
+                  className="w-9 h-9 rounded-lg bg-white border border-[rgba(185,60,60,0.2)] grid place-items-center text-[#2A1A1A] hover:border-[#B93C3C] transition-colors cursor-pointer"
                 >
-                  <span className="block leading-none text-lg">−</span>
+                  <span className="block leading-none text-base">−</span>
                 </motion.button>
-                <span className="text-base font-semibold text-text-primary min-w-[2ch] text-center grid place-items-center">
+                <span className="text-sm font-semibold text-[#2A1A1A] min-w-[2ch] text-center grid place-items-center">
                   {watchedValues.guests}
                 </span>
                 <motion.button
@@ -340,16 +339,16 @@ export default function BookingFormCard({
                     if (curr < max) setValue('guests', curr + 1)
                   }}
                   aria-label="Increase guests"
-                  className="w-11 h-11 rounded-xl bg-surface-elevated border border-border grid place-items-center text-text-primary hover:border-accent/40 transition-colors"
+                  className="w-9 h-9 rounded-lg bg-white border border-[rgba(185,60,60,0.2)] grid place-items-center text-[#2A1A1A] hover:border-[#B93C3C] transition-colors cursor-pointer"
                 >
-                  <span className="block leading-none text-lg">+</span>
+                  <span className="block leading-none text-base">+</span>
                 </motion.button>
-                <span className="text-xs text-text-tertiary ml-1 flex items-center gap-1">
+                <span className="text-xs text-[rgba(150,60,60,0.6)] ml-1 flex items-center gap-1">
                   <Users className="w-3.5 h-3.5" aria-hidden="true" />
                   Max {priceSummary.room?.capacity ?? 10}
                 </span>
                 {errors.guests && (
-                  <p className="text-xs text-danger">{errors.guests.message}</p>
+                  <p className="text-xs text-[#B93C3C]">{errors.guests.message}</p>
                 )}
               </div>
             </div>
@@ -366,8 +365,7 @@ export default function BookingFormCard({
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="relative overflow-hidden bg-surface/50 backdrop-blur-md border border-accent/20 rounded-xl p-4 flex flex-col gap-2.5 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
-                  <div className="absolute inset-0 bg-linear-to-b from-accent/5 to-transparent pointer-events-none" />
+                <div className="relative overflow-hidden bg-white/60 backdrop-blur-md border border-[rgba(185,60,60,0.15)] rounded-xl p-3.5 flex flex-col gap-2 shadow-xs">
                   <SectionLabel>Price summary</SectionLabel>
                   <PriceLine
                     label={`${priceSummary.nights} night${priceSummary.nights !== 1 ? 's' : ''} × ₹${priceSummary.room.pricePerNight.toLocaleString('en-IN')}`}
@@ -378,7 +376,7 @@ export default function BookingFormCard({
                     value={`₹${priceSummary.tax.toLocaleString('en-IN')}`}
                     dimmed
                   />
-                  <div className="h-px bg-border/60 my-1" aria-hidden="true" />
+                  <div className="h-px bg-[rgba(185,60,60,0.15)] my-0.5" aria-hidden="true" />
                   <PriceLine
                     label="Total Amount"
                     value={`₹${priceSummary.total.toLocaleString('en-IN')}`}
@@ -391,7 +389,7 @@ export default function BookingFormCard({
 
           {/* ── Error ── */}
           {submitError && (
-            <p role="alert" className="text-sm text-danger">
+            <p role="alert" className="text-xs text-[#B93C3C]">
               {submitError}
             </p>
           )}
@@ -402,7 +400,7 @@ export default function BookingFormCard({
             variant="primary"
             size="lg"
             isLoading={isSubmitting}
-            className="w-full"
+            className="w-full mt-1"
           >
             {isSubmitting ? 'Confirming…' : 'Confirm booking'}
           </PremiumButton>

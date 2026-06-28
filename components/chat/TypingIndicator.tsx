@@ -1,10 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
-import { GlassCard } from '@/app/components/ui/GlassCard'
 
-/** Three bouncing dots typing indicator — glass-card style */
+/** Three bouncing dots typing indicator — luxury cream style */
 export default function TypingIndicator() {
   return (
     <motion.div
@@ -16,12 +14,12 @@ export default function TypingIndicator() {
       aria-label="Assistant is typing"
       role="status"
     >
-      <div className="bg-surface-elevated/80 backdrop-blur-xl border border-border/80 rounded-2xl rounded-bl-md px-4 py-3 shadow-[0_4px_24px_rgba(0,0,0,0.2)]">
+      <div className="bg-[rgba(255,255,255,0.75)] backdrop-blur-md border border-[rgba(185,60,60,0.15)] rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
         <div className="flex gap-1.5 items-center h-5">
           {[0, 1, 2].map((i) => (
             <motion.span
               key={i}
-              className="w-1.5 h-1.5 rounded-full bg-text-tertiary block"
+              className="w-1.5 h-1.5 rounded-full bg-[#B93C3C] block"
               animate={{
                 height: [6, 16, 6],
                 opacity: [0.4, 1, 0.4],

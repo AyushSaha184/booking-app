@@ -12,46 +12,36 @@ interface PremiumButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
   variant?: PremiumButtonVariant
   size?: PremiumButtonSize
   isLoading?: boolean
-  /** Icon rendered before label text */
   leftIcon?: React.ReactNode
-  /** Icon rendered after label text */
   rightIcon?: React.ReactNode
   children: React.ReactNode
 }
 
 const variantClasses: Record<PremiumButtonVariant, string> = {
   primary:
-    'bg-gradient-to-r from-[#c9b99a] via-[#f5efe6] to-[#b8a488] bg-[length:200%_auto] bg-left text-[#0f0f0f] font-bold ' +
-    'hover:bg-right hover:shadow-[0_0_22px_rgba(201,185,154,0.45)] ' +
-    'disabled:from-surface-elevated disabled:to-surface-elevated disabled:text-text-tertiary disabled:shadow-none transition-all duration-500',
+    'bg-gradient-to-r from-[#B93C3C] to-[#9E2B2B] text-white font-medium shadow-sm ' +
+    'hover:bg-[#a02f2f] hover:shadow-[0_4px_16px_rgba(185,60,60,0.3)] ' +
+    'disabled:bg-[rgba(185,60,60,0.2)] disabled:text-[rgba(150,60,60,0.4)] disabled:shadow-none transition-all duration-200',
   secondary:
-    'bg-transparent border border-accent/40 text-accent ' +
-    'hover:bg-accent/10 hover:border-accent/70 hover:shadow-[0_0_16px_rgba(201,185,154,0.2)] ' +
-    'disabled:border-border disabled:text-text-tertiary',
+    'bg-transparent border border-[#B93C3C]/40 text-[#B93C3C] ' +
+    'hover:bg-[#B93C3C]/10 hover:border-[#B93C3C]/70 ' +
+    'disabled:border-gray-300 disabled:text-gray-400',
   ghost:
-    'bg-transparent text-text-secondary ' +
-    'hover:bg-surface-elevated hover:text-text-primary ' +
-    'disabled:text-text-tertiary',
+    'bg-transparent text-[rgba(80,40,40,0.7)] ' +
+    'hover:bg-[rgba(185,60,60,0.08)] hover:text-[#2A1A1A] ' +
+    'disabled:text-gray-400',
   danger:
-    'bg-transparent border border-danger/40 text-danger ' +
-    'hover:bg-danger/10 hover:border-danger/70 ' +
-    'disabled:border-border disabled:text-text-tertiary',
+    'bg-transparent border border-[#B93C3C]/40 text-[#B93C3C] ' +
+    'hover:bg-[#B93C3C]/10 hover:border-[#B93C3C]/70 ' +
+    'disabled:border-gray-300 disabled:text-gray-400',
 }
 
 const sizeClasses: Record<PremiumButtonSize, string> = {
-  sm: 'h-9 px-3 text-sm gap-1.5 rounded-lg',
-  md: 'h-11 px-4 text-sm gap-2 rounded-xl',
-  lg: 'h-13 px-6 text-base gap-2.5 rounded-xl',
+  sm: 'h-8 px-3 text-xs gap-1.5 rounded-lg',
+  md: 'h-10 px-4 text-sm gap-2 rounded-xl',
+  lg: 'h-12 px-6 text-base gap-2.5 rounded-xl',
 }
 
-/**
- * Premium button with gradient, glow effects, loading state and press animation.
- *
- * @example
- * <PremiumButton variant="primary" isLoading={submitting}>
- *   Confirm booking
- * </PremiumButton>
- */
 const PremiumButton = forwardRef<HTMLButtonElement, PremiumButtonProps>(
   (
     {
@@ -77,10 +67,10 @@ const PremiumButton = forwardRef<HTMLButtonElement, PremiumButtonProps>(
         whileHover={isDisabled ? {} : { scale: 1.01 }}
         transition={{ type: 'spring', stiffness: 400, damping: 25 }}
         className={cn(
-          'inline-flex items-center justify-center font-medium transition-all duration-200 ease-out',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+          'inline-flex items-center justify-center font-medium transition-all duration-200 ease-out cursor-pointer',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B93C3C]/50',
           'disabled:cursor-not-allowed disabled:opacity-60',
-          'min-h-11', // touch target
+          'min-h-10',
           variantClasses[variant],
           sizeClasses[size],
           className
