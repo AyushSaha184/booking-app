@@ -39,7 +39,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
           )}
         >
           {leftIcon && (
-            <span className="absolute left-3 text-text-tertiary pointer-events-none flex items-center">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none grid place-items-center">
               {leftIcon}
             </span>
           )}
@@ -48,7 +48,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             id={inputId}
             className={cn(
               'w-full bg-transparent outline-none text-text-primary placeholder:text-text-tertiary',
-              'text-base py-3',   // font-size >= 16px prevents iOS zoom
+              'text-base py-3',
               leftIcon ? 'pl-10' : 'pl-3',
               rightIcon ? 'pr-10' : 'pr-3',
               className
@@ -58,7 +58,7 @@ const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             {...props}
           />
           {rightIcon && (
-            <span className="absolute right-3 text-text-tertiary pointer-events-none flex items-center">
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none grid place-items-center">
               {rightIcon}
             </span>
           )}

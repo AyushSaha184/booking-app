@@ -254,31 +254,31 @@ export default function BookingFormCard({
                       className="sr-only"
                       {...register('roomId')}
                     />
-                    <div
-                      className={cn(
-                        'w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-200',
-                        isSelected ? 'border-accent' : 'border-border'
-                      )}
-                    >
-                      {isSelected && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-accent" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-text-primary truncate leading-snug">{room.name}</p>
-                      <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider', getRoomColorClass(room.type))}>
-                          {room.type}
-                        </span>
-                        <span className="text-xs text-text-secondary font-medium">
-                          · Up to {room.capacity} guests
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-sm font-extrabold text-accent shrink-0 tabular-nums">
-                      ₹{room.pricePerNight.toLocaleString('en-IN')}
-                      <span className="text-xs font-normal text-text-tertiary">/night</span>
-                    </p>
+                     <div
+                       className={cn(
+                         'w-5 h-5 rounded-full border-2 grid place-items-center shrink-0 transition-all duration-200',
+                         isSelected ? 'border-accent' : 'border-border'
+                       )}
+                     >
+                       {isSelected && (
+                         <div className="w-2.5 h-2.5 rounded-full bg-accent" />
+                       )}
+                     </div>
+                     <div className="flex-1 min-w-0">
+                       <p className="text-sm font-bold text-text-primary truncate leading-snug">{room.name}</p>
+                       <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                         <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider', getRoomColorClass(room.type))}>
+                           {room.type}
+                         </span>
+                         <span className="text-xs text-text-secondary font-medium">
+                           · Up to {room.capacity} guests
+                         </span>
+                       </div>
+                     </div>
+                     <p className="text-sm font-extrabold text-accent shrink-0 tabular-nums text-right">
+                       ₹{room.pricePerNight.toLocaleString('en-IN')}
+                       <span className="text-xs font-normal text-text-tertiary">/night</span>
+                     </p>
                   </label>
                 )
               })}
@@ -324,11 +324,11 @@ export default function BookingFormCard({
                     if (curr > 1) setValue('guests', curr - 1)
                   }}
                   aria-label="Decrease guests"
-                  className="w-10 h-10 min-w-11 min-h-11 rounded-xl bg-surface-elevated border border-border text-text-primary text-lg flex items-center justify-center hover:border-accent/40 transition-colors"
+                  className="w-11 h-11 rounded-xl bg-surface-elevated border border-border grid place-items-center text-text-primary hover:border-accent/40 transition-colors"
                 >
-                  −
+                  <span className="block leading-none text-lg">−</span>
                 </motion.button>
-                <span className="text-base font-semibold text-text-primary min-w-[2ch] text-center">
+                <span className="text-base font-semibold text-text-primary min-w-[2ch] text-center grid place-items-center">
                   {watchedValues.guests}
                 </span>
                 <motion.button
@@ -340,9 +340,9 @@ export default function BookingFormCard({
                     if (curr < max) setValue('guests', curr + 1)
                   }}
                   aria-label="Increase guests"
-                  className="w-10 h-10 min-w-11 min-h-11 rounded-xl bg-surface-elevated border border-border text-text-primary text-lg flex items-center justify-center hover:border-accent/40 transition-colors"
+                  className="w-11 h-11 rounded-xl bg-surface-elevated border border-border grid place-items-center text-text-primary hover:border-accent/40 transition-colors"
                 >
-                  +
+                  <span className="block leading-none text-lg">+</span>
                 </motion.button>
                 <span className="text-xs text-text-tertiary ml-1 flex items-center gap-1">
                   <Users className="w-3.5 h-3.5" aria-hidden="true" />

@@ -124,55 +124,63 @@ export default function MessageBubble({
       initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-      className={cn('flex', isUser ? 'justify-end' : 'justify-start')}
+      className={cn('flex gap-3 items-start', isUser ? 'justify-end' : 'justify-start')}
     >
-      {isUser ? (
-        /* User bubble — gradient accent with inner border shadow */
-        <div
-          className={cn(
-            'max-w-[85%] px-4 py-2.5',
-            'bg-gradient-to-tr from-[#a8956e] via-[#c9b99a] to-[#d6c7ab]',
-            'text-[#0f0f0f]',
-            'rounded-2xl rounded-br-sm',
-            'text-sm leading-relaxed font-semibold',
-            'break-words',
-            'shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.2)]'
-          )}
+      {/* AI Avatar */}
+      {!isUser && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.1, type: 'spring', stiffness: 400 }}
+          className="flex-shrink-0 w-8 h-8 rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#242424] border border-[#c9b99a]/25 grid place-items-center shadow-[0_2px_8px_rgba(201,185,154,0.1)]"
         >
-          {content}
-        </div>
-      ) : (
-        /* AI bubble — glass card with copy action on hover, plus brand icon */
-        <div className="group relative max-w-[88%] flex items-start gap-2.5">
-          {/* Brand Sparkle Indicator */}
-          <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-[#1a1a1a] to-[#242424] border border-[#c9b99a]/25 flex items-center justify-center shadow-[0_2px_8px_rgba(201,185,154,0.1)] mt-0.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#c9b99a]" />
-          </div>
+          <Sparkles className="w-4 h-4 text-[#c9b99a]" />
+        </motion.div>
+      )}
 
-          <div className="relative flex-1 min-w-0">
-            <GlassCard
-              className="px-4 py-3 rounded-2xl rounded-bl-sm border border-border/80"
-              variant="default"
-            >
+      {/* Message Content */}
+      <div className={cn(
+        'group relative max-w-[85%] min-w-0',
+        isUser ? 'order-first' : ''
+      )}>
+        {isUser ? (
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            className={cn(
+              'px-4 py-2.5 rounded-2xl rounded-br-md',
+              'bg-gradient-to-tr from-[#a8956e] via-[#c9b99a] to-[#d6c7ab]',
+              'text-[#0f0f0f] font-semibold text-sm leading-relaxed',
+              'break-words',
+              'shadow-[inset_0_1px_1px_rgba(255,255,255,0.4),0_4px_12px_rgba(0,0,0,0.2)]'
+            )}
+          >
+            {content}
+          </motion.div>
+        ) : (
+          <div className="relative">
+            <div className={cn(
+              'px-4 py-3 rounded-2xl rounded-bl-md',
+              'bg-surface-elevated/80 backdrop-blur-xl',
+              'border border-border/80',
+              'shadow-[0_4px_24px_rgba(0,0,0,0.2)]'
+            )}>
               <div className="text-sm leading-relaxed text-text-primary break-words whitespace-pre-wrap">
                 {parseMessageContent(content)}
               </div>
-            </GlassCard>
+            </div>
 
-            {/* Copy button — appears on hover */}
+            {/* Copy button — fixed alignment: grid centering */}
             <button
               onClick={handleCopy}
               aria-label="Copy message"
               className={cn(
                 'absolute -top-2 -right-2',
-                'w-7 h-7 rounded-lg',
-                'bg-surface-elevated border border-border',
-                'flex items-center justify-center',
+                'w-7 h-7 rounded-lg bg-surface-elevated border border-border',
+                'grid place-items-center',
                 'text-text-tertiary hover:text-text-primary',
                 'transition-all duration-200',
                 'opacity-0 group-hover:opacity-100 focus:opacity-100',
-                'shadow-sm',
-                'z-10'
+                'shadow-sm z-10'
               )}
             >
               {copied ? (
@@ -182,7 +190,19 @@ export default function MessageBubble({
               )}
             </button>
           </div>
-        </div>
+        )}
+      </div>
+
+      {/* User Avatar */}
+      {isUser && (
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.1, type: 'spring', stiffness: 400 }}
+          className="flex-shrink-0 w-8 h-8 rounded-xl bg-surface-elevated border border-border grid place-items-center"
+        >
+          <span className="text-xs text-text-secondary font-bold">U</span>
+        </motion.div>
       )}
     </motion.div>
   )

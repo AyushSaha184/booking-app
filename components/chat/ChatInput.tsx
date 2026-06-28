@@ -77,7 +77,7 @@ export default function ChatInput({
           style={{ WebkitOverflowScrolling: 'touch', WebkitAppearance: 'none' }}
         />
  
-        {/* Send button */}
+        {/* Send button — fixed alignment: unified size + grid centering */}
         <motion.button
           type="button"
           onClick={(e) => { if (canSend) onSubmit(e as unknown as React.FormEvent) }}
@@ -86,8 +86,7 @@ export default function ChatInput({
           whileHover={canSend ? { scale: 1.05 } : {}}
           aria-label="Send message"
           className={cn(
-            'shrink-0 w-9 h-9 rounded-xl flex items-center justify-center',
-            'min-w-[44px] min-h-[44px]',    // touch target
+            'shrink-0 w-11 h-11 rounded-xl grid place-items-center',
             'transition-all duration-300',
             canSend
               ? 'bg-gradient-to-tr from-[#a8956e] via-[#c9b99a] to-[#d6c7ab] text-[#0f0f0f] shadow-[0_0_12px_rgba(201,185,154,0.35)] hover:shadow-[0_0_20px_rgba(201,185,154,0.55)]'
@@ -95,19 +94,18 @@ export default function ChatInput({
           )}
         >
           {isLoading ? (
-            /* Spinning dots when streaming */
-            <div className="flex gap-[3px] items-center">
+            <div className="flex gap-[3px] items-center justify-center">
               {[0, 1, 2].map((i) => (
                 <motion.span
                   key={i}
-                  className="w-1 h-1 rounded-full bg-current"
+                  className="w-1 h-1 rounded-full bg-current block"
                   animate={{ opacity: [0.3, 1, 0.3] }}
                   transition={{ repeat: Infinity, duration: 0.9, delay: i * 0.15 }}
                 />
               ))}
             </div>
           ) : (
-            <Send className="w-4 h-4" aria-hidden="true" />
+            <Send className="w-[18px] h-[18px] translate-x-px" aria-hidden="true" />
           )}
         </motion.button>
       </div>
