@@ -50,11 +50,11 @@ export default function ChatInput({
       <div
         className={cn(
           'relative flex gap-3 items-end max-w-3xl mx-auto w-full',
-          'bg-white/85 backdrop-blur-md',
+          'bg-white/90 backdrop-blur-lg',
           'border border-[#B93C3C]/20 rounded-2xl',
           'px-5 py-3.5',
-          'transition-all duration-300 shadow-sm',
-          'focus-within:border-[#B93C3C] focus-within:shadow-[0_4px_24px_rgba(185,60,60,0.12)]'
+          'transition-all duration-300 shadow-xs',
+          'focus-within:border-[#B93C3C] focus-within:ring-2 focus-within:ring-[#B93C3C]/20 focus-within:shadow-[0_6px_24px_rgba(185,60,60,0.14)]'
         )}
       >
         <textarea

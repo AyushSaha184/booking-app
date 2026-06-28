@@ -2,6 +2,7 @@ import { db } from './client'
 import { bookings } from './schema'
 import { and, eq, sql, lt, gt } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
+import { logger } from '../logger'
 
 export async function atomicCreateBooking(data: {
   guestName: string
@@ -16,6 +17,7 @@ export async function atomicCreateBooking(data: {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       const id = 'BK-' + nanoid(6).toUpperCase()
+      logger.debug('Starting atomic serializable transaction', { attempt, roomId: data.roomId })
 
       const booking = await db().transaction(
         async (tx) => {
@@ -80,6 +82,7 @@ export async function atomicCreateBooking(data: {
         errorMessage.includes('could not serialize') ||
         errorMessage.includes('deadlock')
       ) {
+        logger.warn('Atomic booking transaction concurrency collision', { attempt, errorCode, errorMessage })
         if (attempt < maxRetries - 1) {
           await new Promise(resolve => setTimeout(resolve, 50 * (attempt + 1)))
           continue
@@ -88,6 +91,7 @@ export async function atomicCreateBooking(data: {
       }
 
       if (errorMessage.includes('no longer available')) {
+        logger.info('Atomic booking check: room unavailable', { roomId: data.roomId })
         return { success: false, error: 'Room is no longer available for selected dates', retry: false }
       }
 

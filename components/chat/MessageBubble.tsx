@@ -16,11 +16,68 @@ interface MessageBubbleProps {
 }
 
 /**
- * Helper to render basic markdown bold patterns.
- * e.g., "**bold** text" -> <strong>bold</strong> text
+ * Helper to render markdown bold, lists, and headings cleanly aligned.
  */
 function parseMessageContent(text: string) {
-  if (!text) return ''
+  if (!text) return null
+  
+  const lines = text.split('\n')
+  return (
+    <div className="flex flex-col gap-2">
+      {lines.map((line, lineIdx) => {
+        const trimmed = line.trim()
+        if (!trimmed) return <div key={lineIdx} className="h-1" />
+
+        // Headings ### or ##
+        if (trimmed.startsWith('### ') || trimmed.startsWith('## ')) {
+          const headingText = trimmed.replace(/^#+\s*/, '')
+          return (
+            <h4 key={lineIdx} className="font-serif font-semibold text-base sm:text-lg text-[#2A1A1A] mt-1 mb-0.5">
+              {renderFormattedInline(headingText)}
+            </h4>
+          )
+        }
+
+        // Bullet list item
+        if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+          const itemText = trimmed.slice(2)
+          return (
+            <div key={lineIdx} className="flex items-start gap-2.5 my-0.5 pl-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#B93C3C] mt-2 shrink-0 opacity-80" />
+              <div className="flex-1 text-sm sm:text-base leading-relaxed text-[#2A1A1A]">
+                {renderFormattedInline(itemText)}
+              </div>
+            </div>
+          )
+        }
+
+        // Numbered list item e.g. "1. "
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/)
+        if (numMatch) {
+          return (
+            <div key={lineIdx} className="flex items-start gap-2.5 my-0.5 pl-1">
+              <span className="text-xs font-bold text-[#B93C3C] mt-0.5 shrink-0 tabular-nums min-w-[1.2rem]">
+                {numMatch[1]}.
+              </span>
+              <div className="flex-1 text-sm sm:text-base leading-relaxed text-[#2A1A1A]">
+                {renderFormattedInline(numMatch[2])}
+              </div>
+            </div>
+          )
+        }
+
+        // Standard paragraph line
+        return (
+          <p key={lineIdx} className="text-sm sm:text-base leading-relaxed text-[#2A1A1A]">
+            {renderFormattedInline(line)}
+          </p>
+        )
+      })}
+    </div>
+  )
+}
+
+function renderFormattedInline(text: string) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g)
   return parts.map((part, idx) => {
     if (part.startsWith('**') && part.endsWith('**')) {
@@ -98,7 +155,7 @@ export default function MessageBubble({
   }
 
   const textPart = parts.find(
-    (p): p is { type: 'text'; text: string } => p.type === 'text'
+    (p: any): p is { type: 'text'; text: string } => p?.type === 'text'
   )
   const content = textPart?.text ?? ''
 
@@ -136,13 +193,13 @@ export default function MessageBubble({
         isUser ? 'order-first' : ''
       )}>
         {isUser ? (
-          <div className="px-4.5 py-3 rounded-2xl rounded-tr-xs bg-gradient-to-r from-[#B93C3C] to-[#a02f2f] text-white font-medium text-sm sm:text-base leading-relaxed shadow-xs break-words">
+          <div className="px-5 py-3 rounded-2xl rounded-tr-xs bg-gradient-to-r from-[#B93C3C] via-[#ab3232] to-[#962828] text-white font-medium text-sm sm:text-base leading-relaxed shadow-xs break-words">
             {content}
           </div>
         ) : (
           <div className="relative">
-            <div className="px-4.5 py-3.5 rounded-2xl rounded-tl-xs bg-white/80 backdrop-blur-md border border-[#B93C3C]/15 shadow-xs">
-              <div className="text-sm sm:text-base leading-relaxed text-[#2A1A1A] break-words whitespace-pre-wrap font-normal">
+            <div className="px-5 py-4 rounded-2xl rounded-tl-xs bg-white/85 backdrop-blur-lg border border-[#B93C3C]/18 shadow-xs">
+              <div className="text-sm sm:text-base text-[#2A1A1A] break-words font-normal">
                 {parseMessageContent(content)}
               </div>
             </div>

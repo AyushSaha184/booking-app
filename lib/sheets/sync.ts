@@ -1,5 +1,6 @@
 import { getSheetsClient } from './client'
 import { withSheetsLock, withRetry } from './mutex'
+import { logger } from '../logger'
 
 export async function syncBookingToSheet(booking: {
   id: string
@@ -27,6 +28,7 @@ export async function syncBookingToSheet(booking: {
         const alreadyExists = existingRows.some(row => row[0] === booking.id)
 
         if (alreadyExists) {
+          logger.info('Booking already exists in Google Sheet', { bookingId: booking.id })
           return
         }
 
@@ -48,11 +50,12 @@ export async function syncBookingToSheet(booking: {
             ]],
           },
         })
+        logger.info('Booking appended to Google Sheet', { bookingId: booking.id })
       }, 3, 1000)
 
       return true
     } catch (err) {
-      console.error('Google Sheets sync failed:', err)
+      logger.error('Google Sheets sync failed', { bookingId: booking.id, error: err instanceof Error ? err.message : String(err) })
       return false
     }
   })
@@ -73,7 +76,10 @@ export async function updateBookingStatusInSheet(bookingId: string, status: stri
         const rows = response.data.values ?? []
         const rowIndex = rows.findIndex(row => row[0] === bookingId)
 
-        if (rowIndex === -1) return
+        if (rowIndex === -1) {
+          logger.warn('Booking ID not found in sheet for status update', { bookingId })
+          return
+        }
 
         const rowNumber = rowIndex + 1
         await sheets.spreadsheets.values.update({
@@ -82,11 +88,12 @@ export async function updateBookingStatusInSheet(bookingId: string, status: stri
           valueInputOption: 'USER_ENTERED',
           requestBody: { values: [[status]] },
         })
+        logger.info('Google Sheet booking status updated', { bookingId, status, rowNumber })
       }, 3, 1000)
 
       return true
     } catch (err) {
-      console.error('Google Sheets status update failed:', err)
+      logger.error('Google Sheets status update failed', { bookingId, status, error: err instanceof Error ? err.message : String(err) })
       return false
     }
   })

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { updateBookingFromSheet } from '@/lib/db/bookings'
+import { logger } from '@/lib/logger'
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
     const expectedSecret = process.env.SHEETS_WEBHOOK_SECRET
 
     if (!expectedSecret) {
-      console.error('SHEETS_WEBHOOK_SECRET is not configured')
+      logger.error('SHEETS_WEBHOOK_SECRET is not configured')
       return NextResponse.json(
         { error: 'Webhook not configured' },
         { status: 500 }
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
     }
 
     if (!secret || !timingSafeEqual(secret, expectedSecret)) {
+      logger.warn('Unauthorized webhook attempt')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -57,6 +59,7 @@ export async function POST(req: Request) {
     const result = await updateBookingFromSheet(data)
 
     if (!result.success) {
+      logger.warn('Webhook booking update failed', { error: result.error, code: result.code })
       const statusMap = {
         NOT_FOUND: 404,
         VALIDATION: 400,
@@ -70,12 +73,14 @@ export async function POST(req: Request) {
       )
     }
 
+    logger.info('Sheets webhook booking update succeeded', { bookingId: result.booking.id })
+
     return NextResponse.json({
       success: true,
       bookingId: result.booking.id,
     })
   } catch (err: unknown) {
-    console.error('Sheets webhook error:', err)
+    logger.error('Sheets webhook execution error', { error: err instanceof Error ? err.message : String(err) })
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

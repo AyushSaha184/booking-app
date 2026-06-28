@@ -1,8 +1,10 @@
 import { db } from './client'
-import { bookings } from './schema'
+import { bookings, rooms } from './schema'
 import { and, eq, lt, gt, ne, sql } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import { CreateBookingSchema, LookupBookingSchema, CancelBookingSchema, UpdateBookingSchema } from '../validation'
+import { sendBookingNotifications, sendCancellationNotifications } from '../twilio/notifications'
+import { getRoomById } from './rooms'
 
 export async function createBooking(data: unknown) {
   const validated = CreateBookingSchema.parse(data)
@@ -17,6 +19,29 @@ export async function createBooking(data: unknown) {
     guests: validated.guests,
     id,
   }).returning()
+
+  const room = await getRoomById(validated.roomId)
+
+  const checkInDate = new Date(validated.checkIn)
+  const checkOutDate = new Date(validated.checkOut)
+  const totalNights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+  const totalPrice = totalNights * (room?.pricePerNight || 0)
+
+  sendBookingNotifications({
+    bookingId: booking.id,
+    guestName: validated.guestName,
+    phone: validated.phone,
+    roomName: room?.name || 'Unknown Room',
+    roomType: room?.type || 'Standard',
+    checkIn: validated.checkIn,
+    checkOut: validated.checkOut,
+    guests: validated.guests,
+    pricePerNight: room?.pricePerNight || 0,
+    totalNights,
+    totalPrice,
+  }).catch((err) => {
+    console.error('Booking notification error (non-blocking):', err)
+  })
 
   return booking
 }
@@ -67,6 +92,19 @@ export async function cancelBooking(bookingId: string, guestName: string, phone:
     .set({ status: 'cancelled' })
     .where(eq(bookings.id, validated.bookingId))
     .returning()
+
+  const room = await getRoomById(updated.roomId)
+
+  sendCancellationNotifications({
+    bookingId: updated.id,
+    guestName: validated.guestName,
+    phone: validated.phone,
+    roomName: room?.name || 'Unknown Room',
+    checkIn: updated.checkIn,
+    checkOut: updated.checkOut,
+  }).catch((err) => {
+    console.error('Cancellation notification error (non-blocking):', err)
+  })
 
   return updated
 }

@@ -14,7 +14,7 @@ const SUGGESTIONS = [
   { label: 'Book a room', prompt: 'I want to book a room' },
   { label: 'Show available rooms', prompt: 'Show me all available rooms' },
   { label: 'Cancel my booking', prompt: 'I want to cancel my booking' },
-  { label: 'Resort amenities', prompt: 'What amenities does the resort offer?' },
+  { label: 'View resort photos', prompt: 'Show me resort photos' },
 ]
 
 export default function ChatPage() {
@@ -56,7 +56,7 @@ export default function ChatPage() {
     }
   }
 
-  // Auto-resize textarea (delegated here so ChatInput is pure display)
+  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current
     if (!el) return
@@ -91,9 +91,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div
-      className="flex flex-col h-screen w-full bg-[#F5F0E8] overflow-hidden"
-    >
+    <div className="flex flex-col h-screen w-full bg-[#F5F0E8] overflow-hidden">
       <ChatHeader
         onClear={() => setMessages([])}
         isConnected={true}

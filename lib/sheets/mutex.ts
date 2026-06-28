@@ -1,4 +1,5 @@
 import { Redis } from '@upstash/redis'
+import { logger } from '../logger'
 
 function createRedis() {
   const url = process.env.UPSTASH_REDIS_REST_URL
@@ -39,10 +40,12 @@ export async function withSheetsLock<T>(
   while (Date.now() - startTime < maxWaitMs) {
     const acquired = await acquireSheetsLock(bookingId)
     if (acquired) {
+      logger.debug('Acquired Sheets mutex lock', { bookingId })
       try {
         return await operation()
       } finally {
         await releaseSheetsLock(bookingId)
+        logger.debug('Released Sheets mutex lock', { bookingId })
       }
     }
 
@@ -87,10 +90,13 @@ export async function withRetry<T>(
         errorMessage.includes('timeout')
 
       if (!isRetryable || attempt === maxRetries - 1) {
+        logger.warn('Non-retryable Sheets operation error', { attempt, error: lastError.message })
         throw lastError
       }
 
-      await new Promise(resolve => setTimeout(resolve, baseDelayMs * Math.pow(2, attempt)))
+      const delay = baseDelayMs * Math.pow(2, attempt)
+      logger.info('Retrying Sheets operation after error', { attempt, delay, error: lastError.message })
+      await new Promise(resolve => setTimeout(resolve, delay))
     }
   }
 

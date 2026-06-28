@@ -37,15 +37,18 @@ export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderPr
 
       {/* Status + actions */}
       <div className="flex items-center gap-3">
-        {/* Connection status indicator */}
-        <div className="flex items-center gap-1.5 text-xs text-[#2A1A1A]/60 tracking-wide" aria-label={isConnected ? 'Connected' : 'Disconnected'}>
+        {/* Connection status indicator pill */}
+        <div 
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 text-xs font-medium tracking-wide shadow-2xs" 
+          aria-label={isConnected ? 'Connected' : 'Disconnected'}
+        >
           <motion.span
-            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"
-            animate={isConnected ? { opacity: [1, 0.45, 1] } : { opacity: 0.3 }}
+            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
+            animate={isConnected ? { scale: [1, 1.25, 1], opacity: [1, 0.6, 1] } : { opacity: 0.3 }}
             transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
           />
-          <span className="font-normal">
-            {isConnected ? 'Live' : 'Offline'}
+          <span>
+            {isConnected ? 'Live Concierge' : 'Offline'}
           </span>
         </div>
 
@@ -53,9 +56,10 @@ export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderPr
         <button
           onClick={onClear}
           aria-label="Clear chat history"
-          className="w-7 h-7 rounded-md flex items-center justify-center cursor-pointer opacity-40 hover:opacity-80 transition-opacity text-[#B93C3C] bg-transparent border-0"
+          title="Clear conversation"
+          className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer text-[#B93C3C]/60 hover:text-[#B93C3C] hover:bg-[#B93C3C]/10 transition-all duration-200 border-0"
         >
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="w-3.5 h-3.5">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-4 h-4">
             <path d="M2 4h12M5 4V2.5A.5.5 0 015.5 2h5a.5.5 0 01.5.5V4M6 7v5M10 7v5M3 4l1 9.5a.5.5 0 00.5.5h7a.5.5 0 00.5-.5L13 4"/>
           </svg>
         </button>

@@ -26,7 +26,8 @@ interface BookingFormCardProps {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[10px] font-semibold uppercase tracking-widest text-[rgba(150,60,60,0.6)] mb-2.5">
+    <p className="text-[11px] font-bold uppercase tracking-wider text-[#B93C3C]/80 mb-2.5 flex items-center gap-1.5">
+      <span className="w-1 h-3 rounded-full bg-[#B93C3C]" />
       {children}
     </p>
   )
@@ -241,11 +242,11 @@ export default function BookingFormCard({
                   <label
                     key={room.id}
                     className={cn(
-                      'flex items-center gap-3.5 p-3 rounded-xl border cursor-pointer',
+                      'flex items-start gap-3.5 p-3.5 rounded-xl border cursor-pointer',
                       'transition-all duration-200',
                       isSelected
-                        ? 'border-[#B93C3C] bg-[#B93C3C]/5 shadow-xs'
-                        : 'border-[rgba(185,60,60,0.15)] hover:border-[rgba(185,60,60,0.3)] bg-white/50 hover:bg-white/80'
+                        ? 'border-[#B93C3C] bg-[#B93C3C]/5 shadow-xs ring-1 ring-[#B93C3C]/20'
+                        : 'border-[rgba(185,60,60,0.15)] hover:border-[rgba(185,60,60,0.3)] bg-white/60 hover:bg-white/90'
                     )}
                   >
                     <input
@@ -256,7 +257,7 @@ export default function BookingFormCard({
                     />
                     <div
                       className={cn(
-                        'w-4 h-4 rounded-full border grid place-items-center shrink-0 transition-all duration-200',
+                        'w-4 h-4 rounded-full border grid place-items-center shrink-0 mt-0.5 transition-all duration-200',
                         isSelected ? 'border-[#B93C3C]' : 'border-[rgba(185,60,60,0.3)]'
                       )}
                     >
@@ -265,20 +266,22 @@ export default function BookingFormCard({
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-semibold text-[#2A1A1A] truncate">{room.name}</p>
-                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider', getRoomColorClass(room.type))}>
+                      <p className="text-sm font-semibold text-[#2A1A1A] truncate leading-snug">{room.name}</p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider inline-flex items-center leading-none', getRoomColorClass(room.type))}>
                           {room.type}
                         </span>
-                        <span className="text-xs text-[rgba(150,60,60,0.6)] font-normal">
-                          · Up to {room.capacity} guests
+                        <span className="text-xs text-[#2A1A1A]/60 font-medium inline-flex items-center leading-none">
+                          · Max {room.capacity} guests
                         </span>
                       </div>
                     </div>
-                    <p className="text-xs sm:text-sm font-bold text-[#B93C3C] shrink-0 tabular-nums text-right">
-                      ₹{room.pricePerNight.toLocaleString('en-IN')}
-                      <span className="text-[10px] font-normal text-[rgba(150,60,60,0.6)]">/night</span>
-                    </p>
+                    <div className="shrink-0 text-right self-start pl-2">
+                      <p className="text-sm sm:text-base font-bold text-[#B93C3C] tabular-nums leading-snug">
+                        ₹{room.pricePerNight.toLocaleString('en-IN')}
+                      </p>
+                      <p className="text-[10px] font-medium text-[#2A1A1A]/50 leading-none mt-0.5">/night</p>
+                    </div>
                   </label>
                 )
               })}
@@ -365,7 +368,7 @@ export default function BookingFormCard({
                 transition={{ duration: 0.25 }}
                 className="overflow-hidden"
               >
-                <div className="relative overflow-hidden bg-white/60 backdrop-blur-md border border-[rgba(185,60,60,0.15)] rounded-xl p-3.5 flex flex-col gap-2 shadow-xs">
+                <div className="relative overflow-hidden bg-white/80 backdrop-blur-md border border-[#B93C3C]/20 rounded-xl p-4 flex flex-col gap-2.5 shadow-xs">
                   <SectionLabel>Price summary</SectionLabel>
                   <PriceLine
                     label={`${priceSummary.nights} night${priceSummary.nights !== 1 ? 's' : ''} × ₹${priceSummary.room.pricePerNight.toLocaleString('en-IN')}`}
@@ -376,7 +379,7 @@ export default function BookingFormCard({
                     value={`₹${priceSummary.tax.toLocaleString('en-IN')}`}
                     dimmed
                   />
-                  <div className="h-px bg-[rgba(185,60,60,0.15)] my-0.5" aria-hidden="true" />
+                  <div className="h-px border-b border-dashed border-[#B93C3C]/25 my-1" aria-hidden="true" />
                   <PriceLine
                     label="Total Amount"
                     value={`₹${priceSummary.total.toLocaleString('en-IN')}`}
@@ -393,6 +396,11 @@ export default function BookingFormCard({
               {submitError}
             </p>
           )}
+
+          {/* ── Pricing Note ── */}
+          <p className="text-xs text-[#2A1A1A]/60 italic text-center">
+            To negociate pricing, please contact owner: +91 98765 43210
+          </p>
 
           {/* ── Submit ── */}
           <PremiumButton

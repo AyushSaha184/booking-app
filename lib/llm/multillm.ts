@@ -1,4 +1,8 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { streamText, convertToModelMessages, type UIMessage } from 'ai'
+import { tools } from './tools'
+import { systemPrompt } from './system-prompt'
+import { logger } from '../logger'
 
 export interface LLMConfig {
   model: string
@@ -27,22 +31,26 @@ function isRetryableError(error: any): boolean {
   )
 }
 
-export async function withMultiLLMFallback<T>(
+export async function withMultiLLMFallback(
   options: FallbackOptions,
-  executor: (model: string, provider: ReturnType<typeof createGoogleGenerativeAI>) => Promise<T>
-): Promise<T> {
+  executor: (model: string, provider: ReturnType<typeof createGoogleGenerativeAI>) => Promise<Response>
+): Promise<Response> {
   const { models, onError, maxRetries = 1 } = options
   const errors: { model: string; error: Error }[] = []
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     for (const config of models) {
       try {
+        logger.debug('Attempting LLM model execution', { model: config.model, attempt })
         const provider = createGoogleGenerativeAI({
           apiKey: config.apiKey || process.env.GEMINI_API_KEY,
         })
-        return await executor(config.model, provider)
+        const res = await executor(config.model, provider)
+        logger.info('LLM execution succeeded', { model: config.model, attempt })
+        return res
       } catch (error: any) {
         const err = error instanceof Error ? error : new Error(String(error))
+        logger.warn('LLM model attempt failed', { model: config.model, attempt, error: err.message })
 
         if (isRetryableError(error) && attempt < maxRetries) {
           onError?.(err, config.model)
@@ -60,6 +68,7 @@ export async function withMultiLLMFallback<T>(
     }
   }
 
+  logger.error('All LLM fallback attempts exhausted', { errorCount: errors.length })
   throw new Error(
     `AI service temporarily unavailable. Please try again later.`
   )
@@ -95,4 +104,21 @@ export function buildModelConfigs(): LLMConfig[] {
   }
 
   return configs
+}
+
+export async function streamChat(
+  modelName: string,
+  provider: ReturnType<typeof createGoogleGenerativeAI>,
+  messages: UIMessage[]
+) {
+  const modelMessages = await convertToModelMessages(messages)
+  const result = streamText({
+    model: provider(modelName),
+    system: systemPrompt,
+    messages: modelMessages,
+    tools,
+    stopWhen: (options: any) => (options.steps?.length ?? 0) >= 5,
+  })
+
+  return result.toUIMessageStreamResponse()
 }

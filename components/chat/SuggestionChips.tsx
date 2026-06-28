@@ -27,11 +27,11 @@ const CARD_ICONS: Record<string, React.ReactNode> = {
       <path d="M5 7h6M5 10h4M5 4h6"/>
     </svg>
   ),
-  'Resort amenities': (
+  'View resort photos': (
     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-5 h-5 text-[#B93C3C]">
-      <circle cx="8" cy="6" r="4"/>
-      <path d="M3 14c0-2.8 2.2-5 5-5s5 2.2 5 5"/>
-      <path d="M11 9.5l1 1.5M13 8l1.5.5"/>
+      <rect x="1" y="3" width="14" height="10" rx="1.5"/>
+      <circle cx="5" cy="7" r="1.5"/>
+      <path d="M1 11l4-4 3 3 2-2 3 3"/>
     </svg>
   ),
 }
@@ -40,7 +40,7 @@ const CARD_SUBTITLES: Record<string, string> = {
   'Book a room': 'Reserve your perfect suite',
   'Show available rooms': 'Browse luxury options',
   'Cancel my booking': 'Modify your current stay',
-  'Resort amenities': 'Explore pool, spa & dining',
+  'View resort photos': 'Explore our resort gallery',
 }
 
 interface SuggestionChipsProps {
@@ -116,16 +116,16 @@ export default function SuggestionChips({ suggestions, onSelect }: SuggestionChi
               key={s.prompt}
               onClick={() => onSelect(s.prompt)}
               role="listitem"
-              whileHover={{ scale: 1.02, y: -2 }}
+              whileHover={{ scale: 1.02, y: -3 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className="group relative flex items-center gap-4 px-5 py-4 bg-white/80 backdrop-blur-md border border-[#B93C3C]/20 rounded-2xl text-left w-full cursor-pointer shadow-xs hover:shadow-md hover:bg-white hover:border-[#B93C3C]/35 transition-colors duration-200 overflow-hidden"
+              className="group relative flex items-center gap-4 px-5 py-4 bg-white/85 backdrop-blur-lg border border-[#B93C3C]/20 rounded-2xl text-left w-full cursor-pointer shadow-xs hover:shadow-[0_8px_24px_rgba(185,60,60,0.14)] hover:bg-white hover:border-[#B93C3C]/40 transition-all duration-200 overflow-hidden"
             >
               {/* Hover Red Accent Line on Left */}
               <span className="absolute left-0 top-0 bottom-0 w-[4px] bg-transparent transition-colors duration-200 group-hover:bg-[#B93C3C]" />
 
               {/* Icon Container */}
-              <div className="w-11 h-11 rounded-xl bg-[#B93C3C]/8 border border-[#B93C3C]/20 flex items-center justify-center shrink-0 group-hover:bg-[#B93C3C]/12 transition-colors duration-200">
+              <div className="w-11 h-11 rounded-xl bg-[#B93C3C]/8 border border-[#B93C3C]/20 flex items-center justify-center shrink-0 group-hover:bg-[#B93C3C]/14 group-hover:scale-105 transition-all duration-200">
                 {CARD_ICONS[s.label] ?? CARD_ICONS['Book a room']}
               </div>
 
@@ -134,7 +134,7 @@ export default function SuggestionChips({ suggestions, onSelect }: SuggestionChi
                 <div className="text-sm sm:text-base font-semibold text-[#2A1A1A] tracking-wide truncate group-hover:text-[#B93C3C] transition-colors duration-200">
                   {s.label}
                 </div>
-                <div className="text-xs text-[#2A1A1A]/60 mt-0.5 font-light truncate">
+                <div className="text-xs text-[#2A1A1A]/65 mt-0.5 font-light truncate">
                   {CARD_SUBTITLES[s.label] ?? 'Explore options'}
                 </div>
               </div>

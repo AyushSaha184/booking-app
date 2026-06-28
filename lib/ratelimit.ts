@@ -1,5 +1,6 @@
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
+import { logger } from './logger'
 
 function createRedis() {
   const url = process.env.UPSTASH_REDIS_REST_URL
@@ -31,6 +32,9 @@ export async function checkRateLimit(identifier: string): Promise<{
   reset: number
 }> {
   const result = await ratelimit.limit(identifier)
+  if (!result.success) {
+    logger.warn('Rate limit exceeded for identifier', { identifier, remaining: result.remaining, reset: result.reset })
+  }
   return {
     success: result.success,
     limit: result.limit,

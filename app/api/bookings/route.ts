@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { atomicCreateBooking } from '@/lib/db/atomic'
 import { syncBookingToSheet } from '@/lib/sheets/sync'
 import { validateRequestSize, CreateBookingSchema } from '@/lib/validation'
+import { logger } from '@/lib/logger'
 
 export async function POST(req: Request) {
   try {
@@ -44,12 +45,15 @@ export async function POST(req: Request) {
     const result = await atomicCreateBooking(parsed)
 
     if (!result.success) {
+      logger.warn('Booking creation atomic check failed', { error: result.error, retry: result.retry })
       const statusCode = result.retry ? 409 : 400
       return NextResponse.json({ error: result.error }, { status: statusCode })
     }
 
+    logger.info('Booking successfully created', { bookingId: result.booking.id, roomId: result.booking.roomId })
+
     syncBookingToSheet(result.booking).catch(err => {
-      console.error('Background Sheets sync failed:', err)
+      logger.error('Background Sheets sync failed', { error: err instanceof Error ? err.message : String(err), bookingId: result.booking?.id })
     })
 
     return NextResponse.json({ success: true, booking: result.booking })
@@ -57,12 +61,13 @@ export async function POST(req: Request) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     if (message.includes('ZodError') || message.includes('validation')) {
+      logger.warn('Booking validation error', { error: message })
       return NextResponse.json(
         { error: 'Invalid booking data' },
         { status: 400 }
       )
     }
-    console.error('Booking error:', err)
+    logger.error('Booking endpoint execution error', { error: message })
     return NextResponse.json(
       { error: 'Failed to create booking' },
       { status: 500 }

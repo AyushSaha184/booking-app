@@ -1,5 +1,10 @@
 INSERT INTO rooms (id, name, type, capacity, price_per_night, description) VALUES
-  ('101', 'Deluxe Room 101', 'deluxe', 2, 4500, 'Garden view, king bed'),
-  ('102', 'Standard Room 102', 'standard', 2, 3000, 'Pool view, queen bed'),
-  ('201', 'Suite 201', 'suite', 4, 8000, 'Private balcony, living area'),
-  ('202', 'Deluxe Room 202', 'deluxe', 3, 5000, 'Mountain view, extra bed');
+  ('1', 'Room 1', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('2', 'Room 2', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('3', 'Room 3', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('4', 'Room 4', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('5', 'Room 5', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('6', 'Room 6', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('7', 'Room 7', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('8', 'Room 8', 'standard', 2, 5000, 'Comfortable standard room'),
+  ('9', 'Room 9', 'standard', 2, 5000, 'Comfortable standard room');
