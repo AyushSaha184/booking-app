@@ -60,16 +60,22 @@ export default function MessageBubble({
 
   for (const part of parts) {
     if (isToolUIPart(part) && getToolName(part) === 'showBookingForm') {
-      const input = part.input as
+      const rawInput = part.input as
         | {
-            availableRooms: Array<{ id: string; name: string; type: string; capacity: number; pricePerNight: number }>
+            availableRooms?: Array<{ id: string; name: string; type: string; capacity: number; pricePerNight: number }>
+            rooms?: Array<{ id: string; name: string; type: string; capacity: number; pricePerNight: number }>
             checkIn?: string
             checkOut?: string
             guests?: number
           }
         | undefined
-      if (input) {
-        bookingFormArgs = input
+      if (rawInput) {
+        bookingFormArgs = {
+          availableRooms: rawInput.availableRooms ?? rawInput.rooms ?? [],
+          checkIn: rawInput.checkIn,
+          checkOut: rawInput.checkOut,
+          guests: rawInput.guests,
+        }
         break
       }
     }

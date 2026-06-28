@@ -28,16 +28,16 @@ export default function ChatPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const showSuggestions = messages.length === 0
-  const isLoading = status === 'streaming'
+  const isLoading = status === 'streaming' || status === 'submitted'
 
   const handleChip = (prompt: string) => {
-    sendMessage({ role: 'user', parts: [{ type: 'text', text: prompt }] })
+    sendMessage({ text: prompt })
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim() && !isLoading) {
-      sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] })
+      sendMessage({ text: input })
       setInput('')
     }
   }
@@ -50,7 +50,7 @@ export default function ChatPage() {
     if (e.key === 'Enter' && !e.shiftKey && window.innerWidth > 640) {
       e.preventDefault()
       if (input.trim() && !isLoading) {
-        sendMessage({ role: 'user', parts: [{ type: 'text', text: input }] })
+        sendMessage({ text: input })
         setInput('')
       }
     }
@@ -72,20 +72,7 @@ export default function ChatPage() {
     })
     const data = await res.json() as { success: boolean; booking?: { id: string }; error?: string }
     if (!res.ok || !data.success) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `booking-error-${Date.now()}`,
-          role: 'assistant' as const,
-          parts: [
-            {
-              type: 'text' as const,
-              text: `Sorry, I couldn't complete your booking: ${data.error ?? 'Please try again or contact support.'}`,
-            },
-          ],
-        },
-      ])
-      return
+      throw new Error(data.error ?? 'Booking failed. Please try again or contact support.')
     }
 
     setMessages((prev) => [
@@ -132,10 +119,7 @@ export default function ChatPage() {
               isLoading={isLoading}
               onBookingSubmit={handleBookingSubmit}
               onCancelConfirm={(bookingId) =>
-                sendMessage({
-                  role: 'user',
-                  parts: [{ type: 'text', text: `Yes, cancel booking ${bookingId}` }],
-                })
+                sendMessage({ text: `Yes, cancel booking ${bookingId}` })
               }
             />
           )}

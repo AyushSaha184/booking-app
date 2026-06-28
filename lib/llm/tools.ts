@@ -40,22 +40,22 @@ export const tools = {
     inputSchema: zodSchema(CheckRoomsSchema),
     execute: async (args: unknown) => {
       if (!validateRequestSize(JSON.stringify(args), 1000)) {
-        return { available: false, rooms: [], error: 'Invalid request size' }
+        return { available: false, availableRooms: [], error: 'Invalid request size' }
       }
 
       let validated: z.infer<typeof CheckRoomsParams>
       try {
         validated = CheckRoomsParams.parse(args)
       } catch {
-        return { available: false, rooms: [], error: 'Invalid parameters' }
+        return { available: false, availableRooms: [], error: 'Invalid parameters' }
       }
 
       const { checkIn, checkOut } = validated
-      const available = await getAvailableRooms(checkIn, checkOut)
-      if (available.length === 0) {
-        return { available: false, rooms: [] }
-      }
-      return { available: true, rooms: JSON.parse(JSON.stringify(available)) }
+       const available = await getAvailableRooms(checkIn, checkOut)
+       if (available.length === 0) {
+         return { available: false, availableRooms: [] }
+       }
+       return { available: true, availableRooms: JSON.parse(JSON.stringify(available)) }
     },
   }),
 
@@ -70,7 +70,13 @@ export const tools = {
       try {
         ShowBookingFormParams.parse(args)
       } catch {
-        return { shown: false, error: 'Invalid parameters' }
+        // Try to handle the case where the LLM passes 'rooms' instead of 'availableRooms'
+        const anyArgs = args as any
+        if (anyArgs?.rooms && !anyArgs?.availableRooms) {
+          ShowBookingFormParams.parse({ ...anyArgs, availableRooms: anyArgs.rooms })
+        } else {
+          return { shown: false, error: 'Invalid parameters' }
+        }
       }
 
       return { shown: true }
