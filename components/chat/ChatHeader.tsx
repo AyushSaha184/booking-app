@@ -26,10 +26,10 @@ export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderPr
           </svg>
         </div>
         <div className="flex flex-col">
-          <span className="text-[9px] tracking-[0.18em] text-[rgba(150,60,60,0.6)] uppercase font-normal leading-none">
+          <span className="text-[9px] tracking-widest text-[#2A1A1A]/60 uppercase font-normal leading-none">
             Palace Assistant
           </span>
-          <span className="text-[12px] text-[#B93C3C] font-medium tracking-[0.04em] leading-[1.4]">
+          <span className="text-xs text-[#B93C3C] font-medium tracking-wide leading-snug">
             Luxe Concierge
           </span>
         </div>
@@ -38,9 +38,9 @@ export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderPr
       {/* Status + actions */}
       <div className="flex items-center gap-3">
         {/* Connection status indicator */}
-        <div className="flex items-center gap-1.5 text-[11px] text-[rgba(150,60,60,0.7)] tracking-[0.05em]" aria-label={isConnected ? 'Connected' : 'Disconnected'}>
+        <div className="flex items-center gap-1.5 text-xs text-[#2A1A1A]/60 tracking-wide" aria-label={isConnected ? 'Connected' : 'Disconnected'}>
           <motion.span
-            className="w-1.5 h-1.5 rounded-full bg-[#4ade80] shadow-[0_0_6px_rgba(74,222,128,0.5)]"
+            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]"
             animate={isConnected ? { opacity: [1, 0.45, 1] } : { opacity: 0.3 }}
             transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
           />
@@ -53,7 +53,7 @@ export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderPr
         <button
           onClick={onClear}
           aria-label="Clear chat history"
-          className="w-7 h-7 rounded-md flex items-center justify-center cursor-pointer opacity-35 hover:opacity-70 transition-opacity text-[#8B2020] bg-transparent border-0"
+          className="w-7 h-7 rounded-md flex items-center justify-center cursor-pointer opacity-40 hover:opacity-80 transition-opacity text-[#B93C3C] bg-transparent border-0"
         >
           <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" className="w-3.5 h-3.5">
             <path d="M2 4h12M5 4V2.5A.5.5 0 015.5 2h5a.5.5 0 01.5.5V4M6 7v5M10 7v5M3 4l1 9.5a.5.5 0 00.5.5h7a.5.5 0 00.5-.5L13 4"/>

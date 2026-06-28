@@ -5,7 +5,7 @@ import { AnimatePresence } from 'framer-motion'
 import type { UIMessage } from 'ai'
 import MessageBubble from './MessageBubble'
 import TypingIndicator from './TypingIndicator'
-import type { BookingFormData } from '@/app/types/booking'
+import type { BookingFormData } from '@/types/booking'
 
 interface MessageListProps {
   messages: UIMessage[]
@@ -15,8 +15,7 @@ interface MessageListProps {
 }
 
 /**
- * Scrollable list of chat messages with smooth auto-scroll to bottom.
- * AnimatePresence enables exit animations for messages.
+ * Scrollable list of chat messages centered within the main layout.
  */
 export default function MessageList({
   messages,
@@ -32,7 +31,7 @@ export default function MessageList({
 
   return (
     <div
-      className="flex flex-col gap-2 p-4 overscroll-none"
+      className="flex flex-col gap-4 px-4 py-6 max-w-3xl mx-auto w-full overscroll-none"
       role="log"
       aria-live="polite"
       aria-label="Chat messages"

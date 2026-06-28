@@ -8,7 +8,7 @@ import MessageList from './MessageList'
 import ChatInput from './ChatInput'
 import SuggestionChips from './SuggestionChips'
 import ChatHeader from './ChatHeader'
-import type { BookingFormData } from '@/app/types/booking'
+import type { BookingFormData } from '@/types/booking'
 
 const SUGGESTIONS = [
   { label: 'Book a room', prompt: 'I want to book a room' },
@@ -92,8 +92,7 @@ export default function ChatPage() {
 
   return (
     <div
-      className="flex flex-col h-svh bg-background overflow-hidden"
-      style={{ background: 'var(--color-background)' }}
+      className="flex flex-col h-screen w-full bg-[#F5F0E8] overflow-hidden"
     >
       <ChatHeader
         onClear={() => setMessages([])}
@@ -102,7 +101,7 @@ export default function ChatPage() {
 
       {/* Message area */}
       <div
-        className="flex-1 min-h-0 overflow-y-auto"
+        className="flex-1 w-full h-full min-h-0 overflow-y-auto flex flex-col"
         style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
       >
         <AnimatePresence mode="wait">

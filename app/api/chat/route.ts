@@ -55,16 +55,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid messages format' }, { status: 400 })
     }
 
-    const sanitizedMessages = messages.map((msg: any) => ({
-      ...msg,
-      parts: Array.isArray(msg.parts)
-        ? msg.parts.map((p: any) =>
-            p?.type === 'text' && typeof p.text === 'string'
-              ? { ...p, text: sanitizeUserInput(p.text) }
-              : p
-          )
-        : msg.parts,
-    }))
+    const sanitizedMessages = messages.map((msg: any) => {
+      let content: string | any[]
+
+      if (Array.isArray(msg.parts)) {
+        content = msg.parts.map((p: any) => {
+          if (p?.type === 'text' && typeof p.text === 'string') {
+            return { type: 'text', text: sanitizeUserInput(p.text) }
+          }
+          return p
+        })
+      } else if (typeof msg.content === 'string') {
+        content = sanitizeUserInput(msg.content)
+      } else {
+        content = msg.content || ''
+      }
+
+      return {
+        role: msg.role,
+        content: content,
+      }
+    })
 
     const modelConfigs = buildModelConfigs()
 
