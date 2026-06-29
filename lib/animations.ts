@@ -1,4 +1,60 @@
-import type { Variants } from 'framer-motion'
+import type { Variants, Transition } from 'framer-motion'
+
+/* ─────────────────────────────────────────────────
+   Shared transition presets
+   ───────────────────────────────────────────────── */
+export const transitions: Record<'smooth' | 'spring' | 'bounce', Transition> = {
+  smooth: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] },
+  spring: { type: 'spring', stiffness: 400, damping: 30 },
+  bounce: { type: 'spring', stiffness: 500, damping: 20 },
+}
+
+/* ─────────────────────────────────────────────────
+   View-level variants
+   ───────────────────────────────────────────────── */
+export const fadeInUp: Variants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+}
+
+export const slideInRight: Variants = {
+  initial: { opacity: 0, x: 60 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -60 },
+}
+
+export const slideInLeft: Variants = {
+  initial: { opacity: 0, x: -60 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 60 },
+}
+
+export const scaleIn: Variants = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.8 },
+}
+
+/* ─────────────────────────────────────────────────
+   Stagger container / item helpers
+   ───────────────────────────────────────────────── */
+export const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+}
+
+export const staggerItem: Variants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
+}
+
+/* ─────────────────────────────────────────────────
+   Legacy variants (kept for existing components)
+   ───────────────────────────────────────────────── */
 
 /** Fade in from transparent */
 export const fadeIn: Variants = {
@@ -73,8 +129,8 @@ export const slideRight: Variants = {
   },
 }
 
-/** Scale up from slightly smaller */
-export const scaleIn: Variants = {
+/** Scale up from slightly smaller (legacy; scaleIn is the newer variant) */
+export const scaleFade: Variants = {
   hidden: { opacity: 0, scale: 0.94 },
   visible: {
     opacity: 1,
@@ -88,8 +144,8 @@ export const scaleIn: Variants = {
   },
 }
 
-/** Container variant that staggers its children */
-export const staggerContainer: Variants = {
+/** Container variant that staggers its children (legacy) */
+export const staggerContainerLegacy: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -99,8 +155,8 @@ export const staggerContainer: Variants = {
   },
 }
 
-/** Child variant for staggered lists */
-export const staggerItem: Variants = {
+/** Child variant for staggered lists (legacy) */
+export const staggerItemLegacy: Variants = {
   hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,

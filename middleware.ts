@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: https:",
-      "connect-src 'self' https://generativelanguage.googleapis.com https://api.neon.tech",
+      "connect-src 'self' https://api.neon.tech",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

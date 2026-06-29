@@ -1,148 +1,155 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { Calendar, CalendarX, Image as ImageIcon } from 'lucide-react'
+import { staggerContainer, staggerItem, transitions } from '@/lib/animations'
 
-interface Suggestion {
-  label: string
-  prompt: string
-}
-
-const CARD_ICONS: Record<string, React.ReactNode> = {
-  'Book a room': (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-5 h-5 text-[#B93C3C]">
-      <rect x="1" y="6" width="14" height="9" rx="1.5"/>
-      <path d="M4 6V4.5a4 4 0 018 0V6"/>
-      <path d="M6 10h4"/>
-    </svg>
-  ),
-  'Show available rooms': (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-5 h-5 text-[#B93C3C]">
-      <circle cx="7" cy="7" r="5"/>
-      <path d="M12 12l2.5 2.5"/>
-    </svg>
-  ),
-  'Cancel my booking': (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-5 h-5 text-[#B93C3C]">
-      <rect x="2" y="2" width="12" height="12" rx="1.5"/>
-      <path d="M5 7h6M5 10h4M5 4h6"/>
-    </svg>
-  ),
-  'View resort photos': (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-5 h-5 text-[#B93C3C]">
-      <rect x="1" y="3" width="14" height="10" rx="1.5"/>
-      <circle cx="5" cy="7" r="1.5"/>
-      <path d="M1 11l4-4 3 3 2-2 3 3"/>
-    </svg>
-  ),
-}
-
-const CARD_SUBTITLES: Record<string, string> = {
-  'Book a room': 'Reserve your perfect suite',
-  'Show available rooms': 'Browse luxury options',
-  'Cancel my booking': 'Modify your current stay',
-  'View resort photos': 'Explore our resort gallery',
-}
+export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos'
 
 interface SuggestionChipsProps {
-  suggestions: Suggestion[]
-  onSelect: (prompt: string) => void
+  onSelectView: (view: ChatView) => void
 }
 
 /**
- * Empty-state landing screen with enlarged, smooth luxury action buttons.
+ * Welcome screen with three large premium action cards.
+ * Clicking a card switches the chat to the corresponding view.
  */
-export default function SuggestionChips({ suggestions, onSelect }: SuggestionChipsProps) {
+export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
+  const cards: Array<{
+    title: string
+    subtitle: string
+    icon: React.ReactNode
+    view: ChatView
+  }> = [
+    {
+      title: 'Book a room',
+      subtitle: 'Reserve your perfect suite',
+      icon: <Calendar className="w-6 h-6" strokeWidth={1.8} />,
+      view: 'booking',
+    },
+    {
+      title: 'Cancel my booking',
+      subtitle: 'Modify your current stay',
+      icon: <CalendarX className="w-6 h-6" strokeWidth={1.8} />,
+      view: 'cancellation',
+    },
+    {
+      title: 'View resort photos',
+      subtitle: 'Explore our resort gallery',
+      icon: <ImageIcon className="w-6 h-6" strokeWidth={1.8} />,
+      view: 'photos',
+    },
+  ]
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
-      className="flex-1 w-full h-full my-auto flex flex-col items-center justify-center px-6 py-8 relative z-10"
-    >
-      <div className="flex flex-col items-center w-full max-w-[600px]">
-        
-        {/* Luxury Star Badge */}
+    <div className="flex-1 w-full h-full flex flex-col items-center justify-center px-6 py-8 relative z-10 overflow-y-auto">
+      <div className="flex flex-col items-center w-full max-w-[640px]">
+        {/* Brand badge */}
         <motion.div
           initial={{ scale: 0.85, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
-          className="relative w-16 h-16 rounded-full bg-[#B93C3C]/10 border border-[#B93C3C]/25 flex items-center justify-center mb-6 shadow-xs"
+          transition={transitions.smooth}
+          className="relative w-16 h-16 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center mb-6 shadow-sm"
         >
-          <div className="absolute -inset-2 rounded-full border border-[#B93C3C]/10 pointer-events-none" />
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="w-6 h-6 text-[#B93C3C]">
-            <path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2z"/>
-            <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z"/>
-            <path d="M5 15l.6 1.4L7 17l-1.4.6L5 19l-.6-1.4L3 17l1.4-.6L5 15z"/>
-          </svg>
-        </motion.div>
+          <div className="absolute -inset-2 rounded-full border border-[#8B1538]/10 pointer-events-none" aria-hidden="true" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            className="w-6 h-6 text-[#8B1538]"
+            aria-hidden="true"
+          >
+            <path d="M3 21V11l9-7 9 7v10" />
+            <path d="M9 21v-6h6v6" />
+         </svg>
+       </motion.div>
 
-        {/* Vertical Rule Line */}
-        <div className="w-px h-8 bg-gradient-to-b from-transparent via-[#B93C3C]/40 to-transparent mb-5" />
+        <div className="w-px h-8 bg-gradient-to-b from-transparent via-[#8B1538]/40 to-transparent mb-5" />
 
         {/* Headline */}
         <motion.h1
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.08, ease: [0.25, 1, 0.5, 1] }}
-          className="font-serif text-3xl sm:text-4xl font-medium text-[#2A1A1A] text-center tracking-tight leading-tight mb-3"
+          transition={{ ...transitions.smooth, delay: 0.08 }}
+          className="font-serif text-3xl sm:text-4xl font-medium text-[#1F1F1F] text-center tracking-tight leading-tight mb-3"
         >
-          Your Luxury Stay <em className="italic text-[#B93C3C]">Awaits</em>
-        </motion.h1>
+          Your Dream Stay <em className="italic text-[#8B1538]">Awaits</em>
+       </motion.h1>
 
         {/* Subtitle */}
         <motion.p
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.14, ease: [0.25, 1, 0.5, 1] }}
-          className="text-sm sm:text-base text-[#2A1A1A]/65 text-center leading-relaxed max-w-[420px] font-light mb-10"
+          transition={{ ...transitions.smooth, delay: 0.14 }}
+          className="text-sm sm:text-base text-[#6B7280] text-center leading-relaxed max-w-[440px] font-light mb-10"
         >
-          Welcome to our elite concierge. I can assist you with seamless room bookings, availability updates, and resort experiences.
-        </motion.p>
+          Welcome to Dorshi Holiday Resort cum Restaurant. Choose how
+          you’d like to continue — we’re here to make every moment memorable.
+       </motion.p>
 
-        {/* Horizontal Divider */}
-        <div className="w-full max-w-[440px] h-px bg-gradient-to-r from-transparent via-[#B93C3C]/25 to-transparent mb-8" />
+        <div className="w-full max-w-[480px] h-px bg-gradient-to-r from-transparent via-[#E5E7EB] to-transparent mb-8" />
 
-        {/* 2-Column Action Cards Grid (Enlarged Buttons) */}
+        {/* Action cards */}
         <motion.div
-          initial={{ y: 15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.2, ease: [0.25, 1, 0.5, 1] }}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full max-w-[560px]"
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="flex flex-col gap-3.5 w-full max-w-[480px]"
           role="list"
         >
-          {suggestions.map((s) => (
+          {cards.map((card) => (
             <motion.button
-              key={s.prompt}
-              onClick={() => onSelect(s.prompt)}
-              role="listitem"
-              whileHover={{ scale: 1.02, y: -3 }}
+              key={card.view}
+              variants={staggerItem}
+              onClick={() => onSelectView(card.view)}
+              whileHover={{
+                y: -4,
+                boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
+              }}
               whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className="group relative flex items-center gap-4 px-5 py-4 bg-white/85 backdrop-blur-lg border border-[#B93C3C]/20 rounded-2xl text-left w-full cursor-pointer shadow-xs hover:shadow-[0_8px_24px_rgba(185,60,60,0.14)] hover:bg-white hover:border-[#B93C3C]/40 transition-all duration-200 overflow-hidden"
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              className="group relative flex items-center gap-4 px-5 py-4 bg-white/90 backdrop-blur-lg border border-[#E5E7EB] rounded-2xl text-left w-full cursor-pointer hover:border-[#8B1538]/40 transition-colors duration-200 overflow-hidden"
+              aria-label={card.title}
             >
-              {/* Hover Red Accent Line on Left */}
-              <span className="absolute left-0 top-0 bottom-0 w-[4px] bg-transparent transition-colors duration-200 group-hover:bg-[#B93C3C]" />
+              {/* Left accent bar */}
+              <span
+                aria-hidden="true"
+                className="absolute left-0 top-0 bottom-0 w-[4px] bg-transparent transition-colors duration-200 group-hover:bg-[#8B1538]"
+              />
 
-              {/* Icon Container */}
-              <div className="w-11 h-11 rounded-xl bg-[#B93C3C]/8 border border-[#B93C3C]/20 flex items-center justify-center shrink-0 group-hover:bg-[#B93C3C]/14 group-hover:scale-105 transition-all duration-200">
-                {CARD_ICONS[s.label] ?? CARD_ICONS['Book a room']}
-              </div>
+              {/* Icon */}
+              <div className="w-12 h-12 rounded-xl bg-[#8B1538]/8 border border-[#8B1538]/15 flex items-center justify-center shrink-0 text-[#8B1538] group-hover:scale-110 transition-transform duration-200">
+                {card.icon}
+             </div>
 
-              {/* Text Content */}
+              {/* Text */}
               <div className="flex-1 min-w-0">
-                <div className="text-sm sm:text-base font-semibold text-[#2A1A1A] tracking-wide truncate group-hover:text-[#B93C3C] transition-colors duration-200">
-                  {s.label}
-                </div>
-                <div className="text-xs text-[#2A1A1A]/65 mt-0.5 font-light truncate">
-                  {CARD_SUBTITLES[s.label] ?? 'Explore options'}
-                </div>
-              </div>
-            </motion.button>
-          ))}
-        </motion.div>
+                <div className="text-sm sm:text-base font-semibold text-[#1F1F1F] tracking-wide leading-tight group-hover:text-[#8B1538] transition-colors duration-200">
+                  {card.title}
+               </div>
+                <div className="text-xs sm:text-sm text-[#6B7280] mt-0.5 font-light">
+                  {card.subtitle}
+               </div>
+             </div>
 
-      </div>
-    </motion.div>
+              {/* Arrow */}
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                className="w-4 h-4 text-[#6B7280] group-hover:text-[#8B1538] group-hover:translate-x-1 transition-all duration-200 shrink-0"
+                aria-hidden="true"
+              >
+                <path d="M6 4l4 4-4 4" />
+             </svg>
+           </motion.button>
+          ))}
+       </motion.div>
+    </div>
+  </div>
   )
 }

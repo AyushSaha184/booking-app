@@ -1,69 +1,73 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { X } from 'lucide-react'
+
+const RESORT_NAME = 'Dorshi Holiday Resort cum Restaurant'
 
 interface ChatHeaderProps {
-  onClear: () => void
-  isConnected?: boolean
+  onClose: () => void
 }
 
 /**
- * Top header bar for the chat interface matching luxe_concierge_cream_red.html (.lc-topbar).
+ * Top header bar for the chat interface.
+ * Shows the resort name cleanly with no AI/live status indicators.
  */
-export default function ChatHeader({ onClear, isConnected = true }: ChatHeaderProps) {
+export default function ChatHeader({ onClose }: ChatHeaderProps) {
   return (
-    <header className="relative flex items-center justify-between px-5 h-12 bg-[#F5F0E8]/80 backdrop-blur-md shrink-0 z-20 border-b border-[#B93C3C]/15"
+    <header
+      className="relative flex items-center justify-between px-5 h-14 bg-[#FAFAF8]/85 backdrop-blur-xl shrink-0 z-20 border-b border-[#E5E7EB]"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
       {/* Brand */}
-      <div className="flex items-center gap-2.5">
-        <div className="w-7 h-7 rounded-md border border-[#B93C3C]/35 flex items-center justify-center bg-transparent">
-          <svg viewBox="0 0 14 14" fill="none" stroke="#B93C3C" strokeWidth="1.2" className="w-3.5 h-3.5">
-            <rect x="1" y="1" width="5" height="5" rx="1"/>
-            <rect x="8" y="1" width="5" height="5" rx="1"/>
-            <rect x="1" y="8" width="5" height="5" rx="1"/>
-            <rect x="8" y="8" width="5" height="5" rx="1"/>
-          </svg>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[9px] tracking-widest text-[#2A1A1A]/60 uppercase font-normal leading-none">
-            Palace Assistant
-          </span>
-          <span className="text-xs text-[#B93C3C] font-medium tracking-wide leading-snug">
-            Luxe Concierge
-          </span>
-        </div>
-      </div>
-
-      {/* Status + actions */}
-      <div className="flex items-center gap-3">
-        {/* Connection status indicator pill */}
-        <div 
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 text-xs font-medium tracking-wide shadow-2xs" 
-          aria-label={isConnected ? 'Connected' : 'Disconnected'}
+      <div className="flex items-center gap-3 min-w-0">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+          className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B1538] to-[#6E0F2A] flex items-center justify-center shrink-0 shadow-md"
         >
-          <motion.span
-            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.7)]"
-            animate={isConnected ? { scale: [1, 1.25, 1], opacity: [1, 0.6, 1] } : { opacity: 0.3 }}
-            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-          />
-          <span>
-            {isConnected ? 'Live Concierge' : 'Offline'}
-          </span>
-        </div>
+          <svg
+            viewBox="0 0 14 14"
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="1.4"
+            className="w-4 h-4"
+            aria-hidden="true"
+          >
+            <rect x="1" y="1" width="5" height="5" rx="1" />
+            <rect x="8" y="1" width="5" height="5" rx="1" />
+            <rect x="1" y="8" width="5" height="5" rx="1" />
+            <rect x="8" y="8" width="5" height="5" rx="1" />
+         </svg>
+       </motion.div>
 
-        {/* Clear chat button */}
-        <button
-          onClick={onClear}
-          aria-label="Clear chat history"
-          title="Clear conversation"
-          className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer text-[#B93C3C]/60 hover:text-[#B93C3C] hover:bg-[#B93C3C]/10 transition-all duration-200 border-0"
+        <motion.div
+          initial={{ opacity: 0, x: -8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.05, ease: [0.25, 0.1, 0.25, 1] }}
+          className="flex flex-col min-w-0"
         >
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" className="w-4 h-4">
-            <path d="M2 4h12M5 4V2.5A.5.5 0 015.5 2h5a.5.5 0 01.5.5V4M6 7v5M10 7v5M3 4l1 9.5a.5.5 0 00.5.5h7a.5.5 0 00.5-.5L13 4"/>
-          </svg>
-        </button>
-      </div>
-    </header>
+          <span className="text-[10px] tracking-[0.16em] text-[#6B7280] uppercase font-medium leading-none mb-0.5">
+            Welcome
+         </span>
+          <span className="text-sm font-semibold text-[#1F1F1F] truncate tracking-tight leading-tight">
+            {RESORT_NAME}
+         </span>
+       </motion.div>
+     </div>
+
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        aria-label="Close chat"
+        title="Close"
+        className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer text-[#6B7280] hover:text-[#8B1538] hover:bg-[#8B1538]/10 active:scale-95 transition-all duration-200 border border-transparent hover:border-[#8B1538]/15"
+      >
+        <X className="w-5 h-5" strokeWidth={2} />
+     </button>
+   </header>
   )
 }
+
+export { RESORT_NAME }
