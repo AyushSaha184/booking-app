@@ -136,6 +136,11 @@ async function sendSMS(to: string, body: string): Promise<{ success: boolean; si
     return { success: false, error: 'Twilio phone number not configured' }
   }
 
+  if (!twilioClient) {
+    logger.warn('Twilio SMS attempt failed: client not configured')
+    return { success: false, error: 'Twilio client not configured' }
+  }
+
   try {
     const message = await twilioClient.messages.create({
       body,
