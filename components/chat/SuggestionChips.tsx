@@ -51,8 +51,15 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
           transition={transitions.smooth}
           className="relative w-16 h-16 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center mb-6 shadow-sm"
         >
-          <div className="absolute -inset-2 rounded-full border border-[#8B1538]/10 pointer-events-none" aria-hidden="true" />
-          <svg
+          <motion.div
+            className="absolute -inset-2 rounded-full border border-[#8B1538]/10 pointer-events-none"
+            aria-hidden="true"
+            animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.05, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+         />
+          <motion.svg
+            animate={{ y: [0, -2, 0] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -63,7 +70,7 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
           >
             <path d="M3 21V11l9-7 9 7v10" />
             <path d="M9 21v-6h6v6" />
-         </svg>
+         </motion.svg>
        </motion.div>
 
         <div className="w-px h-8 bg-gradient-to-b from-transparent via-[#8B1538]/40 to-transparent mb-5" />

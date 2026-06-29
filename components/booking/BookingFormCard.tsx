@@ -184,7 +184,7 @@ export default function BookingFormCard({
         variants={bounceIn}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-5 py-10 px-6 bg-white rounded-2xl shadow-lg border border-[#E5E7EB] max-w-[540px] mx-auto"
+        className="flex flex-col items-center gap-5 py-10 px-6 bg-white rounded-2xl shadow-lg border border-[#E5E7EB] w-full max-w-[540px] md:max-w-2xl lg:max-w-3xl mx-auto"
       >
         {/* Animated checkmark */}
         <div className="relative w-20 h-20">
@@ -244,7 +244,7 @@ export default function BookingFormCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={transitions.smooth}
-      className="overflow-hidden max-w-[540px] mx-auto w-full"
+      className="overflow-hidden w-full max-w-[540px] md:max-w-2xl lg:max-w-3xl mx-auto"
     >
       <div className="bg-white rounded-2xl shadow-lg border border-[#E5E7EB]">
         {/* Header */}
@@ -364,34 +364,36 @@ export default function BookingFormCard({
               </div>
 
               {/* Guests stepper */}
-              <div className="flex items-center gap-3 mt-3">
+              <div className="flex flex-col gap-1.5 mt-3">
                 <input type="hidden" {...register('guests', { valueAsNumber: true })} />
-                <span className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase w-14">Guests</span>
-                <button
-                  type="button"
-                  onClick={() => { const curr = watchedValues.guests ?? 1; if (curr > 1) setValue('guests', curr - 1) }}
-                  className="w-9 h-9 rounded-lg bg-[#FAFAF8] border border-[#E5E7EB] grid place-items-center text-[#1F1F1F] hover:border-[#8B1538] transition-colors cursor-pointer text-base font-medium"
-                >
-                  −
-                </button>
-                <span className="text-sm font-semibold text-[#1F1F1F] min-w-[2ch] text-center">
-                  {watchedValues.guests}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const curr = watchedValues.guests ?? 1
-                    const max = priceSummary.room?.capacity ?? 10
-                    if (curr < max) setValue('guests', curr + 1)
-                  }}
-                  className="w-9 h-9 rounded-lg bg-[#FAFAF8] border border-[#E5E7EB] grid place-items-center text-[#1F1F1F] hover:border-[#8B1538] transition-colors cursor-pointer text-base font-medium"
-                >
-                  +
-                </button>
-                <span className="text-xs text-[#6B7280] ml-1 flex items-center gap-1">
-                  <Users className="w-3.5 h-3.5" />
-                  Max {priceSummary.room?.capacity ?? 10}
-                </span>
+                <label className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase">Guests</label>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => { const curr = watchedValues.guests ?? 1; if (curr > 1) setValue('guests', curr - 1) }}
+                    className="w-9 h-9 rounded-lg bg-[#FAFAF8] border border-[#E5E7EB] grid place-items-center text-[#1F1F1F] hover:border-[#8B1538] transition-colors cursor-pointer text-base font-medium"
+                  >
+                    −
+                  </button>
+                  <span className="text-sm font-semibold text-[#1F1F1F] min-w-[2ch] text-center">
+                    {watchedValues.guests}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const curr = watchedValues.guests ?? 1
+                      const max = priceSummary.room?.capacity ?? 10
+                      if (curr < max) setValue('guests', curr + 1)
+                    }}
+                    className="w-9 h-9 rounded-lg bg-[#FAFAF8] border border-[#E5E7EB] grid place-items-center text-[#1F1F1F] hover:border-[#8B1538] transition-colors cursor-pointer text-base font-medium"
+                  >
+                    +
+                  </button>
+                  <span className="text-xs text-[#6B7280] ml-1 flex items-center gap-1">
+                    <Users className="w-3.5 h-3.5" />
+                    Max {priceSummary.room?.capacity ?? 10}
+                  </span>
+                </div>
                 {errors.guests && <p className="text-xs text-[#E11D48]">{errors.guests.message}</p>}
               </div>
             </motion.div>

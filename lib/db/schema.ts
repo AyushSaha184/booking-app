@@ -1,5 +1,6 @@
 import { pgTable, text, integer, date, timestamp } from 'drizzle-orm/pg-core'
 
+/* ── Room Schema ─────────────────────────────────── */
 export const rooms = pgTable('rooms', {
   id: text('id').primaryKey(),           // e.g. "101"
   name: text('name').notNull(),          // e.g. "Deluxe Room 101"
@@ -7,13 +8,25 @@ export const rooms = pgTable('rooms', {
   capacity: integer('capacity').notNull(),
   pricePerNight: integer('price_per_night').notNull(),
   description: text('description'),
+  images: text('images').array(),        // optional image URLs
 })
 
+/* ── User Schema ─────────────────────────────────── */
+export const users = pgTable('users', {
+  id: text('id').primaryKey(),           // e.g. "USR-XJ9K"
+  name: text('name').notNull(),
+  phone: text('phone').notNull().unique(),
+  email: text('email'),
+  createdAt: timestamp('created_at').defaultNow(),
+})
+
+/* ── Booking Schema ───────────────────────────────── */
 export const bookings = pgTable('bookings', {
   id: text('id').primaryKey(),           // e.g. "BK-XJ9K"
   guestName: text('guest_name').notNull(),
   phone: text('phone').notNull(),        // identity key for lookup
   roomId: text('room_id').notNull().references(() => rooms.id),
+  userId: text('user_id').references(() => users.id),
   checkIn: date('check_in').notNull(),
   checkOut: date('check_out').notNull(),
   guests: integer('guests').notNull(),

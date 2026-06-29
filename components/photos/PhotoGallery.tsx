@@ -1,36 +1,57 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { staggerContainer, staggerItem, transitions } from '@/lib/animations'
 import { cn } from '@/lib/utils'
 
 /* ─────────────────────────────────────────────────
-   Gallery data — placeholder gradient "photos"
+   Gallery data — imported resort photos
    ───────────────────────────────────────────────── */
 
 interface PhotoItem {
   id: string
   name: string
   type: string
-  gradientClass: string
-  accentColor: string
+  src: string
 }
 
+/* Import all resort images from app/assests */
 const PHOTOS: PhotoItem[] = [
-  { id: '1', name: 'Lobby & Reception', type: 'Common Area', gradientClass: 'from-[#8B4513] to-[#D2691E]', accentColor: '#CD853F' },
-  { id: '2', name: 'Garden Suite', type: 'Suite', gradientClass: 'from-[#2D5016] to-[#6B8E23]', accentColor: '#9ACD32' },
-  { id: '3', name: 'Infinity Pool', type: 'Recreation', gradientClass: 'from-[#0077B6] to-[#00B4D8]', accentColor: '#48CAE4' },
-  { id: '4', name: 'Ocean View Deluxe', type: 'Deluxe', gradientClass: 'from-[#023E8A] to-[#0077B6]', accentColor: '#00B4D8' },
-  { id: '5', name: 'Beach Bungalow', type: 'Cottage', gradientClass: 'from-[#F77F00] to-[#EAE2B7]', accentColor: '#F4A261' },
-  { id: '6', name: 'Mountain Villa', type: 'Premium Villa', gradientClass: 'from-[#3D405B] to-[#81B29A]', accentColor: '#81B29A' },
-  { id: '7', name: 'Restaurant & Dining', type: 'Dining', gradientClass: 'from-[#6D2E46] to-[#A26769]', accentColor: '#D4A373' },
-  { id: '8', name: 'Spa & Wellness', type: 'Wellness', gradientClass: 'from-[#606C38] to-[#BC6C25]', accentColor: '#DDA15E' },
-  { id: '9', name: 'Fitness Center', type: 'Recreation', gradientClass: 'from-[#1D3557] to-[#457B9D]', accentColor: '#A8DADC' },
-  { id: '10', name: 'Sunset Terrace', type: 'Common Area', gradientClass: 'from-[#9D4EDD] to-[#E07BE0]', accentColor: '#C77DFF' },
-  { id: '11', name: 'Kids Play Zone', type: 'Family', gradientClass: 'from-[#FF6B6B] to-[#FFA07A]', accentColor: '#FF8C69' },
-  { id: '12', name: 'Conference Hall', type: 'Events', gradientClass: 'from-[#2C3E50] to-[#4CA1AF]', accentColor: '#76B7B9' },
+  { id: '1', name: 'Resort Exterior', type: 'Common Area', src: '/assests/IMG-20260622-WA0036.webp' },
+  { id: '2', name: 'Swimming Pool', type: 'Recreation', src: '/assests/IMG-20260622-WA0035.webp' },
+  { id: '3', name: 'Pool Area', type: 'Recreation', src: '/assests/IMG-20260622-WA0034.webp' },
+  { id: '4', name: 'Resort View', type: 'Common Area', src: '/assests/IMG-20260622-WA0033.webp' },
+  { id: '5', name: 'Garden Area', type: 'Common Area', src: '/assests/IMG-20260622-WA0032.webp' },
+  { id: '6', name: 'Restaurant', type: 'Dining', src: '/assests/IMG-20260622-WA0031.webp' },
+  { id: '7', name: 'Dining Area', type: 'Dining', src: '/assests/IMG-20260622-WA0030.webp' },
+  { id: '8', name: 'Food Service', type: 'Dining', src: '/assests/IMG-20260622-WA0029.webp' },
+  { id: '9', name: 'Resort Entrance', type: 'Common Area', src: '/assests/IMG-20260622-WA0028.webp' },
+  { id: '10', name: 'Property View', type: 'Common Area', src: '/assests/IMG-20260622-WA0027.webp' },
+  { id: '11', name: 'Room Interior', type: 'Accommodation', src: '/assests/IMG-20260622-WA0026.webp' },
+  { id: '12', name: 'Guest Room', type: 'Accommodation', src: '/assests/IMG-20260622-WA0025.webp' },
+  { id: '13', name: 'Bedroom Suite', type: 'Accommodation', src: '/assests/IMG-20260622-WA0024.webp' },
+  { id: '14', name: 'Bathroom', type: 'Accommodation', src: '/assests/IMG-20260622-WA0023.webp' },
+  { id: '15', name: 'Room Amenities', type: 'Accommodation', src: '/assests/IMG-20260622-WA0022.webp' },
+  { id: '16', name: 'Balcony View', type: 'Accommodation', src: '/assests/IMG-20260622-WA0021.webp' },
+  { id: '17', name: 'Evening View', type: 'Common Area', src: '/assests/IMG-20260622-WA0020.webp' },
+  { id: '18', name: 'Landscaping', type: 'Common Area', src: '/assests/IMG-20260622-WA0019.webp' },
+  { id: '19', name: 'Outdoor Seating', type: 'Common Area', src: '/assests/IMG-20260622-WA0018.webp' },
+  { id: '20', name: 'Walkway', type: 'Common Area', src: '/assests/IMG-20260622-WA0017.webp' },
+  { id: '21', name: 'Surroundings', type: 'Common Area', src: '/assests/IMG-20260622-WA0016.webp' },
+  { id: '22', name: 'Resort Facade', type: 'Common Area', src: '/assests/IMG-20260622-WA0015.webp' },
+  { id: '23', name: 'Another View', type: 'Common Area', src: '/assests/IMG-20260622-WA0014.webp' },
+  { id: '24', name: 'Scenic Shot', type: 'Common Area', src: '/assests/IMG-20260622-WA0013.webp' },
+  { id: '25', name: 'More Views', type: 'Common Area', src: '/assests/IMG-20260622-WA0012.webp' },
+  { id: '26', name: 'Property Shot', type: 'Common Area', src: '/assests/IMG-20260622-WA0011.webp' },
+  { id: '27', name: 'Resort Scene', type: 'Common Area', src: '/assests/IMG-20260622-WA0010.webp' },
+  { id: '28', name: 'Corridor', type: 'Common Area', src: '/assests/IMG-20260622-WA0009.webp' },
+  { id: '29', name: 'Interior', type: 'Common Area', src: '/assests/IMG-20260622-WA0008.webp' },
+  { id: '30', name: 'Detail Shot', type: 'Common Area', src: '/assests/IMG-20260622-WA0007.webp' },
+  { id: '31', name: 'Resort Area', type: 'Common Area', src: '/assests/IMG-20260622-WA0006.webp' },
+  { id: '32', name: 'Final View', type: 'Common Area', src: '/assests/IMG-20260622-WA0005.webp' },
 ]
 
 /* ─────────────────────────────────────────────────
@@ -56,22 +77,16 @@ function PhotoTile({
       className="group relative w-full aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer border-0 p-0 bg-transparent"
       aria-label={`View ${photo.name}`}
     >
-      {/* Background gradient "photo" */}
-      <div
+      {/* Real image */}
+      <Image
+        src={photo.src}
+        alt={photo.name}
+        fill
+        loading="lazy"
         className={cn(
-          'absolute inset-0 bg-gradient-to-br',
-          photo.gradientClass,
-          'transition-transform duration-500 group-hover:scale-105'
+          'object-cover transition-transform duration-500 group-hover:scale-105',
         )}
-      />
-
-      {/* Abstract overlay pattern */}
-      <div
-        className="absolute inset-0 opacity-20"
-        aria-hidden="true"
-        style={{
-          backgroundImage: `radial-gradient(circle at 70% 30%, rgba(255,255,255,0.3) 0%, transparent 50%)`,
-        }}
+        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
       />
 
       {/* Room name overlay on hover */}
@@ -119,7 +134,7 @@ function Lightbox({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -163,36 +178,19 @@ function Lightbox({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.85 }}
         transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-        className="relative w-full max-w-3xl max-h-[85vh] mx-4 flex flex-col items-center"
+        className="relative w-full max-w-4xl max-h-[85vh] mx-4 flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Photo */}
-        <div
-          className={cn(
-            'w-full max-h-[70vh] rounded-2xl bg-gradient-to-br overflow-hidden shadow-2xl',
-            photo.gradientClass
-          )}
-          style={{
-            minHeight: 300,
-          }}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="relative w-full h-full flex items-center justify-center">
-              {/* Large decorative abstract element */}
-              <svg viewBox="0 0 200 200" className="w-48 h-48 opacity-20" aria-hidden="true">
-                <circle cx="100" cy="100" r="80" fill="none" stroke="white" strokeWidth="1" />
-                <circle cx="100" cy="100" r="60" fill="none" stroke="white" strokeWidth="0.5" />
-                <circle cx="100" cy="100" r="40" fill="none" stroke="white" strokeWidth="0.5" />
-                <path d="M40 100 Q100 40 160 100 Q100 160 40 100Z" fill="none" stroke="white" strokeWidth="0.5" />
-              </svg>
-              <div
-                className="absolute inset-0"
-                style={{
-                  background: 'radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.25) 0%, transparent 60%)',
-                }}
-              />
-            </div>
-          </div>
+        <div className="relative w-full h-[70vh] rounded-2xl overflow-hidden shadow-2xl">
+          <Image
+            src={photo.src}
+            alt={photo.name}
+            fill
+            loading="eager"
+            className="object-contain"
+            sizes="90vw"
+          />
         </div>
 
         {/* Caption */}

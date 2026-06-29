@@ -1,3 +1,43 @@
+-- =============================================
+-- Dorshi Holiday Resort — Database Schema
+-- =============================================
+
+-- ── Rooms ────────────────────────────────────
+CREATE TABLE IF NOT EXISTS rooms (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    type TEXT NOT NULL,
+    capacity INTEGER NOT NULL,
+    price_per_night INTEGER NOT NULL,
+    description TEXT
+);
+
+-- ── Users ────────────────────────────────────
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL UNIQUE,
+    email TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- ── Bookings ─────────────────────────────────
+CREATE TABLE IF NOT EXISTS bookings (
+    id TEXT PRIMARY KEY,
+    guest_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    room_id TEXT NOT NULL,
+    user_id TEXT REFERENCES users(id),
+    check_in DATE NOT NULL,
+    check_out DATE NOT NULL,
+    guests INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'confirmed',
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- =============================================
+-- Seed Data
+-- =============================================
 INSERT INTO rooms (id, name, type, capacity, price_per_night, description) VALUES
   ('1', 'Room 1', 'standard', 2, 5000, 'Comfortable standard room'),
   ('2', 'Room 2', 'standard', 2, 5000, 'Comfortable standard room'),

@@ -1,13 +1,24 @@
-/** A resort room returned from the database / AI tool */
+/* ── Room ──────────────────────────────────────── */
 export interface Room {
   id: string
   name: string
   type: string
   capacity: number
   pricePerNight: number
+  description?: string | null
+  images?: string[] | null
 }
 
-/** Form data collected by BookingFormCard */
+/* ── User ──────────────────────────────────────── */
+export interface User {
+  id: string
+  name: string
+  phone: string
+  email?: string | null
+  createdAt?: string | null
+}
+
+/* ── Form data collected by BookingFormCard ───── */
 export interface BookingFormData {
   guestName: string
   phone: string
@@ -17,14 +28,14 @@ export interface BookingFormData {
   guests: number
 }
 
-/** Prefill hints supplied by the AI */
+/* ── Prefill hints supplied by the AI ─────────── */
 export interface BookingPrefill {
   checkIn?: string
   checkOut?: string
   guests?: number
 }
 
-/** Result returned by the /api/bookings route */
+/* ── Result returned by the /api/bookings route ── */
 export interface BookingResult {
   success: boolean
   booking?: {

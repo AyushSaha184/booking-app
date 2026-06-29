@@ -47,7 +47,7 @@ function BookingView({ onBack }: { onBack: () => void }) {
   }, [])
 
   return (
-    <div className="w-full h-full overflow-y-auto py-6 px-4">
+    <div className="w-full h-full overflow-y-auto py-6 px-4 sm:px-6 lg:px-8">
       <BookingFormCard
         onSubmit={handleSubmit}
         onBack={onBack}

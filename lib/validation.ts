@@ -67,6 +67,28 @@ export const CheckRoomsSchema = z.object({
 
 export const RoomIdSchema = z.string().min(1)
 
+/* ── Room Schemas ─────────────────────────────── */
+export const CreateRoomSchema = z.object({
+  id: z.string().min(1, 'Room ID is required'),
+  name: z.string().min(1, 'Room name is required').max(100, 'Name too long'),
+  type: z.enum(['standard', 'deluxe', 'suite'], { message: 'Type must be standard, deluxe, or suite' }),
+  capacity: z.number().int().min(1, 'Capacity must be at least 1').max(20, 'Capacity too high'),
+  pricePerNight: z.number().int().min(0, 'Price cannot be negative'),
+  description: z.string().max(500, 'Description too long').optional(),
+  images: z.array(z.string().url('Invalid image URL')).optional(),
+})
+
+export const UpdateRoomSchema = CreateRoomSchema.partial().omit({ id: true })
+
+/* ── User Schemas ─────────────────────────────── */
+export const CreateUserSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  phone: z.string().min(10, 'Invalid phone number').max(15, 'Invalid phone number').regex(PHONE_REGEX, 'Invalid phone format'),
+  email: z.string().email('Invalid email').optional().or(z.literal('')),
+})
+
+export const UpdateUserSchema = CreateUserSchema.partial()
+
 export function sanitizeUserInput(input: string): string {
   if (typeof input !== 'string') return ''
   return input
