@@ -56,7 +56,7 @@ export default function PhotoGallery() {
 
   const filteredPhotos = selectedCategory === 'All'
     ? PHOTOS
-    : PHOTOS.filter(p => p.category === selectedCategory)
+    : PHOTOS.filter(p => p.type === selectedCategory)
 
   const openLightbox = (index: number) => setLightboxIndex(index)
   const closeLightbox = () => setLightboxIndex(null)
