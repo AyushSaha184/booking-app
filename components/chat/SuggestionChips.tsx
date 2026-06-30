@@ -1,162 +1,157 @@
 'use client'
 
+import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, CalendarX, Image as ImageIcon } from 'lucide-react'
-import { staggerContainer, staggerItem, transitions } from '@/lib/animations'
+import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Sparkles } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos'
 
 interface SuggestionChipsProps {
-  onSelectView: (view: ChatView) => void
+  onSelectView: (view: 'booking' | 'cancellation' | 'photos') => void
 }
 
-/**
- * Welcome screen with three large premium action cards.
- * Clicking a card switches the chat to the corresponding view.
- */
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+}
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } }
+}
+
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
-  const cards: Array<{
-    title: string
-    subtitle: string
-    icon: React.ReactNode
-    view: ChatView
-  }> = [
+  const cards = [
     {
-      title: 'Book a room',
-      subtitle: 'Reserve your perfect suite',
-      icon: <Calendar className="w-6 h-6" strokeWidth={1.8} />,
-      view: 'booking',
+      view: 'booking' as const,
+      icon: <Calendar className="w-6 h-6" />,
+      title: 'Book Your Stay',
+      subtitle: 'Reserve your perfect room',
+      gradient: 'from-[#8B1538] to-[#B93C3C]',
+      iconBg: 'bg-[#8B1538]/10'
     },
     {
-      title: 'Cancel my booking',
-      subtitle: 'Modify your current stay',
-      icon: <CalendarX className="w-6 h-6" strokeWidth={1.8} />,
-      view: 'cancellation',
+      view: 'cancellation' as const,
+      icon: <XCircle className="w-6 h-6" />,
+      title: 'Cancel Booking',
+      subtitle: 'Manage your reservations',
+      gradient: 'from-gray-700 to-gray-900',
+      iconBg: 'bg-gray-100'
     },
     {
-      title: 'View resort photos',
-      subtitle: 'Explore our resort gallery',
-      icon: <ImageIcon className="w-6 h-6" strokeWidth={1.8} />,
-      view: 'photos',
-    },
+      view: 'photos' as const,
+      icon: <ImageIcon className="w-6 h-6" />,
+      title: 'View Gallery',
+      subtitle: 'Explore our resort',
+      gradient: 'from-[#D4A574] to-[#B8956A]',
+      iconBg: 'bg-[#D4A574]/10'
+    }
   ]
 
   return (
-    <div className="flex-1 w-full h-full flex flex-col items-center justify-center px-6 py-8 relative z-10 overflow-y-auto">
-      <div className="flex flex-col items-center w-full max-w-[640px]">
-        {/* Brand badge */}
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="show"
+      className="w-full max-w-4xl mx-auto space-y-12 py-8"
+    >
+      {/* Hero Section */}
+      <motion.div variants={staggerItem} className="text-center space-y-6 px-4">
+        {/* Brand Badge */}
         <motion.div
-          initial={{ scale: 0.85, opacity: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={transitions.smooth}
-          className="relative w-16 h-16 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center mb-6 shadow-sm"
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-gray-200 shadow-sm"
         >
-          <motion.div
-            className="absolute -inset-2 rounded-full border border-[#8B1538]/10 pointer-events-none"
-            aria-hidden="true"
-            animate={{ opacity: [0.3, 0.7, 0.3], scale: [1, 1.05, 1] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-         />
-          <motion.svg
-            animate={{ y: [0, -2, 0] }}
-            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            className="w-6 h-6 text-[#8B1538]"
-            aria-hidden="true"
+          <Sparkles className="w-4 h-4 text-[#D4A574]" />
+          <span className="text-sm font-medium text-gray-700">Dorshi Resort</span>
+        </motion.div>
+
+        {/* Main Heading */}
+        <div className="space-y-4">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-gray-900 leading-tight">
+            Your Dream Stay
+            <br />
+            <span className="italic text-[#8B1538]">Awaits</span>
+          </h1>
+
+          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Welcome to Dorshi Holiday Resort cum Restaurant. Choose how you'd like to continue —
+            we're here to make every moment memorable.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Action Cards */}
+      <motion.div
+        variants={staggerContainer}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 px-4"
+      >
+        {cards.map((card) => (
+          <motion.button
+            key={card.view}
+            variants={staggerItem}
+            onClick={() => onSelectView(card.view)}
+            whileHover={{ y: -8, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="group relative bg-white rounded-3xl p-6 sm:p-8 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
           >
-            <path d="M3 21V11l9-7 9 7v10" />
-            <path d="M9 21v-6h6v6" />
-         </motion.svg>
-       </motion.div>
+            {/* Gradient Overlay on Hover */}
+            <div className={cn(
+              "absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-300",
+              card.gradient
+            )} />
 
-        <div className="w-px h-8 bg-gradient-to-b from-transparent via-[#8B1538]/40 to-transparent mb-5" />
-
-        {/* Headline */}
-        <motion.h1
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ ...transitions.smooth, delay: 0.08 }}
-          className="font-serif text-3xl sm:text-4xl font-medium text-[#1F1F1F] text-center tracking-tight leading-tight mb-3"
-        >
-          Your Dream Stay <em className="italic text-[#8B1538]">Awaits</em>
-       </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ ...transitions.smooth, delay: 0.14 }}
-          className="text-sm sm:text-base text-[#6B7280] text-center leading-relaxed max-w-[440px] font-light mb-10"
-        >
-          Welcome to Dorshi Holiday Resort cum Restaurant. Choose how
-          you’d like to continue — we’re here to make every moment memorable.
-       </motion.p>
-
-        <div className="w-full max-w-[480px] h-px bg-gradient-to-r from-transparent via-[#E5E7EB] to-transparent mb-8" />
-
-        {/* Action cards */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="flex flex-col gap-3.5 w-full max-w-[480px]"
-          role="list"
-        >
-          {cards.map((card) => (
-            <motion.button
-              key={card.view}
-              variants={staggerItem}
-              onClick={() => onSelectView(card.view)}
-              whileHover={{
-                y: -4,
-                boxShadow: '0 12px 24px rgba(0,0,0,0.1)',
-              }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              className="group relative flex items-center gap-4 px-5 py-4 bg-white/90 backdrop-blur-lg border border-[#E5E7EB] rounded-2xl text-left w-full cursor-pointer hover:border-[#8B1538]/40 transition-colors duration-200 overflow-hidden"
-              aria-label={card.title}
-            >
-              {/* Left accent bar */}
-              <span
-                aria-hidden="true"
-                className="absolute left-0 top-0 bottom-0 w-[4px] bg-transparent transition-colors duration-200 group-hover:bg-[#8B1538]"
-              />
-
-              {/* Icon */}
-              <div className="w-12 h-12 rounded-xl bg-[#8B1538]/8 border border-[#8B1538]/15 flex items-center justify-center shrink-0 text-[#8B1538] group-hover:scale-110 transition-transform duration-200">
+            {/* Icon */}
+            <div className={cn(
+              "w-14 h-14 rounded-2xl grid place-items-center mb-6 transition-all duration-300",
+              card.iconBg,
+              "group-hover:scale-110"
+            )}>
+              <div className={cn("text-transparent bg-clip-text bg-gradient-to-br", card.gradient)}>
                 {card.icon}
-             </div>
+              </div>
+            </div>
 
-              {/* Text */}
-              <div className="flex-1 min-w-0">
-                <div className="text-sm sm:text-base font-semibold text-[#1F1F1F] tracking-wide leading-tight group-hover:text-[#8B1538] transition-colors duration-200">
-                  {card.title}
-               </div>
-                <div className="text-xs sm:text-sm text-[#6B7280] mt-0.5 font-light">
-                  {card.subtitle}
-               </div>
-             </div>
+            {/* Content */}
+            <div className="space-y-2 relative z-10">
+              <h3 className="text-xl sm:text-2xl font-serif text-gray-900 group-hover:text-[#8B1538] transition-colors">
+                {card.title}
+              </h3>
+              <p className="text-sm text-gray-500 leading-relaxed">
+                {card.subtitle}
+              </p>
+            </div>
 
-              {/* Arrow */}
-              <svg
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                className="w-4 h-4 text-[#6B7280] group-hover:text-[#8B1538] group-hover:translate-x-1 transition-all duration-200 shrink-0"
-                aria-hidden="true"
-              >
-                <path d="M6 4l4 4-4 4" />
-             </svg>
-           </motion.button>
-          ))}
-       </motion.div>
-    </div>
-  </div>
+            {/* Arrow */}
+            <div className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-gray-100 grid place-items-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
+              <ArrowRight className="w-5 h-5 text-gray-600" />
+            </div>
+
+            {/* Decorative Element */}
+            <div className={cn(
+              "absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-500",
+              `bg-gradient-to-br ${card.gradient}`
+            )} />
+          </motion.button>
+        ))}
+      </motion.div>
+
+      {/* Footer Note */}
+      <motion.div
+        variants={staggerItem}
+        className="text-center pt-8 border-t border-gray-100 mx-4"
+      >
+        <p className="text-sm text-gray-400">
+          ✨ Premium hospitality since 2024
+        </p>
+      </motion.div>
+    </motion.div>
   )
 }

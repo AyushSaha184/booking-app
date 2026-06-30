@@ -3,10 +3,11 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { motion, AnimatePresence } from 'framer-motion'
-import { User, Phone, Calendar, Users, ChevronLeft, Loader2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { User, Phone, ChevronLeft, Loader2, BedDouble, Users, Calendar, Check } from 'lucide-react'
+import { AnimatedInput } from '@/components/ui/AnimatedInput'
 import { CreateBookingSchema } from '@/lib/validation'
-import { checkmarkDraw, bounceIn, staggerContainer, staggerItem, transitions } from '@/lib/animations'
+import { checkmarkDraw, bounceIn } from '@/lib/animations'
 import { cn } from '@/lib/utils'
 import type { Room, BookingFormData, BookingPrefill } from '@/types/booking'
 import type { z } from 'zod'
@@ -21,71 +22,20 @@ interface BookingFormCardProps {
   onFetchRooms?: (checkIn: string, checkOut: string) => Promise<Room[]>
 }
 
-/* ─────────────────────────────────────────────────
-   Sub-components
-   ───────────────────────────────────────────────── */
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-[11px] font-bold uppercase tracking-wider text-[#8B1538]/80 mb-2 flex items-center gap-1.5">
-      <span className="w-1 h-3 rounded-full bg-[#8B1538]" />
-      {children}
-    </p>
-  )
-}
-
-function PriceLine({
-  label,
-  value,
-  highlight = false,
-  dimmed = false,
-}: {
-  label: string
-  value: string
-  highlight?: boolean
-  dimmed?: boolean
-}) {
-  return (
-    <div className="flex justify-between items-center text-xs sm:text-sm">
-      <span className={dimmed ? 'text-[#6B7280] font-medium' : 'text-[#1F1F1F]/80 font-medium'}>
-        {label}
-      </span>
-      <span
-        className={cn(
-          'tabular-nums',
-          highlight ? 'text-[#8B1538] font-bold text-base tracking-wide' : dimmed ? 'text-[#6B7280] font-normal' : 'text-[#1F1F1F] font-medium'
-        )}
-      >
-        {value}
-      </span>
-    </div>
-  )
-}
-
-/* Room card SVG placeholder — gradient tile matching room type */
 function RoomImagePlaceholder({ roomType }: { roomType: string }) {
   const colors: Record<string, string> = {
     suite: 'from-amber-600 to-orange-700',
     deluxe: 'from-[#8B1538] to-[#B93C3C]',
-    standard: 'from-slate-500 to-slate-700',
+    standard: 'from-gray-200 to-gray-300',
   }
   const cls = colors[roomType?.toLowerCase()] ?? colors.standard
 
   return (
-    <div
-      className={cn('w-20 h-14 rounded-lg bg-gradient-to-br flex items-center justify-center shrink-0', cls)}
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" className="w-7 h-7 opacity-70">
-        <path d="M3 21V11l9-7 9 7v10M9 21v-6h6v6" />
-      </svg>
+    <div className={cn('w-full h-full bg-gradient-to-br flex items-center justify-center', cls)}>
+      <BedDouble className="w-10 h-10 text-white/70" />
     </div>
   )
 }
-
-/* ─────────────────────────────────────────────────
-   Main component
-   ───────────────────────────────────────────────── */
 
 export default function BookingFormCard({
   prefill,
@@ -134,7 +84,6 @@ export default function BookingFormCard({
   const checkIn = watchedValues.checkIn
   const checkOut = watchedValues.checkOut
 
-  // Auto-fetch rooms when dates change (if parent provides a fetcher and no initial rooms)
   useEffect(() => {
     if (!onFetchRooms || initialRooms || !checkIn || !checkOut) return
     const timer = setTimeout(async () => {
@@ -146,21 +95,17 @@ export default function BookingFormCard({
       } finally {
         setLoadingRooms(false)
       }
-    }, 400) // debounce
+    }, 400)
     return () => clearTimeout(timer)
   }, [checkIn, checkOut, onFetchRooms, initialRooms, setValue])
 
-  const priceSummary = useMemo(() => {
-    const room = rooms.find((r) => r.id === watchedValues.roomId)
-    const nights =
-      watchedValues.checkIn && watchedValues.checkOut
-        ? Math.max(0, Math.round((new Date(watchedValues.checkOut).getTime() - new Date(watchedValues.checkIn).getTime()) / 86_400_000))
-        : 0
-    const subtotal = room && nights > 0 ? nights * room.pricePerNight : 0
-    const tax = Math.round(subtotal * 0.12)
-    const total = subtotal + tax
-    return { room, nights, subtotal, tax, total }
-  }, [watchedValues.roomId, watchedValues.checkIn, watchedValues.checkOut, rooms])
+  const selectedRoom = rooms.find(r => r.id === watchedValues.roomId)
+  const nights = watchedValues.checkIn && watchedValues.checkOut
+    ? Math.max(1, Math.ceil((new Date(watchedValues.checkOut).getTime() - new Date(watchedValues.checkIn).getTime()) / (1000 * 60 * 60 * 24)))
+    : 0
+  const subtotal = selectedRoom ? selectedRoom.pricePerNight * nights : 0
+  const tax = Math.round(subtotal * 0.12)
+  const total = subtotal + tax
 
   const onFormSubmit = async (data: FormValues) => {
     setSubmitError('')
@@ -177,43 +122,38 @@ export default function BookingFormCard({
     }
   }
 
-  /* ── Success state ── */
   if (confirmed) {
     return (
       <motion.div
         variants={bounceIn}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-5 py-10 px-6 bg-white rounded-2xl shadow-lg border border-[#E5E7EB] w-full max-w-[540px] md:max-w-2xl lg:max-w-3xl mx-auto"
+        className="flex flex-col items-center gap-6 py-12 px-8 bg-white rounded-3xl border border-gray-100 shadow-lg w-full max-w-lg mx-auto text-center"
       >
-        {/* Animated checkmark */}
-        <div className="relative w-20 h-20">
-          <motion.div
-            variants={bounceIn}
-            initial="hidden"
-            animate="visible"
-            className="w-20 h-20 rounded-full bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center"
-          >
-            <svg viewBox="0 0 40 40" className="w-10 h-10" aria-hidden="true">
-              <motion.path
-                variants={checkmarkDraw}
-                initial="hidden"
-                animate="visible"
-                d="M8 20 L16 28 L32 12"
-                stroke="#059669"
-                strokeWidth="3.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
-            </svg>
-          </motion.div>
-        </div>
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
+          className="w-20 h-20 rounded-full bg-green-100 grid place-items-center"
+        >
+          <svg viewBox="0 0 40 40" className="w-12 h-12">
+            <motion.path
+              variants={checkmarkDraw}
+              initial="hidden"
+              animate="visible"
+              d="M8 20 L16 28 L32 12"
+              stroke="#059669"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+          </svg>
+        </motion.div>
 
-        {/* Text */}
-        <div className="text-center space-y-1">
-          <p className="text-[#1F1F1F] font-bold text-xl tracking-tight">Booking Confirmed!</p>
-          <p className="text-[#6B7280] text-sm">
+        <div className="space-y-2">
+          <p className="text-2xl font-serif text-gray-900">Booking Confirmed!</p>
+          <p className="text-sm text-gray-600">
             Your reservation is confirmed. We look forward to welcoming you.
           </p>
           {bookingRef && (
@@ -223,276 +163,235 @@ export default function BookingFormCard({
           )}
         </div>
 
-        {/* Back button */}
-        <motion.button
+        <button
           onClick={onBack}
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          transition={transitions.spring}
-          className="mt-2 flex items-center gap-2 px-6 py-3 bg-[#8B1538] text-white rounded-xl font-medium text-sm shadow-md hover:shadow-lg hover:bg-[#6E0F2A] cursor-pointer border-0 transition-all duration-200"
+          className="mt-4 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#8B1538] to-[#B93C3C] text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to Menu
-        </motion.button>
+          Return Home
+        </button>
       </motion.div>
     )
   }
 
-  /* ── Form ── */
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={transitions.smooth}
-      className="overflow-hidden w-full max-w-[540px] md:max-w-2xl lg:max-w-3xl mx-auto"
+      className="w-full max-w-3xl mx-auto space-y-6"
     >
-      <div className="bg-white rounded-2xl shadow-lg border border-[#E5E7EB]">
-        {/* Header */}
-        <div className="relative px-5 py-4 border-b border-[#F3F4F6] flex items-center justify-between">
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#8B1538]/30 to-transparent" />
-          <span className="text-sm font-semibold text-[#1F1F1F] tracking-wide">Reserve Your Stay</span>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#8B1538]/8 text-[#8B1538] font-medium border border-[#8B1538]/20">
-            {loadingRooms ? 'Loading...' : `${rooms.length} room${rooms.length !== 1 ? 's' : ''} available`}
-          </span>
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onBack}
+          className="w-10 h-10 rounded-full bg-white border border-gray-200 grid place-items-center hover:bg-gray-50 hover:border-[#8B1538]/40 transition-all shadow-sm"
+        >
+          <ChevronLeft className="w-5 h-5 text-gray-600" />
+        </button>
+        <div>
+          <h2 className="font-serif text-2xl sm:text-3xl text-gray-900">Reserve Your Stay</h2>
+          <p className="text-sm text-gray-500">Complete the details below to secure your room.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+        {/* SECTION 1: Guest Details */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <User className="w-5 h-5 text-[#8B1538]" /> Guest Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <AnimatedInput
+              label="Full Name"
+              leftIcon={<User className="w-4 h-4" />}
+              placeholder="John Doe"
+              error={errors.guestName?.message}
+              {...register('guestName', { required: 'Name is required' })}
+            />
+            <AnimatedInput
+              label="Phone Number"
+              leftIcon={<Phone className="w-4 h-4" />}
+              placeholder="+91 98765 43210"
+              inputMode="tel"
+              error={errors.phone?.message}
+              {...register('phone', { required: 'Phone is required' })}
+            />
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit(onFormSubmit)} noValidate>
-          <div className="p-5 flex flex-col gap-5">
+        {/* SECTION 2: Stay Details */}
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-[#8B1538]" /> Stay Details
+          </h3>
 
-            {/* ── Guest Details ── */}
-            <motion.div
-              variants={staggerContainer}
-              initial="hidden"
-              animate="show"
-            >
-              <SectionLabel>Guest details</SectionLabel>
-              <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Name */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase">Full name</label>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B1538]/50 pointer-events-none">
-                      <User className="w-4 h-4" />
-                    </span>
-                    <input
-                      {...register('guestName')}
-                      type="text"
-                      autoComplete="name"
-                      placeholder="Your name"
-                      className={cn(
-                        'w-full bg-[#FAFAF8] border rounded-lg pl-9 pr-3 py-2.5 text-sm text-[#1F1F1F] placeholder:text-[#9CA3AF] outline-none transition-all duration-200',
-                        errors.guestName
-                          ? 'border-[#E11D48] focus:ring-2 focus:ring-[#E11D48]/20'
-                          : 'border-[#E5E7EB] focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10'
-                      )}
-                    />
-                  </div>
-                  {errors.guestName && <p className="text-xs text-[#E11D48]">{errors.guestName.message}</p>}
-                </div>
-
-                {/* Phone */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase">Phone</label>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B1538]/50 pointer-events-none">
-                      <Phone className="w-4 h-4" />
-                    </span>
-                    <input
-                      {...register('phone')}
-                      type="tel"
-                      inputMode="tel"
-                      autoComplete="tel"
-                      placeholder="+91 XXXXX XXXXX"
-                      className={cn(
-                        'w-full bg-[#FAFAF8] border rounded-lg pl-9 pr-3 py-2.5 text-sm text-[#1F1F1F] placeholder:text-[#9CA3AF] outline-none transition-all duration-200',
-                        errors.phone
-                          ? 'border-[#E11D48] focus:ring-2 focus:ring-[#E11D48]/20'
-                          : 'border-[#E5E7EB] focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10'
-                      )}
-                    />
-                  </div>
-                  {errors.phone && <p className="text-xs text-[#E11D48]">{errors.phone.message}</p>}
-                </div>
-              </motion.div>
-            </motion.div>
-
-            {/* ── Stay Dates ── */}
-            <motion.div variants={staggerItem} initial="hidden" animate="show">
-              <SectionLabel>Stay details</SectionLabel>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase">Check-in</label>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B1538]/50 pointer-events-none">
-                      <Calendar className="w-4 h-4" />
-                    </span>
-                    <input
-                      {...register('checkIn')}
-                      type="date"
-                      min={today}
-                      className={cn(
-                        'w-full bg-[#FAFAF8] border rounded-lg pl-9 pr-3 py-2.5 text-sm text-[#1F1F1F] outline-none transition-all duration-200 appearance-none',
-                        errors.checkIn
-                          ? 'border-[#E11D48] focus:ring-2 focus:ring-[#E11D48]/20'
-                          : 'border-[#E5E7EB] focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10'
-                      )}
-                    />
-                  </div>
-                  {errors.checkIn && <p className="text-xs text-[#E11D48]">{errors.checkIn.message}</p>}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase">Check-out</label>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8B1538]/50 pointer-events-none">
-                      <Calendar className="w-4 h-4" />
-                    </span>
-                    <input
-                      {...register('checkOut')}
-                      type="date"
-                      min={watchedValues.checkIn || today}
-                      className={cn(
-                        'w-full bg-[#FAFAF8] border rounded-lg pl-9 pr-3 py-2.5 text-sm text-[#1F1F1F] outline-none transition-all duration-200 appearance-none',
-                        errors.checkOut
-                          ? 'border-[#E11D48] focus:ring-2 focus:ring-[#E11D48]/20'
-                          : 'border-[#E5E7EB] focus:border-[#8B1538] focus:ring-2 focus:ring-[#8B1538]/10'
-                      )}
-                    />
-                  </div>
-                  {errors.checkOut && <p className="text-xs text-[#E11D48]">{errors.checkOut.message}</p>}
-                </div>
-              </div>
-
-              {/* Guests stepper */}
-              <div className="flex flex-col gap-1.5 mt-3">
-                <input type="hidden" {...register('guests', { valueAsNumber: true })} />
-                <label className="text-[11px] font-medium text-[#6B7280] tracking-wide uppercase">Guests</label>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => { const curr = watchedValues.guests ?? 1; if (curr > 1) setValue('guests', curr - 1) }}
-                    className="w-9 h-9 rounded-lg bg-[#FAFAF8] border border-[#E5E7EB] grid place-items-center text-[#1F1F1F] hover:border-[#8B1538] transition-colors cursor-pointer text-base font-medium"
-                  >
-                    −
-                  </button>
-                  <span className="text-sm font-semibold text-[#1F1F1F] min-w-[2ch] text-center">
-                    {watchedValues.guests}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const curr = watchedValues.guests ?? 1
-                      const max = priceSummary.room?.capacity ?? 10
-                      if (curr < max) setValue('guests', curr + 1)
-                    }}
-                    className="w-9 h-9 rounded-lg bg-[#FAFAF8] border border-[#E5E7EB] grid place-items-center text-[#1F1F1F] hover:border-[#8B1538] transition-colors cursor-pointer text-base font-medium"
-                  >
-                    +
-                  </button>
-                  <span className="text-xs text-[#6B7280] ml-1 flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5" />
-                    Max {priceSummary.room?.capacity ?? 10}
-                  </span>
-                </div>
-                {errors.guests && <p className="text-xs text-[#E11D48]">{errors.guests.message}</p>}
-              </div>
-            </motion.div>
-
-            {/* ── Room Selection ── */}
-            {rooms.length > 0 && (
-              <motion.div variants={staggerItem} initial="hidden" animate="show">
-                <SectionLabel>Select a room</SectionLabel>
-                <div className="flex flex-col gap-2.5">
-                  {rooms.map((room) => {
-                    const isSelected = watchedValues.roomId === room.id
-                    return (
-                      <label
-                        key={room.id}
-                        className={cn(
-                          'flex items-center gap-3.5 p-3.5 rounded-xl border cursor-pointer transition-all duration-200',
-                          isSelected
-                            ? 'border-[#8B1538] bg-[#8B1538]/4 shadow-sm ring-1 ring-[#8B1538]/20'
-                            : 'border-[#E5E7EB] hover:border-[#8B1538]/40 bg-[#FAFAF8] hover:bg-white'
-                        )}
-                      >
-                        <input type="radio" value={room.id} className="sr-only" {...register('roomId')} />
-                        <RoomImagePlaceholder roomType={room.type} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-[#1F1F1F] truncate leading-snug">{room.name}</p>
-                          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                            <span className="text-[9px] px-1.5 py-0.5 rounded-md border font-semibold uppercase tracking-wider bg-[#8B1538]/8 text-[#8B1538] border-[#8B1538]/20">
-                              {room.type}
-                            </span>
-                            <span className="text-xs text-[#6B7280]">· Max {room.capacity} guests</span>
-                          </div>
-                        </div>
-                        <div className="shrink-0 text-right self-start pl-2">
-                          <p className="text-sm font-bold text-[#8B1538] tabular-nums leading-snug">
-                            ₹{room.pricePerNight.toLocaleString('en-IN')}
-                          </p>
-                          <p className="text-[10px] text-[#6B7280] font-medium leading-none mt-0.5">/night</p>
-                        </div>
-                      </label>
-                    )
-                  })}
-                  {errors.roomId && <p className="text-xs text-[#E11D48]">{errors.roomId.message}</p>}
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── Price Summary ── */}
-            <AnimatePresence>
-              {priceSummary.nights > 0 && priceSummary.room && (
-                <motion.div
-                  key="price-summary"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.25 }}
-                  className="overflow-hidden"
-                >
-                  <div className="bg-[#FAFAF8] border border-[#E5E7EB] rounded-xl p-4 flex flex-col gap-2.5">
-                    <SectionLabel>Price summary</SectionLabel>
-                    <PriceLine
-                      label={`${priceSummary.nights} night${priceSummary.nights !== 1 ? 's' : ''} × ₹${priceSummary.room.pricePerNight.toLocaleString('en-IN')}`}
-                      value={`₹${priceSummary.subtotal.toLocaleString('en-IN')}`}
-                    />
-                    <PriceLine label="Taxes (12%)" value={`₹${priceSummary.tax.toLocaleString('en-IN')}`} dimmed />
-                    <div className="h-px border-b border-dashed border-[#8B1538]/20 my-1" aria-hidden="true" />
-                    <PriceLine label="Total Amount" value={`₹${priceSummary.total.toLocaleString('en-IN')}`} highlight />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* ── Error ── */}
-            {submitError && (
-              <p role="alert" className="text-xs text-[#E11D48] bg-red-50 border border-[#E11D48]/20 rounded-lg px-3 py-2">
-                {submitError}
-              </p>
-            )}
-
-            {/* ── Submit ── */}
-            <motion.button
-              type="submit"
-              disabled={isSubmitting || loadingRooms}
-              whileHover={!isSubmitting && !loadingRooms ? { scale: 1.01, filter: 'brightness(1.05)' } : {}}
-              whileTap={!isSubmitting && !loadingRooms ? { scale: 0.98 } : {}}
-              transition={transitions.spring}
-              className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-[#8B1538] to-[#6E0F2A] text-white rounded-xl font-semibold text-sm shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer border-0 transition-all duration-200"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Confirming…
-                </>
-              ) : (
-                'Confirm booking'
-              )}
-            </motion.button>
+          {/* Unified Date Block */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-in</label>
+              <input
+                type="date"
+                {...register('checkIn')}
+                min={today}
+                className="w-full bg-transparent border-none text-base font-medium text-gray-900 outline-none cursor-pointer"
+              />
+            </div>
+            <div className="space-y-1.5 sm:border-l sm:border-gray-200 sm:pl-4">
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-out</label>
+              <input
+                type="date"
+                {...register('checkOut')}
+                min={watchedValues.checkIn || today}
+                className="w-full bg-transparent border-none text-base font-medium text-gray-900 outline-none cursor-pointer"
+              />
+            </div>
           </div>
-        </form>
-      </div>
+
+          {/* Premium Guest Stepper */}
+          <div className="flex items-center justify-between bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5 text-gray-500" />
+              <div>
+                <p className="text-sm font-semibold text-gray-800">Guests</p>
+                <p className="text-xs text-gray-500">Max {selectedRoom?.capacity || 4} guests</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setValue('guests', Math.max(1, (watchedValues.guests || 1) - 1))}
+                className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center text-gray-600 hover:border-[#8B1538] hover:text-[#8B1538] transition-all shadow-sm disabled:opacity-50"
+                disabled={(watchedValues.guests || 1) <= 1}
+              >
+                −
+              </button>
+              <span className="text-xl font-bold text-gray-900 w-6 text-center">{watchedValues.guests || 1}</span>
+              <button
+                type="button"
+                onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (watchedValues.guests || 1) + 1))}
+                className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center text-gray-600 hover:border-[#8B1538] hover:text-[#8B1538] transition-all shadow-sm disabled:opacity-50"
+                disabled={(watchedValues.guests || 1) >= (selectedRoom?.capacity || 4)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 3: Room Selection */}
+        {rooms.length > 0 && (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <BedDouble className="w-5 h-5 text-[#8B1538]" /> Select Your Room
+            </h3>
+
+            <div className="grid grid-cols-1 gap-4">
+              {rooms.map((room) => {
+                const isSelected = watchedValues.roomId === room.id
+                return (
+                  <motion.button
+                    key={room.id}
+                    type="button"
+                    onClick={() => setValue('roomId', room.id)}
+                    whileTap={{ scale: 0.99 }}
+                    className={cn(
+                      "relative flex flex-col sm:flex-row bg-white rounded-2xl border-2 overflow-hidden transition-all text-left shadow-sm",
+                      isSelected
+                        ? "border-[#8B1538] ring-4 ring-[#8B1538]/5 shadow-md"
+                        : "border-gray-100 hover:border-gray-200 hover:shadow-md"
+                    )}
+                  >
+                    {/* Room Image */}
+                    <div className="sm:w-48 h-40 sm:h-auto bg-gray-100 relative overflow-hidden">
+                      <RoomImagePlaceholder roomType={room.type} />
+                      {isSelected && (
+                        <div className="absolute top-3 right-3 w-7 h-7 bg-[#8B1538] rounded-full grid place-items-center shadow-lg">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Room Details */}
+                    <div className="flex-1 p-5 flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-serif text-xl text-gray-900 mb-1">{room.name}</h4>
+                        <p className="text-sm text-gray-500 mb-3">
+                          {room.type} • {room.capacity} Guests
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">Free WiFi</span>
+                          <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">Breakfast</span>
+                          <span className="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">AC</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-end mt-4 pt-4 border-t border-gray-100">
+                        <div>
+                          <span className="text-2xl font-bold text-[#8B1538]">₹{room.pricePerNight.toLocaleString('en-IN')}</span>
+                          <span className="text-sm text-gray-400 ml-1">/ night</span>
+                        </div>
+                        <span className={cn(
+                          "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                          isSelected
+                            ? "bg-[#8B1538] text-white"
+                            : "bg-gray-100 text-gray-600"
+                        )}>
+                          {isSelected ? 'Selected' : 'Select'}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* SECTION 4: Price Summary */}
+        {nights > 0 && selectedRoom && (
+          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 space-y-4">
+            <h3 className="text-lg font-semibold text-gray-800">Price Summary</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between text-gray-600">
+                <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} Night{nights > 1 ? 's' : ''}</span>
+                <span>₹{subtotal.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>Taxes & Fees (12%)</span>
+                <span>₹{tax.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t border-gray-200">
+                <span>Total</span>
+                <span className="text-[#8B1538]">₹{total.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error */}
+        {submitError && (
+          <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
+            <span className="text-red-600">⚠</span>
+            <p className="text-sm text-red-800">{submitError}</p>
+          </div>
+        )}
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={isSubmitting || !watchedValues.roomId || loadingRooms}
+          className="w-full h-14 rounded-xl bg-gradient-to-r from-[#8B1538] to-[#B93C3C] text-white text-lg font-semibold shadow-lg shadow-[#8B1538]/20 hover:shadow-xl hover:shadow-[#8B1538]/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all flex items-center justify-center gap-2"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            'Confirm Booking'
+          )}
+        </button>
+      </form>
     </motion.div>
   )
 }
