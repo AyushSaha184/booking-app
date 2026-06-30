@@ -1,50 +1,11 @@
--- =============================================
--- Dorshi Holiday Resort — Database Schema
--- =============================================
 
--- ── Rooms ────────────────────────────────────
-CREATE TABLE IF NOT EXISTS rooms (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    type TEXT NOT NULL,
-    capacity INTEGER NOT NULL,
-    price_per_night INTEGER NOT NULL,
-    description TEXT
-);
-
--- ── Users ────────────────────────────────────
-CREATE TABLE IF NOT EXISTS users (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    phone TEXT NOT NULL UNIQUE,
-    email TEXT,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
--- ── Bookings ─────────────────────────────────
-CREATE TABLE IF NOT EXISTS bookings (
-    id TEXT PRIMARY KEY,
-    guest_name TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    room_id TEXT NOT NULL,
-    user_id TEXT REFERENCES users(id),
-    check_in DATE NOT NULL,
-    check_out DATE NOT NULL,
-    guests INTEGER NOT NULL,
-    status TEXT NOT NULL DEFAULT 'confirmed',
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
--- =============================================
--- Seed Data
--- =============================================
-INSERT INTO rooms (id, name, type, capacity, price_per_night, description) VALUES
-  ('1', 'Room 1', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('2', 'Room 2', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('3', 'Room 3', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('4', 'Room 4', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('5', 'Room 5', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('6', 'Room 6', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('7', 'Room 7', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('8', 'Room 8', 'standard', 2, 5000, 'Comfortable standard room'),
-  ('9', 'Room 9', 'standard', 2, 5000, 'Comfortable standard room');
+INSERT INTO rooms (id, name, type, capacity, price_per_night, description, available) VALUES
+  ('1', 'Room 1', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('2', 'Room 2', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('3', 'Room 3', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('4', 'Room 4', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('5', 'Room 5', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('6', 'Room 6', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('7', 'Room 7', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('8', 'Room 8', 'standard', 2, 5000, 'Comfortable standard room', TRUE),
+  ('9', 'Room 9', 'standard', 2, 5000, 'Comfortable standard room', TRUE);
