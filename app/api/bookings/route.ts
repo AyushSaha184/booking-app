@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { atomicCreateBooking } from '@/lib/db/atomic'
+import { getRoomById } from '@/lib/db/rooms'
+import { sendBookingNotifications } from '@/lib/twilio/notifications'
 import { syncBookingToSheet } from '@/lib/sheets/sync'
 import { validateRequestSize, CreateBookingSchema } from '@/lib/validation'
 import { logger } from '@/lib/logger'
@@ -51,6 +53,28 @@ export async function POST(req: Request) {
     }
 
     logger.info('Booking successfully created', { bookingId: result.booking.id, roomId: result.booking.roomId })
+
+    const room = await getRoomById(result.booking.roomId)
+    const checkInDate = new Date(result.booking.checkIn)
+    const checkOutDate = new Date(result.booking.checkOut)
+    const totalNights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
+    const totalPrice = totalNights * (room?.pricePerNight || 0)
+
+    sendBookingNotifications({
+      bookingId: result.booking.id,
+      guestName: result.booking.guestName,
+      phone: result.booking.phone,
+      roomName: room?.name || 'Unknown Room',
+      roomType: room?.type || 'Standard',
+      checkIn: result.booking.checkIn,
+      checkOut: result.booking.checkOut,
+      guests: result.booking.guests,
+      pricePerNight: room?.pricePerNight || 0,
+      totalNights,
+      totalPrice,
+    }).catch((err) => {
+      logger.error('Booking notification error (non-blocking)', { error: err instanceof Error ? err.message : String(err) })
+    })
 
     syncBookingToSheet(result.booking).catch(err => {
       logger.error('Background Sheets sync failed', { error: err instanceof Error ? err.message : String(err), bookingId: result.booking?.id })
