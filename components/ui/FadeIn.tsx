@@ -49,7 +49,7 @@ function FadeIn({
       className={className}
       transition={
         delay || duration
-          ? { delay, duration: duration ?? 0.35, ease: [0.4, 0, 0.2, 1] }
+          ? { delay, duration: duration ?? 0.35, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] }
           : undefined
       }
       {...props}

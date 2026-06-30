@@ -4,7 +4,7 @@ import type { Variants, Transition } from 'framer-motion'
    Shared transition presets
    ───────────────────────────────────────────────── */
 export const transitions: Record<'smooth' | 'spring' | 'bounce', Transition> = {
-  smooth: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] },
+  smooth: { duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] },
   spring: { type: 'spring', stiffness: 400, damping: 30 },
   bounce: { type: 'spring', stiffness: 500, damping: 20 },
 }
@@ -61,11 +61,11 @@ export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
-    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
   },
 }
 
@@ -75,12 +75,12 @@ export const slideUp: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
     y: 8,
-    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] },
+    transition: { duration: 0.2, ease: [0.4, 0, 1, 1] as [number, number, number, number] },
   },
 }
 
@@ -90,7 +90,7 @@ export const slideDown: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
@@ -105,7 +105,7 @@ export const slideLeft: Variants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
@@ -120,7 +120,7 @@ export const slideRight: Variants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.35, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
@@ -135,7 +135,7 @@ export const scaleFade: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
@@ -161,7 +161,7 @@ export const staggerItemLegacy: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+    transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] },
   },
 }
 

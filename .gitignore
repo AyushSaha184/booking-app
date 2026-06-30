@@ -60,3 +60,5 @@ coverage/
 *.temp
 .cache/
 setup.txt
+/db
+db/
