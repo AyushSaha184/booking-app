@@ -18,11 +18,39 @@ interface BookingFormCardProps {
   onFetchRooms?: (checkIn: string, checkOut: string) => Promise<Room[]>;
 }
 
-const ROOM_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  standard: { bg: 'bg-gray-100', text: 'text-gray-600' },
-  deluxe:   { bg: 'bg-rose-50',  text: 'text-rose-700'  },
-  suite:    { bg: 'bg-amber-50', text: 'text-amber-700' },
+const ROOM_TYPE_BADGE: Record<string, string> = {
+  standard: 'bg-gray-100 text-gray-600',
+  deluxe:   'bg-rose-50 text-rose-700',
+  suite:    'bg-amber-50 text-amber-700',
 };
+
+function SectionHeader({ icon: Icon, label }: { icon: typeof User; label: string }) {
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      <Icon className="w-4 h-4 text-[#8B1538]" />
+      <p className="text-xs font-bold tracking-[0.16em] text-[#8B1538] uppercase">{label}</p>
+    </div>
+  );
+}
+
+function IconInput({
+  icon: Icon,
+  error,
+  ...props
+}: { icon: typeof User; error?: boolean } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className={cn(
+      'flex items-center gap-3 h-12 px-4 rounded-xl border bg-white transition-colors',
+      error ? 'border-red-300' : 'border-gray-200 focus-within:border-[#8B1538]',
+    )}>
+      <Icon className="w-4 h-4 text-[#8B1538] shrink-0" />
+      <input
+        {...props}
+        className="flex-1 text-sm text-gray-900 placeholder:text-gray-300 outline-none bg-transparent"
+      />
+    </div>
+  );
+}
 
 export default function BookingFormCard({
   prefill,
@@ -57,10 +85,10 @@ export default function BookingFormCard({
     mode: 'onBlur',
   });
 
-  const checkIn = watch('checkIn');
+  const checkIn  = watch('checkIn');
   const checkOut = watch('checkOut');
-  const roomId = watch('roomId');
-  const guests = watch('guests');
+  const roomId   = watch('roomId');
+  const guests   = watch('guests');
 
   useEffect(() => {
     if (!onFetchRooms || initialRooms || !checkIn || !checkOut) return;
@@ -78,14 +106,11 @@ export default function BookingFormCard({
   }, [checkIn, checkOut, onFetchRooms, initialRooms, setValue]);
 
   const selectedRoom = rooms.find(r => r.id === roomId);
-  const nights =
-    checkIn && checkOut
-      ? Math.max(0, Math.ceil(
-          (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000,
-        ))
-      : 0;
+  const nights = checkIn && checkOut
+    ? Math.max(0, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86400000))
+    : 0;
   const subtotal = selectedRoom && nights > 0 ? selectedRoom.pricePerNight * nights : 0;
-  const tax = Math.round(subtotal * 0.12);
+  const tax   = Math.round(subtotal * 0.12);
   const total = subtotal + tax;
 
   const onFormSubmit = async (data: FormValues) => {
@@ -103,13 +128,13 @@ export default function BookingFormCard({
     }
   };
 
-  /* ─── Success screen ─── */
+  /* ─── Success ─── */
   if (confirmed) {
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="px-5 py-12 flex flex-col items-center text-center gap-5"
+        className="px-5 py-14 flex flex-col items-center text-center gap-5"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -120,7 +145,9 @@ export default function BookingFormCard({
           <Sparkles className="w-10 h-10 text-[#8B1538]" strokeWidth={1.5} />
         </motion.div>
         <div>
-          <p className="font-serif text-3xl text-gray-900 mb-2">Booking Confirmed</p>
+          <p className="font-serif text-3xl text-gray-900 mb-2">
+            Booking <span className="text-[#8B1538]">Confirmed</span>
+          </p>
           <p className="text-sm text-gray-500 leading-relaxed">
             We look forward to welcoming you to Dorshi Resort.
           </p>
@@ -132,7 +159,7 @@ export default function BookingFormCard({
         </div>
         <button
           onClick={onBack}
-          className="w-full max-w-xs h-12 rounded-xl bg-[#8B1538] text-white font-semibold shadow-lg shadow-[#8B1538]/25 hover:bg-[#6E0F2A] transition-colors"
+          className="w-full max-w-xs h-14 rounded-2xl bg-[#8B1538] text-white font-semibold text-sm shadow-lg shadow-[#8B1538]/25 hover:bg-[#6E0F2A] transition-colors"
         >
           Return Home
         </button>
@@ -145,224 +172,242 @@ export default function BookingFormCard({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="px-5 py-6"
+      className="px-5 py-8"
     >
       {/* Page header */}
-      <div className="mb-8">
-        <h2 className="font-serif text-2xl text-gray-900 leading-tight">Reserve Your Stay</h2>
-        <p className="text-sm text-gray-400 mt-1">Fill in your details to secure a room</p>
+      <div className="mb-6">
+        <h2 className="font-serif leading-tight">
+          <span className="text-3xl text-gray-900">Reserve </span>
+          <span className="text-3xl text-[#8B1538]">Your Stay</span>
+        </h2>
+        <p className="text-sm text-gray-400 mt-1.5">Fill in your details to secure a room</p>
       </div>
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-5">
-        {/* ── Guest details ── */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5" /> Guest Details
-          </h3>
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-0">
+        {/* ─── One unified card ─── */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-6">
+
+          {/* Guest Details */}
           <div>
-            <label className="text-xs font-medium text-gray-600 mb-1.5 block">Full Name</label>
-            <input
-              {...register('guestName')}
-              placeholder="John Doe"
-              className={cn(
-                'w-full h-12 px-4 rounded-xl border bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
-                errors.guestName ? 'border-red-300 bg-red-50/30' : 'border-gray-200',
-              )}
-            />
-            {errors.guestName && <p className="text-xs text-red-500 mt-1">{errors.guestName.message}</p>}
-          </div>
-          <div>
-            <label className="text-xs font-medium text-gray-600 mb-1.5 block">Phone Number</label>
-            <input
-              {...register('phone')}
-              placeholder="+91 98765 43210"
-              inputMode="tel"
-              className={cn(
-                'w-full h-12 px-4 rounded-xl border bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
-                errors.phone ? 'border-red-300 bg-red-50/30' : 'border-gray-200',
-              )}
-            />
-            {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
-          </div>
-        </section>
-
-        {/* ── Dates & guests ── */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5" /> Stay Details
-          </h3>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-medium text-gray-600 mb-1.5 block">Check-in</label>
-              <input
-                type="date"
-                {...register('checkIn')}
-                min={today}
-                className="w-full h-12 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm text-gray-900 outline-none focus:bg-white focus:border-[#8B1538] transition-colors"
-              />
-              {errors.checkIn && <p className="text-xs text-red-500 mt-1">{errors.checkIn.message}</p>}
-            </div>
-            <div>
-              <label className="text-xs font-medium text-gray-600 mb-1.5 block">Check-out</label>
-              <input
-                type="date"
-                {...register('checkOut')}
-                min={checkIn || today}
-                className="w-full h-12 px-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm text-gray-900 outline-none focus:bg-white focus:border-[#8B1538] transition-colors"
-              />
-              {errors.checkOut && <p className="text-xs text-red-500 mt-1">{errors.checkOut.message}</p>}
-            </div>
-          </div>
-
-          {/* Guests stepper */}
-          <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-gray-400" />
+            <SectionHeader icon={User} label="Guest Details" />
+            <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-gray-800">Guests</p>
-                <p className="text-xs text-gray-400">
-                  Max {selectedRoom?.capacity ?? 4}
-                </p>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Full Name</label>
+                <div className={cn(
+                  'flex items-center gap-3 h-12 px-4 rounded-xl border bg-white transition-colors',
+                  errors.guestName ? 'border-red-300' : 'border-gray-200 focus-within:border-[#8B1538]',
+                )}>
+                  <User className="w-4 h-4 text-[#8B1538] shrink-0" />
+                  <input
+                    {...register('guestName')}
+                    placeholder="John Doe"
+                    className="flex-1 text-sm text-gray-900 placeholder:text-gray-300 outline-none bg-transparent"
+                  />
+                </div>
+                {errors.guestName && <p className="text-xs text-red-500 mt-1">{errors.guestName.message}</p>}
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Phone Number</label>
+                <div className={cn(
+                  'flex items-center gap-3 h-12 px-4 rounded-xl border bg-white transition-colors',
+                  errors.phone ? 'border-red-300' : 'border-gray-200 focus-within:border-[#8B1538]',
+                )}>
+                  <Phone className="w-4 h-4 text-[#8B1538] shrink-0" />
+                  <input
+                    {...register('phone')}
+                    placeholder="+91 98765 43210"
+                    inputMode="tel"
+                    className="flex-1 text-sm text-gray-900 placeholder:text-gray-300 outline-none bg-transparent"
+                  />
+                </div>
+                {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
-                disabled={(guests || 1) <= 1}
-                className="w-9 h-9 rounded-full border border-gray-200 bg-white grid place-items-center text-gray-600 disabled:opacity-30 active:bg-gray-50 transition-colors"
-              >
-                <Minus className="w-3.5 h-3.5" />
-              </button>
-              <span className="w-5 text-center text-base font-bold text-gray-900">{guests || 1}</span>
-              <button
-                type="button"
-                onClick={() => setValue('guests', Math.min(selectedRoom?.capacity ?? 4, (guests || 1) + 1))}
-                disabled={(guests || 1) >= (selectedRoom?.capacity ?? 4)}
-                className="w-9 h-9 rounded-full border border-gray-200 bg-white grid place-items-center text-gray-600 disabled:opacity-30 active:bg-gray-50 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" />
-              </button>
+          </div>
+
+          <div className="border-t border-gray-100" />
+
+          {/* Stay Details */}
+          <div>
+            <SectionHeader icon={Calendar} label="Stay Details" />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Check-in</label>
+                  <div className={cn(
+                    'flex items-center gap-3 h-12 px-3 rounded-xl border bg-white transition-colors',
+                    errors.checkIn ? 'border-red-300' : 'border-gray-200 focus-within:border-[#8B1538]',
+                  )}>
+                    <Calendar className="w-4 h-4 text-[#8B1538] shrink-0" />
+                    <input
+                      type="date"
+                      {...register('checkIn')}
+                      min={today}
+                      className="flex-1 text-sm text-gray-900 outline-none bg-transparent min-w-0"
+                    />
+                  </div>
+                  {errors.checkIn && <p className="text-xs text-red-500 mt-1">{errors.checkIn.message}</p>}
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">Check-out</label>
+                  <div className={cn(
+                    'flex items-center gap-3 h-12 px-3 rounded-xl border bg-white transition-colors',
+                    errors.checkOut ? 'border-red-300' : 'border-gray-200 focus-within:border-[#8B1538]',
+                  )}>
+                    <Calendar className="w-4 h-4 text-[#8B1538] shrink-0" />
+                    <input
+                      type="date"
+                      {...register('checkOut')}
+                      min={checkIn || today}
+                      className="flex-1 text-sm text-gray-900 outline-none bg-transparent min-w-0"
+                    />
+                  </div>
+                  {errors.checkOut && <p className="text-xs text-red-500 mt-1">{errors.checkOut.message}</p>}
+                </div>
+              </div>
+
+              {/* Guests stepper */}
+              <div className="flex items-center justify-between border border-gray-200 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <Users className="w-4 h-4 text-[#8B1538]" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">Guests</p>
+                    <p className="text-xs text-gray-400">Max {selectedRoom?.capacity ?? 4}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
+                    disabled={(guests || 1) <= 1}
+                    className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-50 grid place-items-center text-gray-600 disabled:opacity-30 active:bg-gray-100 transition-colors"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="w-5 text-center text-sm font-bold text-gray-900">{guests || 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => setValue('guests', Math.min(selectedRoom?.capacity ?? 4, (guests || 1) + 1))}
+                    disabled={(guests || 1) >= (selectedRoom?.capacity ?? 4)}
+                    className="w-8 h-8 rounded-lg border border-gray-200 bg-gray-50 grid place-items-center text-gray-600 disabled:opacity-30 active:bg-gray-100 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* ── Room selection ── */}
-        <section className="space-y-3">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 px-1">
-            <BedDouble className="w-3.5 h-3.5" /> Choose Your Room
-          </h3>
+          <div className="border-t border-gray-100" />
 
+          {/* Room selection */}
+          <div>
+            <SectionHeader icon={BedDouble} label="Choose Your Room" />
+
+            <AnimatePresence>
+              {loadingRooms && (
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="flex items-center justify-center gap-2 py-6 text-sm text-gray-400"
+                >
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Checking availability…
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {!loadingRooms && rooms.length === 0 && (
+              <div className="flex items-center justify-center gap-2 py-5 rounded-xl border border-dashed border-gray-200 text-sm text-gray-400">
+                <Calendar className="w-4 h-4 text-[#8B1538]/50" />
+                Pick your dates above to see available rooms
+              </div>
+            )}
+
+            {!loadingRooms && rooms.length > 0 && (
+              <div className="space-y-2">
+                {rooms.map((room) => {
+                  const isSelected = roomId === room.id;
+                  const typeKey = room.type.toLowerCase();
+                  const badge = ROOM_TYPE_BADGE[typeKey] ?? ROOM_TYPE_BADGE.standard;
+                  return (
+                    <motion.button
+                      key={room.id}
+                      type="button"
+                      layout
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={() => setValue('roomId', room.id)}
+                      whileTap={{ scale: 0.99 }}
+                      className={cn(
+                        'w-full text-left rounded-xl border p-4 transition-all duration-200',
+                        isSelected
+                          ? 'border-[#8B1538] bg-[#8B1538]/3 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300',
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={cn('w-10 h-10 rounded-lg grid place-items-center shrink-0', isSelected ? 'bg-[#8B1538]' : 'bg-gray-100')}>
+                          <BedDouble className={cn('w-5 h-5', isSelected ? 'text-white' : 'text-gray-400')} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 text-sm">{room.name}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', badge)}>{room.type}</span>
+                            <span className="text-xs text-gray-400">{room.capacity} guests</span>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-bold text-[#8B1538] text-sm">₹{room.pricePerNight.toLocaleString('en-IN')}</p>
+                          <p className="text-xs text-gray-400">/night</p>
+                        </div>
+                        {isSelected && (
+                          <div className="w-5 h-5 rounded-full bg-[#8B1538] grid place-items-center shrink-0">
+                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                          </div>
+                        )}
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Price summary */}
           <AnimatePresence>
-            {loadingRooms && (
+            {nights > 0 && selectedRoom && (
               <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                className="flex items-center justify-center gap-2 py-8 text-sm text-gray-400"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
               >
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Checking availability…
+                <div className="border-t border-gray-100 pt-5 space-y-2">
+                  <p className="text-xs font-bold tracking-[0.16em] text-gray-400 uppercase mb-3">Price Summary</p>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} night{nights !== 1 ? 's' : ''}</span>
+                    <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>Taxes & fees (12%)</span>
+                    <span>₹{tax.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-100">
+                    <span>Total</span>
+                    <span className="text-[#8B1538]">₹{total.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
-
-          {!loadingRooms && rooms.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-6 bg-white rounded-2xl border border-dashed border-gray-200">
-              Pick your dates above to see available rooms
-            </p>
-          )}
-
-          {!loadingRooms && rooms.map((room) => {
-            const isSelected = roomId === room.id;
-            const typeKey = room.type.toLowerCase();
-            const colors = ROOM_TYPE_COLORS[typeKey] ?? ROOM_TYPE_COLORS.standard;
-            return (
-              <motion.button
-                key={room.id}
-                type="button"
-                layout
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => setValue('roomId', room.id)}
-                whileTap={{ scale: 0.99 }}
-                className={cn(
-                  'w-full text-left bg-white rounded-2xl border p-4 transition-all duration-200',
-                  isSelected
-                    ? 'border-[#8B1538] shadow-md shadow-[#8B1538]/10 ring-1 ring-[#8B1538]/5'
-                    : 'border-gray-100 hover:border-gray-200 hover:shadow-sm',
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={cn('w-11 h-11 rounded-xl grid place-items-center shrink-0 mt-0.5', isSelected ? 'bg-[#8B1538]' : 'bg-gray-100')}>
-                    <BedDouble className={cn('w-5 h-5', isSelected ? 'text-white' : 'text-gray-400')} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <p className="font-semibold text-gray-900 text-[15px] leading-tight">{room.name}</p>
-                      <p className="font-bold text-[#8B1538] text-sm whitespace-nowrap">
-                        ₹{room.pricePerNight.toLocaleString('en-IN')}
-                        <span className="font-normal text-gray-400 text-xs">/night</span>
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                      <span className={cn('text-xs font-medium px-2.5 py-1 rounded-full', colors.bg, colors.text)}>
-                        {room.type}
-                      </span>
-                      <span className="text-xs text-gray-400">{room.capacity} guests max</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {['Free WiFi', 'Breakfast', 'AC'].map(a => (
-                        <span key={a} className="text-[11px] text-gray-500 bg-gray-50 border border-gray-100 rounded-full px-2.5 py-0.5">{a}</span>
-                      ))}
-                    </div>
-                  </div>
-                  {isSelected && (
-                    <div className="shrink-0 mt-0.5">
-                      <div className="w-5 h-5 rounded-full bg-[#8B1538] grid place-items-center">
-                        <Check className="w-3 h-3 text-white" strokeWidth={3} />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </motion.button>
-            );
-          })}
-        </section>
-
-        {/* ── Price summary ── */}
-        <AnimatePresence>
-          {nights > 0 && selectedRoom && (
-            <motion.section
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="bg-[#8B1538]/5 border border-[#8B1538]/10 rounded-2xl p-5 space-y-2">
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Price Summary</p>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} night{nights !== 1 ? 's' : ''}</span>
-                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Taxes & fees (12%)</span>
-                  <span>₹{tax.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-[#8B1538]/10 mt-1">
-                  <span>Total</span>
-                  <span className="text-[#8B1538]">₹{total.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-            </motion.section>
-          )}
-        </AnimatePresence>
+        </div>
 
         {/* Error */}
         <AnimatePresence>
           {submitError && (
             <motion.div
               initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="flex items-start gap-2 p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700"
+              className="flex items-start gap-2 p-4 mt-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700"
             >
               <span className="shrink-0 mt-0.5">⚠</span>
               <span>{submitError}</span>
@@ -374,13 +419,11 @@ export default function BookingFormCard({
         <button
           type="submit"
           disabled={isSubmitting || loadingRooms}
-          className="w-full h-14 rounded-xl bg-[#8B1538] text-white text-base font-semibold shadow-lg shadow-[#8B1538]/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-[#6E0F2A] transition-colors"
+          className="w-full mt-4 h-14 rounded-2xl bg-[#8B1538] text-white text-base font-semibold shadow-lg shadow-[#8B1538]/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:bg-[#6E0F2A] transition-colors"
         >
           {isSubmitting ? (
             <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
-          ) : (
-            'Confirm Booking'
-          )}
+          ) : 'Confirm Booking'}
         </button>
       </form>
     </motion.div>
