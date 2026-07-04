@@ -17,14 +17,14 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
       <div className={cn('space-y-2', wrapperClassName)}>
         <label
           htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700"
+          className="block text-xs font-semibold text-gray-500 uppercase tracking-wider text-left"
         >
           {label}
         </label>
 
         <div className="relative group">
           {leftIcon && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#8B1538] transition-colors">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36] transition-colors">
               {leftIcon}
             </div>
           )}
@@ -33,8 +33,8 @@ export const AnimatedInput = forwardRef<HTMLInputElement, AnimatedInputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              "w-full bg-white border border-gray-200 rounded-xl text-base text-gray-900 placeholder:text-gray-400 outline-none transition-all duration-200",
-              "focus:bg-white focus:border-[#8B1538] focus:ring-4 focus:ring-[#8B1538]/5",
+              "w-full bg-[#FAFAF9] border border-gray-200 rounded-xl text-base text-gray-900 placeholder:text-gray-400/60 outline-none transition-all duration-200",
+              "focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5",
               leftIcon && "pl-11 pr-4",
               !leftIcon && rightIcon && "pl-4 pr-11",
               !leftIcon && !rightIcon && "px-4",

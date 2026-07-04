@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Sparkles } from 'lucide-react'
+import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Star, MapPin } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos'
@@ -20,157 +20,192 @@ interface CardConfig {
   subtitle: string
   iconColor: string
   iconBg: string
-  overlayClass: string
-  decorativeClass: string
+  iconBorder: string
 }
 
 const CARDS: CardConfig[] = [
   {
     view: 'booking',
-    icon: <Calendar className="w-6 h-6" />,
+    icon: <Calendar className="w-5 h-5" />,
     title: 'Book Your Stay',
-    subtitle: 'Reserve your perfect room',
-    iconColor: 'text-[#8B1538]',
-    iconBg: 'bg-[#8B1538]/10',
-    overlayClass: 'bg-linear-to-br from-[#8B1538] to-[#B93C3C]',
-    decorativeClass: 'bg-linear-to-br from-[#8B1538] to-[#B93C3C]',
+    subtitle: 'Check availability & reserve',
+    iconColor: 'text-[#7C1A36]',
+    iconBg: 'bg-[#7C1A36]/5',
+    iconBorder: 'border-[#7C1A36]/15',
   },
   {
     view: 'cancellation',
-    icon: <XCircle className="w-6 h-6" />,
+    icon: <XCircle className="w-5 h-5" />,
     title: 'Cancel Booking',
-    subtitle: 'Manage your reservations',
-    iconColor: 'text-gray-700',
+    subtitle: 'Manage your reservation',
+    iconColor: 'text-gray-500',
     iconBg: 'bg-gray-100',
-    overlayClass: 'bg-linear-to-br from-gray-700 to-gray-900',
-    decorativeClass: 'bg-linear-to-br from-gray-700 to-gray-900',
+    iconBorder: 'border-gray-200',
   },
   {
     view: 'photos',
-    icon: <ImageIcon className="w-6 h-6" />,
+    icon: <ImageIcon className="w-5 h-5" />,
     title: 'View Gallery',
     subtitle: 'Explore our resort',
     iconColor: 'text-[#D4A574]',
     iconBg: 'bg-[#D4A574]/10',
-    overlayClass: 'bg-linear-to-br from-[#D4A574] to-[#B8956A]',
-    decorativeClass: 'bg-linear-to-br from-[#D4A574] to-[#B8956A]',
+    iconBorder: 'border-[#D4A574]/20',
   },
 ]
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-  }
-}
+// Custom SVG Icons for the bottom stats card
+const DoubleDoorIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-8 h-8 text-[#7C1A36]"
+    {...props}
+  >
+    <path d="M5 3h14a2 2 0 0 1 2 2v16H3V5a2 2 0 0 1 2-2z" />
+    <path d="M12 3v18" />
+    <circle cx="9" cy="12" r="0.75" fill="currentColor" />
+    <circle cx="15" cy="12" r="0.75" fill="currentColor" />
+  </svg>
+)
 
-const staggerItem = {
-  hidden: { opacity: 0, y: 20 },
-  show: { y: 0, opacity: 1, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } }
-}
+const Clock24Icon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-8 h-8 text-[#7C1A36]"
+    {...props}
+  >
+    <path d="M21.5 2v6h-6" />
+    <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l.73-.73" />
+    <text x="12" y="15" fontSize="7.5" fontWeight="bold" textAnchor="middle" fill="currentColor" stroke="none">24</text>
+  </svg>
+)
+
+const ClocheIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-8 h-8 text-[#7C1A36]"
+    {...props}
+  >
+    <path d="M3 18h18" />
+    <path d="M12 5a2 2 0 0 1 2 2h-4a2 2 0 0 1 2-2z" />
+    <path d="M5 14a7 7 0 0 1 14 0v2H5v-2z" />
+  </svg>
+)
 
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="show"
-      className="w-full max-w-4xl mx-auto space-y-12 py-8"
-    >
+    <div className="w-full space-y-8 py-4">
       {/* Hero Section */}
-      <motion.div variants={staggerItem} className="text-center space-y-6 px-4">
-        {/* Brand Badge */}
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-gray-200 shadow-sm"
-        >
-          <Sparkles className="w-4 h-4 text-[#D4A574]" />
-          <span className="text-sm font-medium text-gray-700">Dorshi Resort</span>
-       </motion.div>
+      <div className="text-center space-y-4 px-4">
+        {/* Location Tag */}
+        <div className="inline-flex items-center gap-1.5 justify-center text-xs font-semibold tracking-wider text-[#A12444] uppercase">
+          <MapPin className="w-3.5 h-3.5 text-[#A12444]" />
+          <span>Dorshi Holiday Resort</span>
+        </div>
 
         {/* Main Heading */}
-        <div className="space-y-4">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-gray-900 leading-tight">
-            Your Dream Stay
+        <div className="space-y-3">
+          <h1 className="text-4xl sm:text-5xl font-serif text-gray-900 leading-tight">
+            Your Dream
             <br />
-            <span className="italic text-[#8B1538]">Awaits</span>
-         </h1>
+            <span className="text-[#7C1A36]">Stay Awaits</span>
+          </h1>
 
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Welcome to Dorshi Holiday Resort cum Restaurant. Choose how you'd like to continue —
-            we're here to make every moment memorable.
-         </p>
-       </div>
-     </motion.div>
+          <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto leading-relaxed">
+            Premium rooms, fine dining, and memorable experiences crafted for discerning travelers.
+          </p>
+        </div>
 
-      {/* Action Cards */}
-      <motion.div
-        variants={staggerContainer}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 px-4"
-      >
+        {/* Rating Block */}
+        <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+          <div className="flex text-amber-500">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className="w-4 h-4 fill-current" />
+            ))}
+          </div>
+          <span className="font-semibold ml-1">4.9</span>
+          <span className="text-gray-400 font-normal ml-0.5">•</span>
+          <span className="text-gray-400">200+ reviews</span>
+        </div>
+      </div>
+
+      {/* Action Cards List */}
+      <div className="space-y-3.5 max-w-xl mx-auto px-4">
         {CARDS.map((card) => (
-          <motion.button
+          <button
             key={card.view}
-            variants={staggerItem}
             onClick={() => onSelectView(card.view)}
-            whileHover={{ y: -8, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="group relative bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
+            className="w-full flex items-center justify-between bg-white rounded-3xl p-4 sm:p-5 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
           >
-            {/* Gradient Overlay on Hover */}
-            <div className={cn(
-              "absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300",
-              card.overlayClass
-            )} />
-
-            {/* Icon */}
-            <div className={cn(
-              "w-14 h-14 rounded-2xl grid place-items-center mb-6 transition-all duration-300",
-              card.iconBg,
-              "group-hover:scale-110"
-            )}>
-              <div className={card.iconColor}>
+            <div className="flex items-center gap-4">
+              {/* Icon Container */}
+              <div className={cn(
+                "w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105",
+                card.iconBg,
+                card.iconBorder,
+                card.iconColor
+              )}>
                 {card.icon}
-             </div>
-           </div>
+              </div>
 
-            {/* Content */}
-            <div className="space-y-2 relative z-10">
-              <h3 className="text-xl sm:text-2xl font-serif text-gray-900 group-hover:text-[#8B1538] transition-colors">
-                {card.title}
-             </h3>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                {card.subtitle}
-             </p>
-           </div>
+              {/* Text */}
+              <div>
+                <h3 className="text-base font-bold text-gray-900 leading-tight font-sans">
+                  {card.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-500 leading-relaxed mt-0.5">
+                  {card.subtitle}
+                </p>
+              </div>
+            </div>
 
-            {/* Arrow */}
-            <div className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-gray-100 grid place-items-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
-              <ArrowRight className="w-5 h-5 text-gray-600" />
-           </div>
-
-            {/* Decorative Element */}
-            <div className={cn(
-              "absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-500",
-              card.decorativeClass
-            )} />
-         </motion.button>
+            {/* Circle Arrow on Right */}
+            <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#7C1A36]/5 group-hover:border-[#7C1A36]/20">
+              <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#7C1A36] transition-colors" />
+            </div>
+          </button>
         ))}
-     </motion.div>
+      </div>
 
-      {/* Footer Note */}
-      <motion.div
-        variants={staggerItem}
-        className="text-center pt-8 border-t border-gray-100 mx-4"
-      >
-        <p className="text-sm text-gray-400">
-          ✨ Premium hospitality since 2024
-       </p>
-     </motion.div>
-   </motion.div>
+      {/* Bottom Stats Card */}
+      <div className="max-w-xl mx-auto px-4">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-xs divide-x divide-gray-100 grid grid-cols-3 p-5 text-center">
+          {/* Column 1 */}
+          <div className="flex flex-col items-center justify-center space-y-1 py-1">
+            <DoubleDoorIcon />
+            <span className="text-sm font-bold text-gray-900 font-sans">6 Rooms</span>
+            <span className="text-[10px] text-gray-400 font-medium">All categories</span>
+          </div>
+
+          {/* Column 2 */}
+          <div className="flex flex-col items-center justify-center space-y-1 py-1">
+            <Clock24Icon />
+            <span className="text-sm font-bold text-gray-900 font-sans">24/7</span>
+            <span className="text-[10px] text-gray-400 font-medium">Front desk</span>
+          </div>
+
+          {/* Column 3 */}
+          <div className="flex flex-col items-center justify-center space-y-1 py-1">
+            <ClocheIcon />
+            <span className="text-sm font-bold text-gray-900 font-sans">In-house</span>
+            <span className="text-[10px] text-gray-400 font-medium">Restaurant</span>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }

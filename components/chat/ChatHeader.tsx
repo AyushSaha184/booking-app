@@ -1,9 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
+import { Home, ArrowLeft } from 'lucide-react'
 
-const RESORT_NAME = 'Dorshi Holiday Resort cum Restaurant'
+const RESORT_NAME = 'Dorshi Holiday Resort'
 
 interface ChatHeaderProps {
   onClose: () => void
@@ -11,13 +11,12 @@ interface ChatHeaderProps {
 
 /**
  * Top header bar for the chat interface.
- * Shows the resort name cleanly with no AI/live status indicators.
+ * Styled as a floating card to match the premium screenshots.
  */
 export default function ChatHeader({ onClose }: ChatHeaderProps) {
   return (
     <header
-      className="relative flex items-center justify-between px-5 h-14 bg-[#FAFAF8]/85 backdrop-blur-xl shrink-0 z-20 border-b border-[#E5E7EB]"
-      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      className="flex items-center justify-between px-6 py-4 bg-white rounded-3xl border border-gray-200 shadow-sm shrink-0 z-20 w-full"
     >
       {/* Brand */}
       <div className="flex items-center gap-3 min-w-0">
@@ -25,48 +24,36 @@ export default function ChatHeader({ onClose }: ChatHeaderProps) {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
-          className="w-9 h-9 rounded-xl bg-linear-to-br from-[#8B1538] to-[#6E0F2A] flex items-center justify-center shrink-0 shadow-md"
+          className="w-11 h-11 rounded-2xl bg-[#7C1A36] flex items-center justify-center shrink-0 shadow-sm"
         >
-          <svg
-            viewBox="0 0 14 14"
-            fill="none"
-            stroke="#FFFFFF"
-            strokeWidth="1.4"
-            className="w-4 h-4"
-            aria-hidden="true"
-          >
-            <rect x="1" y="1" width="5" height="5" rx="1" />
-            <rect x="8" y="1" width="5" height="5" rx="1" />
-            <rect x="1" y="8" width="5" height="5" rx="1" />
-            <rect x="8" y="8" width="5" height="5" rx="1" />
-         </svg>
-       </motion.div>
+          <Home className="w-5 h-5 text-white" strokeWidth={2} />
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.05, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] }}
-          className="flex flex-col min-w-0"
+          className="flex flex-col min-w-0 text-left"
         >
-          <span className="text-[10px] tracking-[0.16em] text-[#6B7280] uppercase font-medium leading-none mb-0.5">
-            Welcome
-         </span>
-          <span className="text-sm font-semibold text-[#1F1F1F] truncate tracking-tight leading-tight">
+          <span className="text-[10px] tracking-[0.16em] text-[#7C1A36] uppercase font-bold leading-none mb-1">
+            Welcome To
+          </span>
+          <span className="text-base font-bold text-gray-900 truncate tracking-tight leading-tight font-sans">
             {RESORT_NAME}
-         </span>
-       </motion.div>
-     </div>
+          </span>
+        </motion.div>
+      </div>
 
-      {/* Close button */}
+      {/* Back button */}
       <button
         onClick={onClose}
-        aria-label="Close chat"
-        title="Close"
-        className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer text-[#6B7280] hover:text-[#8B1538] hover:bg-[#8B1538]/10 active:scale-95 transition-all duration-200 border border-transparent hover:border-[#8B1538]/15"
+        aria-label="Go Back"
+        title="Back"
+        className="shrink-0 w-11 h-11 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer text-gray-600 hover:text-[#7C1A36] hover:border-[#7C1A36]/30 hover:bg-[#7C1A36]/5 active:scale-95 transition-all duration-200 shadow-sm"
       >
-        <X className="w-5 h-5" strokeWidth={2} />
-     </button>
-   </header>
+        <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+      </button>
+    </header>
   )
 }
 

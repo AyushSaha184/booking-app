@@ -8,6 +8,7 @@ import BookingFormCard from '@/components/booking/BookingFormCard'
 import CancellationFormCard from '@/components/cancellation/CancellationFormCard'
 import PhotoGallery from '@/components/photos/PhotoGallery'
 import { transitions } from '@/lib/animations'
+import { cn } from '@/lib/utils'
 import type { Room, BookingFormData } from '@/types/booking'
 
 /* ─────────────────────────────────────────────────
@@ -53,16 +54,16 @@ export default function ChatPage() {
     setView('welcome')
   }, [])
 
-  return (
-    <div className="flex flex-col h-[100dvh] w-full bg-background overflow-hidden">
-      {/* Header - fixed height */}
-      <div className="flex-shrink-0">
-        <ChatHeader onClose={handleClose} />
-      </div>
+  const containerMaxWidth = view === 'photos' ? 'max-w-6xl' : 'max-w-3xl'
 
-      {/* Content area - scrollable */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="w-full px-4 sm:px-6 py-6">
+  return (
+    <div className="min-h-screen w-full bg-background overflow-y-auto overflow-x-hidden py-6 px-4 sm:px-6 md:py-8">
+      <div className={cn("mx-auto space-y-6 transition-all duration-300", containerMaxWidth)}>
+        {/* Header */}
+        <ChatHeader onClose={handleClose} />
+
+        {/* Content area */}
+        <main className="w-full">
           <AnimatePresence mode="wait">
             {view === 'welcome' && (
               <motion.div
@@ -117,7 +118,7 @@ export default function ChatPage() {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </main>
       </div>
     </div>
   )
