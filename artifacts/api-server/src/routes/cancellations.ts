@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { lookupBooking, cancelBooking, getRoomById } from "../lib/db-ops";
-import { UpdateBookingSchema, validateRequestSize, getClientIp } from "../lib/validation";
+import { CancelBookingSchema, validateRequestSize, getClientIp } from "../lib/validation";
 import { checkRateLimit } from "../lib/ratelimit";
 import { sendCancellationNotifications } from "../lib/notifications";
 import { updateBookingStatusInSheet } from "../lib/sheets";
@@ -87,22 +87,21 @@ async function handleLookup(req: any, res: any, data: Record<string, unknown>) {
 }
 
 async function handleCancel(req: any, res: any, data: Record<string, unknown>) {
-  let parsed: { id: string; guestName: string; phone: string; status: "confirmed" | "cancelled" };
+  let parsed: { bookingId: string; guestName: string; phone: string };
   try {
-    parsed = UpdateBookingSchema.pick({ id: true, guestName: true, phone: true, status: true }).parse({
-      id:        data.bookingId,
+    parsed = CancelBookingSchema.parse({
+      bookingId: data.bookingId,
       guestName: data.guestName,
       phone:     data.phone,
-      status:    "cancelled",
-    }) as typeof parsed;
+    });
   } catch (err: any) {
     res.status(400).json({ error: err?.issues?.[0]?.message ?? "Invalid cancellation details." });
     return;
   }
 
-  const updated = await cancelBooking(parsed.id, parsed.guestName, parsed.phone);
+  const updated = await cancelBooking(parsed.bookingId, parsed.guestName, parsed.phone);
   if (!updated) {
-    req.log.warn({ bookingId: parsed.id }, "Cancellation failed: mismatch or not found");
+    req.log.warn({ bookingId: parsed.bookingId }, "Cancellation failed: mismatch or not found");
     res.status(404).json({ found: false, success: false, error: "Booking not found or details do not match." });
     return;
   }
