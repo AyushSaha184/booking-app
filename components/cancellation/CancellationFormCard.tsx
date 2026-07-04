@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, Search, Loader2, CheckCircle2, AlertCircle, Calendar, User, Mail } from 'lucide-react'
+import { ChevronLeft, Search, Loader2, CheckCircle2, AlertCircle, Calendar, User, Phone } from 'lucide-react'
 import { AnimatedInput } from '@/components/ui/AnimatedInput'
 import { cn } from '@/lib/utils'
 
@@ -12,19 +12,18 @@ interface CancellationFormCardProps {
 }
 
 interface CancellationFormData {
-  bookingId: string
-  email: string
-  reason: string
+  guestName: string
+  phone: string
 }
 
 interface LookupResult {
   id: string
   guestName: string
-  roomName: string
+  roomId: string
   checkIn: string
   checkOut: string
-  totalAmount: number
-  nights: number
+  guests: number
+  status: string
 }
 
 function formatDate(dateStr: string) {
@@ -33,7 +32,7 @@ function formatDate(dateStr: string) {
 }
 
 export default function CancellationFormCard({ onBack }: CancellationFormCardProps) {
-  const [step, setStep] = useState<'form' | 'searching' | 'found' | 'success'>('form')
+  const [step, setStep] = useState<'form' | 'searching' | 'found' | 'success' | 'error'>('form')
   const [bookingDetails, setBookingDetails] = useState<LookupResult | null>(null)
   const [error, setError] = useState<string>('')
 
@@ -43,29 +42,69 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
     setStep('searching')
     setError('')
 
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    if (data.bookingId === 'BOOK123') {
-      setBookingDetails({
-        id: data.bookingId,
-        guestName: 'John Doe',
-        roomName: 'Deluxe Suite',
-        checkIn: '2026-07-15',
-        checkOut: '2026-07-18',
-        totalAmount: 15000,
-        nights: 3
+    try {
+      const res = await fetch('/api/cancellations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'lookup',
+          guestName: data.guestName,
+          phone: data.phone,
+        }),
       })
+
+      const result = await res.json()
+
+      if (!res.ok || !result.found) {
+        setError(result.message || 'Booking not found. Please check your name and phone number.')
+        setStep('form')
+        return
+      }
+
+      setBookingDetails(result.booking)
       setStep('found')
-    } else {
-      setError('Booking not found. Please check your booking ID and email.')
+    } catch (err) {
+      setError('Unable to connect to the server. Please try again later.')
       setStep('form')
     }
   }
 
   const handleCancel = async () => {
+    if (!bookingDetails) return
+
     setStep('searching')
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setStep('success')
+
+    const data = watch()
+
+    try {
+      const res = await fetch('/api/cancellations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cancel',
+          bookingId: bookingDetails.id,
+          guestName: data.guestName,
+          phone: data.phone,
+        }),
+      })
+
+      const result = await res.json()
+
+      if (!res.ok || !result.success) {
+        setError(result.error || 'Cancellation failed. Please try again.')
+        setStep('found')
+        return
+      }
+
+      setStep('success')
+    } catch (err) {
+      setError('Unable to process cancellation. Please try again later.')
+      setStep('found')
+    }
+  }
+
+  const handleDismissError = () => {
+    setError('')
   }
 
   return (
@@ -99,43 +138,33 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             onSubmit={handleSubmit(handleSearch)}
             className="space-y-6"
           >
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-6">
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-gray-800">Find Your Booking</h3>
-                <p className="text-sm text-gray-500">Enter your booking details to proceed with cancellation</p>
+                <p className="text-sm text-gray-500">Enter your details to proceed with cancellation</p>
               </div>
 
               <div className="space-y-4">
                 <AnimatedInput
-                  label="Booking ID"
-                  leftIcon={<Search className="w-4 h-4" />}
-                  placeholder="e.g., BOOK123"
-                  error={errors.bookingId?.message}
-                  {...register('bookingId', {
-                    required: 'Booking ID is required',
-                    minLength: { value: 3, message: 'Invalid booking ID' }
+                  label="Full Name"
+                  leftIcon={<User className="w-4 h-4" />}
+                  placeholder="John Doe"
+                  error={errors.guestName?.message}
+                  {...register('guestName', {
+                    required: 'Name is required',
+                    minLength: { value: 2, message: 'Name is too short' }
                   })}
                 />
 
                 <AnimatedInput
-                  label="Email Address"
-                  type="email"
-                  leftIcon={<Mail className="w-4 h-4" />}
-                  placeholder="your@email.com"
-                  error={errors.email?.message}
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' }
-                  })}
-                />
-
-                <AnimatedInput
-                  label="Cancellation Reason"
-                  placeholder="Please tell us why you're cancelling..."
-                  error={errors.reason?.message}
-                  {...register('reason', {
-                    required: 'Please provide a reason',
-                    minLength: { value: 10, message: 'Please provide more details' }
+                  label="Phone Number"
+                  leftIcon={<Phone className="w-4 h-4" />}
+                  placeholder="+91 98765 43210"
+                  inputMode="tel"
+                  error={errors.phone?.message}
+                  {...register('phone', {
+                    required: 'Phone number is required',
+                    minLength: { value: 10, message: 'Invalid phone number' }
                   })}
                 />
               </div>
@@ -148,6 +177,13 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
                 >
                   <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                   <p className="text-sm text-red-800">{error}</p>
+                  <button
+                    type="button"
+                    onClick={handleDismissError}
+                    className="ml-auto text-xs text-red-600 hover:text-red-800 underline shrink-0"
+                  >
+                    Dismiss
+                  </button>
                 </motion.div>
               )}
 
@@ -179,7 +215,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="bg-white p-12 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center space-y-4"
+            className="bg-white p-12 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-4"
           >
             <Loader2 className="w-12 h-12 text-[#8B1538] animate-spin" />
             <p className="text-gray-600 font-medium">
@@ -198,7 +234,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             className="space-y-6"
           >
             {/* Booking Details Card */}
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-6">
               <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
                 <div className="w-12 h-12 rounded-xl bg-[#8B1538]/10 grid place-items-center">
                   <CheckCircle2 className="w-6 h-6 text-[#8B1538]" />
@@ -219,8 +255,8 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Room</p>
-                    <p className="text-sm font-semibold text-gray-900">{bookingDetails.roomName}</p>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Room ID</p>
+                    <p className="text-sm font-semibold text-gray-900">{bookingDetails.roomId}</p>
                   </div>
                 </div>
 
@@ -238,13 +274,6 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
                       <Calendar className="w-4 h-4 text-gray-400" />
                       {formatDate(bookingDetails.checkOut)}
                     </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-gray-100">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Total Amount ({bookingDetails.nights} nights)</span>
-                    <span className="text-2xl font-bold text-[#8B1538]">₹{bookingDetails.totalAmount.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
               </div>
@@ -289,7 +318,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white p-8 sm:p-12 rounded-2xl border border-gray-100 shadow-sm text-center space-y-6"
+            className="bg-white p-8 sm:p-12 rounded-2xl border border-gray-200 shadow-sm text-center space-y-6"
           >
             <motion.div
               initial={{ scale: 0 }}

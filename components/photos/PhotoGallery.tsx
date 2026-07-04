@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, ZoomIn, Camera, ArrowLeft } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface PhotoItem {
@@ -14,43 +14,47 @@ interface PhotoItem {
 }
 
 const PHOTOS: PhotoItem[] = [
-  { id: '1', name: 'Resort Exterior', type: 'Common Area', src: '/assests/IMG-20260622-WA0036.webp' },
-  { id: '2', name: 'Swimming Pool', type: 'Recreation', src: '/assests/IMG-20260622-WA0035.webp' },
-  { id: '3', name: 'Pool Area', type: 'Recreation', src: '/assests/IMG-20260622-WA0034.webp' },
-  { id: '4', name: 'Resort View', type: 'Common Area', src: '/assests/IMG-20260622-WA0033.webp' },
-  { id: '5', name: 'Garden Area', type: 'Common Area', src: '/assests/IMG-20260622-WA0032.webp' },
-  { id: '6', name: 'Restaurant', type: 'Dining', src: '/assests/IMG-20260622-WA0031.webp' },
-  { id: '7', name: 'Dining Area', type: 'Dining', src: '/assests/IMG-20260622-WA0030.webp' },
-  { id: '8', name: 'Food Service', type: 'Dining', src: '/assests/IMG-20260622-WA0029.webp' },
-  { id: '9', name: 'Resort Entrance', type: 'Common Area', src: '/assests/IMG-20260622-WA0028.webp' },
-  { id: '10', name: 'Property View', type: 'Common Area', src: '/assests/IMG-20260622-WA0027.webp' },
-  { id: '11', name: 'Room Interior', type: 'Accommodation', src: '/assests/IMG-20260622-WA0026.webp' },
-  { id: '12', name: 'Guest Room', type: 'Accommodation', src: '/assests/IMG-20260622-WA0025.webp' },
-  { id: '13', name: 'Bedroom Suite', type: 'Accommodation', src: '/assests/IMG-20260622-WA0024.webp' },
-  { id: '14', name: 'Bathroom', type: 'Accommodation', src: '/assests/IMG-20260622-WA0023.webp' },
-  { id: '15', name: 'Room Amenities', type: 'Accommodation', src: '/assests/IMG-20260622-WA0022.webp' },
-  { id: '16', name: 'Balcony View', type: 'Accommodation', src: '/assests/IMG-20260622-WA0021.webp' },
-  { id: '17', name: 'Evening View', type: 'Common Area', src: '/assests/IMG-20260622-WA0020.webp' },
-  { id: '18', name: 'Landscaping', type: 'Common Area', src: '/assests/IMG-20260622-WA0019.webp' },
-  { id: '19', name: 'Outdoor Seating', type: 'Common Area', src: '/assests/IMG-20260622-WA0018.webp' },
-  { id: '20', name: 'Walkway', type: 'Common Area', src: '/assests/IMG-20260622-WA0017.webp' },
-  { id: '21', name: 'Surroundings', type: 'Common Area', src: '/assests/IMG-20260622-WA0016.webp' },
-  { id: '22', name: 'Resort Facade', type: 'Common Area', src: '/assests/IMG-20260622-WA0015.webp' },
-  { id: '23', name: 'Another View', type: 'Common Area', src: '/assests/IMG-20260622-WA0014.webp' },
-  { id: '24', name: 'Scenic Shot', type: 'Common Area', src: '/assests/IMG-20260622-WA0013.webp' },
-  { id: '25', name: 'More Views', type: 'Common Area', src: '/assests/IMG-20260622-WA0012.webp' },
-  { id: '26', name: 'Property Shot', type: 'Common Area', src: '/assests/IMG-20260622-WA0011.webp' },
-  { id: '27', name: 'Resort Scene', type: 'Common Area', src: '/assests/IMG-20260622-WA0010.webp' },
-  { id: '28', name: 'Corridor', type: 'Common Area', src: '/assests/IMG-20260622-WA0009.webp' },
-  { id: '29', name: 'Interior', type: 'Common Area', src: '/assests/IMG-20260622-WA0008.webp' },
-  { id: '30', name: 'Detail Shot', type: 'Common Area', src: '/assests/IMG-20260622-WA0007.webp' },
-  { id: '31', name: 'Resort Area', type: 'Common Area', src: '/assests/IMG-20260622-WA0006.webp' },
-  { id: '32', name: 'Final View', type: 'Common Area', src: '/assests/IMG-20260622-WA0005.webp' },
+  { id: '1', name: 'Resort Exterior', type: 'Common Area', src: '/assets/IMG-20260622-WA0036.webp' },
+  { id: '2', name: 'Swimming Pool', type: 'Recreation', src: '/assets/IMG-20260622-WA0035.webp' },
+  { id: '3', name: 'Pool Area', type: 'Recreation', src: '/assets/IMG-20260622-WA0034.webp' },
+  { id: '4', name: 'Resort View', type: 'Common Area', src: '/assets/IMG-20260622-WA0033.webp' },
+  { id: '5', name: 'Garden Area', type: 'Common Area', src: '/assets/IMG-20260622-WA0032.webp' },
+  { id: '6', name: 'Restaurant', type: 'Dining', src: '/assets/IMG-20260622-WA0031.webp' },
+  { id: '7', name: 'Dining Area', type: 'Dining', src: '/assets/IMG-20260622-WA0030.webp' },
+  { id: '8', name: 'Food Service', type: 'Dining', src: '/assets/IMG-20260622-WA0029.webp' },
+  { id: '9', name: 'Resort Entrance', type: 'Common Area', src: '/assets/IMG-20260622-WA0028.webp' },
+  { id: '10', name: 'Property View', type: 'Common Area', src: '/assets/IMG-20260622-WA0027.webp' },
+  { id: '11', name: 'Room Interior', type: 'Accommodation', src: '/assets/IMG-20260622-WA0026.webp' },
+  { id: '12', name: 'Guest Room', type: 'Accommodation', src: '/assets/IMG-20260622-WA0025.webp' },
+  { id: '13', name: 'Bedroom Suite', type: 'Accommodation', src: '/assets/IMG-20260622-WA0024.webp' },
+  { id: '14', name: 'Bathroom', type: 'Accommodation', src: '/assets/IMG-20260622-WA0023.webp' },
+  { id: '15', name: 'Room Amenities', type: 'Accommodation', src: '/assets/IMG-20260622-WA0022.webp' },
+  { id: '16', name: 'Balcony View', type: 'Accommodation', src: '/assets/IMG-20260622-WA0021.webp' },
+  { id: '17', name: 'Evening View', type: 'Common Area', src: '/assets/IMG-20260622-WA0020.webp' },
+  { id: '18', name: 'Landscaping', type: 'Common Area', src: '/assets/IMG-20260622-WA0019.webp' },
+  { id: '19', name: 'Outdoor Seating', type: 'Common Area', src: '/assets/IMG-20260622-WA0018.webp' },
+  { id: '20', name: 'Walkway', type: 'Common Area', src: '/assets/IMG-20260622-WA0017.webp' },
+  { id: '21', name: 'Surroundings', type: 'Common Area', src: '/assets/IMG-20260622-WA0016.webp' },
+  { id: '22', name: 'Resort Facade', type: 'Common Area', src: '/assets/IMG-20260622-WA0015.webp' },
+  { id: '23', name: 'Another View', type: 'Common Area', src: '/assets/IMG-20260622-WA0014.webp' },
+  { id: '24', name: 'Scenic Shot', type: 'Common Area', src: '/assets/IMG-20260622-WA0013.webp' },
+  { id: '25', name: 'More Views', type: 'Common Area', src: '/assets/IMG-20260622-WA0012.webp' },
+  { id: '26', name: 'Property Shot', type: 'Common Area', src: '/assets/IMG-20260622-WA0011.webp' },
+  { id: '27', name: 'Resort Scene', type: 'Common Area', src: '/assets/IMG-20260622-WA0010.webp' },
+  { id: '28', name: 'Corridor', type: 'Common Area', src: '/assets/IMG-20260622-WA0009.webp' },
+  { id: '29', name: 'Interior', type: 'Common Area', src: '/assets/IMG-20260622-WA0008.webp' },
+  { id: '30', name: 'Detail Shot', type: 'Common Area', src: '/assets/IMG-20260622-WA0007.webp' },
+  { id: '31', name: 'Resort Area', type: 'Common Area', src: '/assets/IMG-20260622-WA0006.webp' },
+  { id: '32', name: 'Final View', type: 'Common Area', src: '/assets/IMG-20260622-WA0005.webp' },
 ]
 
 const categories = ['All', ...Array.from(new Set(PHOTOS.map(p => p.type)))]
 
-export default function PhotoGallery() {
+interface PhotoGalleryProps {
+  onBack?: () => void
+}
+
+export default function PhotoGallery({ onBack }: PhotoGalleryProps) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
@@ -71,6 +75,15 @@ export default function PhotoGallery() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-4 px-4"
       >
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:border-[#8B1538]/40 transition-all text-sm font-medium text-gray-700 mb-2"
+          >
+            <ArrowLeft className="w-4 h-4 text-gray-500" />
+            Go Back
+          </button>
+        )}
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm">
           <Camera className="w-4 h-4 text-[#D4A574]" />
           <span className="text-sm font-medium text-gray-700">Resort Gallery</span>
@@ -135,7 +148,7 @@ export default function PhotoGallery() {
               />
 
               {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
               {/* Zoom Icon */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">

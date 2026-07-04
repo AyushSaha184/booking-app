@@ -6,7 +6,7 @@ import { CreateBookingSchema, LookupBookingSchema, CancelBookingSchema, UpdateBo
 import { sendBookingNotifications, sendCancellationNotifications } from '../twilio/notifications'
 import { getRoomById } from './rooms'
 
-export async function createBooking(data: unknown) {
+async function _createBookingLegacy(data: unknown) {
   const validated = CreateBookingSchema.parse(data)
 
   const id = 'BK-' + nanoid(6).toUpperCase()

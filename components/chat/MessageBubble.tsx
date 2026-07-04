@@ -36,7 +36,7 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         className={cn(
           'max-w-[82%] sm:max-w-[75%] px-4 py-3 rounded-2xl text-sm sm:text-base leading-relaxed break-words shadow-sm',
           isUser
-            ? 'bg-gradient-to-r from-[#8B1538] to-[#6E0F2A] text-white rounded-tr-sm font-medium'
+            ? 'bg-linear-to-r from-[#8B1538] to-[#6E0F2A] text-white rounded-tr-sm font-medium'
             : 'bg-white border border-[#E5E7EB] text-[#1F1F1F] rounded-tl-sm font-normal'
         )}
       >

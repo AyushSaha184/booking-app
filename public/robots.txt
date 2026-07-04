@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dorshi-resort.example/sitemap.xml

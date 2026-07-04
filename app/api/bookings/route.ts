@@ -4,10 +4,38 @@ import { getRoomById } from '@/lib/db/rooms'
 import { sendBookingNotifications } from '@/lib/twilio/notifications'
 import { syncBookingToSheet } from '@/lib/sheets/sync'
 import { validateRequestSize, CreateBookingSchema } from '@/lib/validation'
+import { checkRateLimit } from '@/lib/ratelimit'
 import { logger } from '@/lib/logger'
 
+function getClientIp(req: Request): string {
+  const forwarded = req.headers.get('x-forwarded-for')
+  if (forwarded) {
+    return forwarded.split(',')[0].trim()
+  }
+  const realIp = req.headers.get('x-real-ip')
+  if (realIp) {
+    return realIp
+  }
+  return '127.0.0.1'
+}
+
 export async function POST(req: Request) {
+  const ip = getClientIp(req)
+
   try {
+    const { success, remaining, reset } = await checkRateLimit(ip)
+
+    if (!success) {
+      logger.warn('Bookings API rate limit exceeded', { ip, remaining, reset })
+      const response = NextResponse.json(
+        { error: 'Too many requests. Please wait before trying again.' },
+        { status: 429 }
+      )
+      response.headers.set('X-RateLimit-Remaining', String(remaining))
+      response.headers.set('X-RateLimit-Reset', String(reset))
+      return response
+    }
+
     const body = await req.text()
 
     if (!validateRequestSize(body, 100_000)) {

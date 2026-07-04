@@ -62,7 +62,7 @@ export default function ChatPage() {
 
       {/* Content area - scrollable */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6">
+        <div className="w-full px-4 sm:px-6 py-6">
           <AnimatePresence mode="wait">
             {view === 'welcome' && (
               <motion.div
@@ -113,7 +113,7 @@ export default function ChatPage() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={transitions.smooth}
               >
-                <PhotoGallery />
+                <PhotoGallery onBack={handleBack} />
               </motion.div>
             )}
           </AnimatePresence>

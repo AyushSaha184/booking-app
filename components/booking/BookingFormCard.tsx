@@ -80,9 +80,10 @@ export default function BookingFormCard({
     mode: 'onBlur',
   })
 
-  const watchedValues = watch()
-  const checkIn = watchedValues.checkIn
-  const checkOut = watchedValues.checkOut
+  const checkIn = watch('checkIn')
+  const checkOut = watch('checkOut')
+  const roomId = watch('roomId')
+  const guests = watch('guests')
 
   useEffect(() => {
     if (!onFetchRooms || initialRooms || !checkIn || !checkOut) return
@@ -99,9 +100,9 @@ export default function BookingFormCard({
     return () => clearTimeout(timer)
   }, [checkIn, checkOut, onFetchRooms, initialRooms, setValue])
 
-  const selectedRoom = rooms.find(r => r.id === watchedValues.roomId)
-  const nights = watchedValues.checkIn && watchedValues.checkOut
-    ? Math.max(1, Math.ceil((new Date(watchedValues.checkOut).getTime() - new Date(watchedValues.checkIn).getTime()) / (1000 * 60 * 60 * 24)))
+  const selectedRoom = rooms.find(r => r.id === roomId)
+  const nights = checkIn && checkOut
+    ? Math.max(1, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)))
     : 0
   const subtotal = selectedRoom ? selectedRoom.pricePerNight * nights : 0
   const tax = Math.round(subtotal * 0.12)
@@ -128,7 +129,7 @@ export default function BookingFormCard({
         variants={bounceIn}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-6 py-12 px-8 bg-white rounded-3xl border border-gray-100 shadow-lg w-full max-w-lg mx-auto text-center"
+        className="flex flex-col items-center gap-6 py-12 px-8 bg-white rounded-3xl border border-gray-200 shadow-lg w-full max-w-lg mx-auto text-center"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -196,7 +197,7 @@ export default function BookingFormCard({
 
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         {/* SECTION 1: Guest Details */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <User className="w-5 h-5 text-[#8B1538]" /> Guest Details
           </h3>
@@ -220,7 +221,7 @@ export default function BookingFormCard({
         </div>
 
         {/* SECTION 2: Stay Details */}
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
           <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-[#8B1538]" /> Stay Details
           </h3>
@@ -241,7 +242,7 @@ export default function BookingFormCard({
               <input
                 type="date"
                 {...register('checkOut')}
-                min={watchedValues.checkIn || today}
+                min={checkIn || today}
                 className="w-full bg-transparent border-none text-base font-medium text-gray-900 outline-none cursor-pointer"
               />
             </div>
@@ -259,18 +260,18 @@ export default function BookingFormCard({
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() => setValue('guests', Math.max(1, (watchedValues.guests || 1) - 1))}
+                onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
                 className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center text-gray-600 hover:border-[#8B1538] hover:text-[#8B1538] transition-all shadow-sm disabled:opacity-50"
-                disabled={(watchedValues.guests || 1) <= 1}
+                disabled={(guests || 1) <= 1}
               >
                 −
               </button>
-              <span className="text-xl font-bold text-gray-900 w-6 text-center">{watchedValues.guests || 1}</span>
+              <span className="text-xl font-bold text-gray-900 w-6 text-center">{guests || 1}</span>
               <button
                 type="button"
-                onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (watchedValues.guests || 1) + 1))}
+                onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (guests || 1) + 1))}
                 className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center text-gray-600 hover:border-[#8B1538] hover:text-[#8B1538] transition-all shadow-sm disabled:opacity-50"
-                disabled={(watchedValues.guests || 1) >= (selectedRoom?.capacity || 4)}
+                disabled={(guests || 1) >= (selectedRoom?.capacity || 4)}
               >
                 +
               </button>
@@ -287,7 +288,7 @@ export default function BookingFormCard({
 
             <div className="grid grid-cols-1 gap-4">
               {rooms.map((room) => {
-                const isSelected = watchedValues.roomId === room.id
+                const isSelected = roomId === room.id
                 return (
                   <motion.button
                     key={room.id}
@@ -298,7 +299,7 @@ export default function BookingFormCard({
                       "relative flex flex-col sm:flex-row bg-white rounded-2xl border-2 overflow-hidden transition-all text-left shadow-sm",
                       isSelected
                         ? "border-[#8B1538] ring-4 ring-[#8B1538]/5 shadow-md"
-                        : "border-gray-100 hover:border-gray-200 hover:shadow-md"
+                        : "border-gray-200 hover:border-gray-200 hover:shadow-md"
                     )}
                   >
                     {/* Room Image */}
@@ -349,7 +350,7 @@ export default function BookingFormCard({
 
         {/* SECTION 4: Price Summary */}
         {nights > 0 && selectedRoom && (
-          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 space-y-4">
+          <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200 space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Price Summary</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-gray-600">
@@ -379,7 +380,7 @@ export default function BookingFormCard({
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={isSubmitting || !watchedValues.roomId || loadingRooms}
+          disabled={isSubmitting || loadingRooms}
           className="w-full h-14 rounded-xl bg-linear-to-r from-[#8B1538] to-[#B93C3C] text-white text-lg font-semibold shadow-lg shadow-[#8B1538]/20 hover:shadow-xl hover:shadow-[#8B1538]/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all flex items-center justify-center gap-2"
         >
           {isSubmitting ? (

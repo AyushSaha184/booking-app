@@ -2,7 +2,7 @@ import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 import { logger } from './logger'
 
-function createRedis() {
+function createRedis(): Redis {
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN
   if (!url) throw new Error('UPSTASH_REDIS_REST_URL is not configured')
@@ -10,20 +10,20 @@ function createRedis() {
   return new Redis({ url, token })
 }
 
-let _redis: Redis | null = null
-function getRedis(): Redis {
-  if (!_redis) {
-    _redis = createRedis()
-  }
-  return _redis
-}
+let _ratelimit: Ratelimit | null = null
 
-export const ratelimit = new Ratelimit({
-  redis: getRedis(),
-  limiter: Ratelimit.slidingWindow(20, '1 m'),
-  analytics: true,
-  prefix: 'resort-booking',
-})
+function getRateLimiter(): Ratelimit {
+  if (!_ratelimit) {
+    const redis = createRedis()
+    _ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(20, '1 m'),
+      analytics: true,
+      prefix: 'resort-booking',
+    })
+  }
+  return _ratelimit
+}
 
 export async function checkRateLimit(identifier: string): Promise<{
   success: boolean
@@ -31,7 +31,7 @@ export async function checkRateLimit(identifier: string): Promise<{
   remaining: number
   reset: number
 }> {
-  const result = await ratelimit.limit(identifier)
+  const result = await getRateLimiter().limit(identifier)
   if (!result.success) {
     logger.warn('Rate limit exceeded for identifier', { identifier, remaining: result.remaining, reset: result.reset })
   }

@@ -19,7 +19,7 @@ interface PremiumButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
 
 const variantClasses: Record<PremiumButtonVariant, string> = {
   primary:
-    'bg-gradient-to-r from-[#B93C3C] to-[#9E2B2B] text-white font-medium shadow-sm ' +
+    'bg-linear-to-r from-[#B93C3C] to-[#9E2B2B] text-white font-medium shadow-sm ' +
     'hover:bg-[#a02f2f] hover:shadow-[0_4px_16px_rgba(185,60,60,0.3)] ' +
     'disabled:bg-[rgba(185,60,60,0.2)] disabled:text-[rgba(150,60,60,0.4)] disabled:shadow-none transition-all duration-200',
   secondary:
