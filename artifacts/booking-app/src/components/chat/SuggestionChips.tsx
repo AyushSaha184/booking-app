@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Star, DoorOpen, Clock, UtensilsCrossed } from 'lucide-react';
+import { Calendar, XCircle, Image as ImageIcon, ArrowRight, DoorOpen, Clock, UtensilsCrossed } from 'lucide-react';
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos';
 
@@ -62,16 +62,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
           Premium rooms, fine dining, and memorable experiences crafted for discerning travelers.
         </p>
 
-        {/* Stars */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-[18px] h-[18px] fill-amber-400 text-amber-400" />
-            ))}
-          </div>
-          <span className="text-sm text-gray-600 font-semibold">4.9</span>
-          <span className="text-sm text-gray-400">· 200+ reviews</span>
-        </div>
       </motion.div>
 
       {/* ── Action cards ── */}
