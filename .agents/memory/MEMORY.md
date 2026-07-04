@@ -1,1 +1,0 @@
-- [Dorshi booking app migration](dorshi-migration.md) — Next.js → Vite+React+Express; key decisions on routing, transactions, seeding, and deps.
