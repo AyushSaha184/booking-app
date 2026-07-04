@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 const RESORT_NAME = 'Dorshi Holiday Resort cum Restaurant';
 
@@ -49,7 +49,7 @@ export default function ChatHeader({ onClose }: ChatHeaderProps) {
         title="Close"
         className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center cursor-pointer text-[#6B7280] hover:text-[#8B1538] hover:bg-[#8B1538]/10 active:scale-95 transition-all duration-200 border border-transparent hover:border-[#8B1538]/15"
       >
-        <X className="w-5 h-5" strokeWidth={2} />
+        <ArrowLeft className="w-5 h-5" strokeWidth={2} />
       </button>
     </header>
   );
