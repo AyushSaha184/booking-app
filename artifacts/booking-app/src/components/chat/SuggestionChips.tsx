@@ -88,14 +88,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
         })}
       </div>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="text-center text-xs text-gray-300 mt-8"
-      >
-        ✦ Premium hospitality since 2024
-      </motion.p>
     </div>
   );
 }
