@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Star, MapPin, DoorOpen, Clock, UtensilsCrossed } from 'lucide-react';
+import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Star, DoorOpen, Clock, UtensilsCrossed } from 'lucide-react';
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos';
 
@@ -51,14 +51,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
         transition={{ duration: 0.45 }}
         className="mb-10"
       >
-        {/* Location label */}
-        <div className="flex items-center gap-1.5 mb-4">
-          <MapPin className="w-3.5 h-3.5 text-[#8B1538]" strokeWidth={2} />
-          <p className="text-[11px] font-bold tracking-[0.22em] text-[#8B1538] uppercase">
-            Dorshi Holiday Resort
-          </p>
-        </div>
-
         {/* Two-tone serif heading */}
         <h1 className="font-serif leading-[1.08] mb-4" style={{ letterSpacing: '0.01em' }}>
           <span className="block text-[2.8rem] sm:text-[3.6rem] text-gray-900 font-normal">Your Dream</span>
