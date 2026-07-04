@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, XCircle, Image as ImageIcon, ArrowRight, DoorOpen, Clock, UtensilsCrossed } from 'lucide-react';
+import { Calendar, XCircle, Image as ImageIcon, DoorOpen, Clock, UtensilsCrossed } from 'lucide-react';
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos';
 
@@ -35,7 +35,7 @@ const CARDS = [
 ];
 
 const INFO = [
-  { icon: DoorOpen,          label: '6 Rooms',  sub: 'All categories' },
+  { icon: DoorOpen,          label: '9 Rooms',  sub: 'All categories' },
   { icon: Clock,             label: '24/7',     sub: 'Front desk'     },
   { icon: UtensilsCrossed,   label: 'In-house', sub: 'Restaurant'     },
 ];
@@ -80,11 +80,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 text-base">{card.label}</p>
                 <p className="text-sm text-gray-400 mt-0.5">{card.sub}</p>
-              </div>
-
-              {/* Arrow */}
-              <div className="w-9 h-9 rounded-full border border-gray-200 bg-white grid place-items-center shrink-0">
-                <ArrowRight className="w-4 h-4 text-gray-400" />
               </div>
             </motion.button>
           );
