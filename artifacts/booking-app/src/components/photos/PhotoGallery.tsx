@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Photo { id: string; name: string; type: string; src: string }
@@ -40,20 +40,15 @@ const PHOTOS: Photo[] = [
   { id: '32', name: 'Final View',       type: 'Resort',    src: '/assets/IMG-20260622-WA0005.webp' },
 ];
 
-const CATEGORIES = ['All', ...Array.from(new Set(PHOTOS.map(p => p.type)))].filter(c => c !== 'Resort');
-
 interface Props { onBack?: () => void }
 
 export default function PhotoGallery({ onBack }: Props) {
-  const [cat, setCat] = useState('All');
   const [lbIdx, setLbIdx] = useState<number | null>(null);
-
-  const filtered = cat === 'All' ? PHOTOS : PHOTOS.filter(p => p.type === cat);
 
   const open  = (i: number) => setLbIdx(i);
   const close = useCallback(() => setLbIdx(null), []);
   const prev  = useCallback(() => setLbIdx(i => (i !== null && i > 0 ? i - 1 : i)), []);
-  const next  = useCallback(() => setLbIdx(i => (i !== null && i < filtered.length - 1 ? i + 1 : i)), [filtered.length]);
+  const next  = useCallback(() => setLbIdx(i => (i !== null && i < PHOTOS.length - 1 ? i + 1 : i)), []);
 
   /* Keyboard navigation */
   useEffect(() => {
@@ -70,22 +65,18 @@ export default function PhotoGallery({ onBack }: Props) {
   return (
     <div className="pb-8">
       {/* ── Header ── */}
-      <div className="sticky top-0 z-10 bg-[#F5F0E8]/90 backdrop-blur-md border-b border-gray-100 px-4 pt-4 pb-3">
-        <div className="flex items-center gap-3 mb-3">
-          <div>
-            <h2 className="font-serif text-xl text-gray-900 leading-tight">Photo Gallery</h2>
-          </div>
-        </div>
-
+      <div className="sticky top-0 z-10 bg-[#FAFAFA]/90 backdrop-blur-md px-5 pt-6 pb-4">
+        <h2 className="font-serif text-2xl text-gray-900 leading-tight">Photo Gallery</h2>
+        <p className="text-sm text-gray-400 mt-1">Explore the beauty of Dorshi Resort</p>
       </div>
 
       {/* ── Grid ── */}
       <motion.div
         layout
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1 sm:gap-2 px-2 pt-3"
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 px-5 pt-2"
       >
         <AnimatePresence mode="popLayout">
-          {filtered.map((photo, idx) => (
+          {PHOTOS.map((photo, idx) => (
             <motion.div
               key={photo.id}
               layout
@@ -94,21 +85,17 @@ export default function PhotoGallery({ onBack }: Props) {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => open(idx)}
-              className="relative aspect-square rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
+              className="relative aspect-[4/5] rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
             >
               <img
                 src={photo.src}
                 alt={photo.name}
                 loading="lazy"
                 decoding="async"
-                className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
+                className="w-full h-full object-cover group-active:scale-105 transition-transform duration-500"
               />
-              {/* Overlay on hover (desktop) */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center">
-                <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-              </div>
-              {/* Name overlay at bottom */}
-              <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              {/* Subtle bottom gradient for text readability */}
+              <div className="absolute bottom-0 left-0 right-0 px-3 py-3 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
                 <p className="text-white text-xs font-medium truncate">{photo.name}</p>
               </div>
             </motion.div>
@@ -127,12 +114,12 @@ export default function PhotoGallery({ onBack }: Props) {
             onClick={close}
           >
             {/* Top bar */}
-            <div className="flex items-center justify-between px-4 py-3 z-10 shrink-0" onClick={e => e.stopPropagation()}>
-              <p className="text-white/60 text-sm font-medium">{lbIdx + 1} / {filtered.length}</p>
-              <p className="text-white text-sm font-semibold">{filtered[lbIdx].name}</p>
+            <div className="flex items-center justify-between px-5 py-4 z-10 shrink-0" onClick={e => e.stopPropagation()}>
+              <p className="text-white/60 text-sm font-medium">{lbIdx + 1} / {PHOTOS.length}</p>
+              <p className="text-white text-sm font-semibold">{PHOTOS[lbIdx].name}</p>
               <button
                 onClick={close}
-                className="w-9 h-9 rounded-full bg-white/10 grid place-items-center active:bg-white/20"
+                className="w-10 h-10 rounded-full bg-white/10 grid place-items-center active:bg-white/20 hover:bg-white/20 transition-colors"
               >
                 <X className="w-5 h-5 text-white" />
               </button>
@@ -143,8 +130,8 @@ export default function PhotoGallery({ onBack }: Props) {
               <AnimatePresence mode="wait">
                 <motion.img
                   key={lbIdx}
-                  src={filtered[lbIdx].src}
-                  alt={filtered[lbIdx].name}
+                  src={PHOTOS[lbIdx].src}
+                  alt={PHOTOS[lbIdx].name}
                   initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
@@ -158,25 +145,23 @@ export default function PhotoGallery({ onBack }: Props) {
               {lbIdx > 0 && (
                 <button
                   onClick={prev}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 grid place-items-center active:bg-white/20"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 grid place-items-center active:bg-white/20 hover:bg-white/20 transition-colors"
                 >
                   <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
               )}
-              {lbIdx < filtered.length - 1 && (
+              {lbIdx < PHOTOS.length - 1 && (
                 <button
                   onClick={next}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 grid place-items-center active:bg-white/20"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 grid place-items-center active:bg-white/20 hover:bg-white/20 transition-colors"
                 >
                   <ChevronRight className="w-6 h-6 text-white" />
                 </button>
               )}
             </div>
 
-            {/* Type label */}
-            <div className="shrink-0 flex justify-center py-3" onClick={e => e.stopPropagation()}>
-              <span className="text-white/50 text-xs bg-white/10 px-3 py-1 rounded-full">{filtered[lbIdx].type}</span>
-            </div>
+            {/* Bottom padding */}
+            <div className="shrink-0 h-4" onClick={e => e.stopPropagation()} />
           </motion.div>
         )}
       </AnimatePresence>

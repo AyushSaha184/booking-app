@@ -8,9 +8,9 @@ import PhotoGallery from '@/components/photos/PhotoGallery';
 import type { Room, BookingFormData } from '@/types/booking';
 
 const pageVariants = {
-  enter: { opacity: 0, x: 24 },
-  center: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -24 },
+  enter: { opacity: 0, x: 30, scale: 0.98 },
+  center: { opacity: 1, x: 0, scale: 1 },
+  exit: { opacity: 0, x: -20, scale: 0.98 },
 };
 
 export default function ChatPage() {
@@ -40,36 +40,64 @@ export default function ChatPage() {
   const handleBack = useCallback(() => setView('welcome'), []);
 
   return (
-    <div className="flex flex-col h-[100dvh] w-full bg-[#F5F0E8] overflow-hidden">
+    <div className="flex flex-col h-[100dvh] w-full bg-[#FAFAFA] overflow-hidden">
       <ChatHeader onClose={handleBack} />
       <div className="flex-1 overflow-y-auto overflow-x-hidden flex justify-center">
-        <div className="w-full max-w-3xl">
+        <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait" initial={false}>
-          {view === 'welcome' && (
-            <motion.div key="welcome" variants={pageVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.22 }}>
-              <SuggestionChips onSelectView={handleSelectView} />
-            </motion.div>
-          )}
-          {view === 'booking' && (
-            <motion.div key="booking" variants={pageVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.22 }}>
-              <BookingFormCard
-                onSubmit={handleSubmit}
-                onBack={handleBack}
-                availableRooms={rooms}
-                onFetchRooms={fetchRooms}
-              />
-            </motion.div>
-          )}
-          {view === 'cancellation' && (
-            <motion.div key="cancellation" variants={pageVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.22 }}>
-              <CancellationFormCard onBack={handleBack} />
-            </motion.div>
-          )}
-          {view === 'photos' && (
-            <motion.div key="photos" variants={pageVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.22 }}>
-              <PhotoGallery onBack={handleBack} />
-            </motion.div>
-          )}
+            {view === 'welcome' && (
+              <motion.div
+                key="welcome"
+                variants={pageVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <SuggestionChips onSelectView={handleSelectView} />
+              </motion.div>
+            )}
+            {view === 'booking' && (
+              <motion.div
+                key="booking"
+                variants={pageVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <BookingFormCard
+                  onSubmit={handleSubmit}
+                  onBack={handleBack}
+                  availableRooms={rooms}
+                  onFetchRooms={fetchRooms}
+                />
+              </motion.div>
+            )}
+            {view === 'cancellation' && (
+              <motion.div
+                key="cancellation"
+                variants={pageVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <CancellationFormCard onBack={handleBack} />
+              </motion.div>
+            )}
+            {view === 'photos' && (
+              <motion.div
+                key="photos"
+                variants={pageVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+              >
+                <PhotoGallery onBack={handleBack} />
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </div>

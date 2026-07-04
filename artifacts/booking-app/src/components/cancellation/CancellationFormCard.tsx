@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronLeft, Search, Loader2, CheckCircle2,
-  AlertCircle, Calendar, User, Phone, Check,
+  Search, Loader2, CheckCircle2,
+  AlertCircle, Calendar, User, Phone, Check, Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -88,11 +88,11 @@ export default function CancellationFormCard({ onBack }: Props) {
   };
 
   return (
-    <div className="px-4 py-5">
+    <div className="px-5 py-6">
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="font-serif text-xl text-gray-900 leading-tight">Cancel Booking</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Enter your details to find your reservation</p>
+      <div className="mb-8">
+        <h2 className="font-serif text-2xl text-gray-900 leading-tight">Cancel Booking</h2>
+        <p className="text-sm text-gray-400 mt-1">Enter your details to find your reservation</p>
       </div>
 
       <AnimatePresence mode="wait">
@@ -108,27 +108,27 @@ export default function CancellationFormCard({ onBack }: Props) {
             onSubmit={handleSubmit(onSearch)}
             className="space-y-4"
           >
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">Full Name</label>
+                <label className="text-xs font-medium text-gray-600 mb-1.5 block">Full Name</label>
                 <input
                   {...register('guestName', { required: 'Name is required', minLength: { value: 2, message: 'Too short' } })}
                   placeholder="John Doe"
                   className={cn(
-                    'w-full h-11 px-3 rounded-xl border bg-gray-50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
+                    'w-full h-12 px-4 rounded-xl border bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
                     errors.guestName ? 'border-red-300' : 'border-gray-200',
                   )}
                 />
                 {errors.guestName && <p className="text-xs text-red-500 mt-1">{errors.guestName.message}</p>}
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600 mb-1 block">Phone Number</label>
+                <label className="text-xs font-medium text-gray-600 mb-1.5 block">Phone Number</label>
                 <input
                   {...register('phone', { required: 'Phone is required', minLength: { value: 10, message: 'Invalid phone number' } })}
                   placeholder="+91 98765 43210"
                   inputMode="tel"
                   className={cn(
-                    'w-full h-11 px-3 rounded-xl border bg-gray-50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
+                    'w-full h-12 px-4 rounded-xl border bg-gray-50/50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
                     errors.phone ? 'border-red-300' : 'border-gray-200',
                   )}
                 />
@@ -137,7 +137,7 @@ export default function CancellationFormCard({ onBack }: Props) {
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+              <div className="flex items-start gap-2 p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -146,7 +146,7 @@ export default function CancellationFormCard({ onBack }: Props) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-12 rounded-xl bg-gray-900 text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full h-14 rounded-xl bg-gray-900 text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-gray-800 transition-colors"
             >
               {isSubmitting
                 ? <><Loader2 className="w-4 h-4 animate-spin" /> Searching…</>
@@ -160,7 +160,7 @@ export default function CancellationFormCard({ onBack }: Props) {
           <motion.div
             key="loading"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="flex flex-col items-center justify-center gap-3 py-20"
+            className="flex flex-col items-center justify-center gap-3 py-24"
           >
             <Loader2 className="w-10 h-10 text-[#8B1538] animate-spin" />
             <p className="text-sm text-gray-500">
@@ -180,18 +180,18 @@ export default function CancellationFormCard({ onBack }: Props) {
             className="space-y-4"
           >
             {/* Booking card */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-4">
-              <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 grid place-items-center">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+              <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
+                <div className="w-11 h-11 rounded-xl bg-emerald-50 grid place-items-center">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">Booking Found</p>
-                  <p className="text-xs text-gray-400 font-mono">{booking.id}</p>
+                  <p className="text-xs text-gray-400 font-mono mt-0.5">{booking.id}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                 <Field label="Guest" value={booking.guestName} icon={User} />
                 <Field label="Room" value={booking.roomId} icon={Phone} />
                 <Field label="Check-in" value={fmt(booking.checkIn)} icon={Calendar} />
@@ -211,7 +211,7 @@ export default function CancellationFormCard({ onBack }: Props) {
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+              <div className="flex items-start gap-2 p-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -220,13 +220,13 @@ export default function CancellationFormCard({ onBack }: Props) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => setStep('form')}
-                className="h-12 rounded-xl bg-white border border-gray-200 text-gray-700 font-medium text-sm active:bg-gray-50"
+                className="h-14 rounded-xl bg-white border border-gray-200 text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors"
               >
                 Go Back
               </button>
               <button
                 onClick={onCancel}
-                className="h-12 rounded-xl bg-red-600 text-white font-semibold text-sm shadow-md shadow-red-600/25"
+                className="h-14 rounded-xl bg-red-600 text-white font-semibold text-sm shadow-lg shadow-red-600/25 hover:bg-red-700 transition-colors"
               >
                 Cancel Booking
               </button>
@@ -240,25 +240,25 @@ export default function CancellationFormCard({ onBack }: Props) {
             key="success"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center text-center gap-5 py-10"
+            className="flex flex-col items-center text-center gap-5 py-12"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
-              className="w-20 h-20 rounded-full bg-emerald-100 grid place-items-center"
+              className="w-20 h-20 rounded-full bg-emerald-50 grid place-items-center"
             >
-              <Check className="w-10 h-10 text-emerald-600" strokeWidth={2.5} />
+              <Sparkles className="w-10 h-10 text-emerald-600" strokeWidth={1.5} />
             </motion.div>
             <div>
-              <p className="font-serif text-2xl text-gray-900 mb-1">Cancelled</p>
+              <p className="font-serif text-3xl text-gray-900 mb-2">Cancelled</p>
               <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
                 Your booking has been successfully cancelled.
               </p>
             </div>
             <button
               onClick={onBack}
-              className="w-full max-w-xs h-12 rounded-xl bg-[#8B1538] text-white font-semibold shadow-md"
+              className="w-full max-w-xs h-14 rounded-xl bg-[#8B1538] text-white font-semibold shadow-lg shadow-[#8B1538]/25 hover:bg-[#6E0F2A] transition-colors"
             >
               Return Home
             </button>
