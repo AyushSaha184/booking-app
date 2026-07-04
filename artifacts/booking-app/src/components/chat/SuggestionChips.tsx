@@ -106,10 +106,7 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
             return (
               <div key={item.label} className="flex flex-col items-center justify-center py-6 px-3 gap-2.5">
                 <Icon className="w-6 h-6 text-[#8B1538]" strokeWidth={1.5} />
-                <div className="text-center">
-                  <p className="text-sm font-bold text-gray-900">{item.label}</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">{item.sub}</p>
-                </div>
+                <p className="text-sm font-bold text-gray-900 text-center">{item.label}</p>
               </div>
             );
           })}
