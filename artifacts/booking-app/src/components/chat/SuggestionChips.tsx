@@ -43,7 +43,6 @@ const INFO = [
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
     <div className="px-5 pt-10 pb-10">
-
       {/* ── Hero heading ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -58,12 +57,9 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
         </h1>
 
         {/* Description */}
-        <p className="text-sm text-gray-400 leading-relaxed max-w-xs mb-5">
-          Premium rooms, fine dining, and memorable experiences crafted for discerning travelers.
-        </p>
+        <p className="text-sm text-gray-400 leading-relaxed max-w-xs mb-5">Premium rooms and memorable experiences.</p>
 
       </motion.div>
-
       {/* ── Action cards ── */}
       <div className="space-y-3 mb-5">
         {CARDS.map((card, i) => {
@@ -97,7 +93,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
           );
         })}
       </div>
-
       {/* ── Info strip ── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -120,7 +115,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
           })}
         </div>
       </motion.div>
-
     </div>
   );
 }
