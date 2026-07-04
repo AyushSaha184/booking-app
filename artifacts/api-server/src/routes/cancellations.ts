@@ -1,20 +1,32 @@
 import { Router } from "express";
-import { lookupBooking, cancelBooking } from "../lib/db-ops";
-import { UpdateBookingSchema, validateRequestSize } from "../lib/validation";
+import { lookupBooking, cancelBooking, getRoomById } from "../lib/db-ops";
+import { UpdateBookingSchema, validateRequestSize, getClientIp } from "../lib/validation";
+import { checkRateLimit } from "../lib/ratelimit";
+import { sendCancellationNotifications } from "../lib/notifications";
+import { updateBookingStatusInSheet } from "../lib/sheets";
 
 const router = Router();
 
 router.post("/", async (req, res) => {
+  const ip = getClientIp(req as any);
+
+  const rl = checkRateLimit(ip);
+  if (!rl.success) {
+    req.log.warn({ ip, remaining: rl.remaining }, "Cancellations rate limit exceeded");
+    res.setHeader("X-RateLimit-Remaining", String(rl.remaining));
+    res.setHeader("X-RateLimit-Reset", String(rl.reset));
+    res.status(429).json({ error: "Too many requests. Please wait before trying again." });
+    return;
+  }
+
   try {
     const body = JSON.stringify(req.body);
-
     if (!validateRequestSize(body, 50_000)) {
       res.status(413).json({ error: "Request too large" });
       return;
     }
 
     const data = req.body as { action?: string; [key: string]: unknown };
-
     if (!data || typeof data !== "object") {
       res.status(400).json({ error: "Invalid request body" });
       return;
@@ -32,15 +44,14 @@ router.post("/", async (req, res) => {
 
     res.status(400).json({ error: 'Unknown action. Use "lookup" or "cancel".' });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    req.log.error({ error: message }, "Cancellations API error");
+    req.log.error({ error: (err instanceof Error ? err.message : String(err)) }, "Cancellations API error");
     res.status(500).json({ error: "Unable to process request. Please try again." });
   }
 });
 
 async function handleLookup(req: any, res: any, data: Record<string, unknown>) {
   const guestName = typeof data.guestName === "string" ? data.guestName.trim() : "";
-  const phone = typeof data.phone === "string" ? data.phone.trim() : "";
+  const phone     = typeof data.phone === "string"     ? data.phone.trim()     : "";
 
   if (!guestName || !phone) {
     res.status(400).json({ error: "Name and phone number are required." });
@@ -50,7 +61,6 @@ async function handleLookup(req: any, res: any, data: Record<string, unknown>) {
   try {
     const booking = await lookupBooking(guestName, phone);
     if (!booking) {
-      req.log.info("Cancellations lookup: not found");
       res.status(404).json({ found: false, message: "No active booking matches those details." });
       return;
     }
@@ -58,13 +68,13 @@ async function handleLookup(req: any, res: any, data: Record<string, unknown>) {
     res.json({
       found: true,
       booking: {
-        id: booking.id,
+        id:       booking.id,
         guestName: booking.guestName,
-        roomId: booking.roomId,
-        checkIn: booking.checkIn,
+        roomId:   booking.roomId,
+        checkIn:  booking.checkIn,
         checkOut: booking.checkOut,
-        guests: booking.guests,
-        status: booking.status,
+        guests:   booking.guests,
+        status:   booking.status,
       },
     });
   } catch (err: unknown) {
@@ -77,19 +87,14 @@ async function handleLookup(req: any, res: any, data: Record<string, unknown>) {
 }
 
 async function handleCancel(req: any, res: any, data: Record<string, unknown>) {
-  let parsed;
+  let parsed: { id: string; guestName: string; phone: string; status: "confirmed" | "cancelled" };
   try {
-    parsed = UpdateBookingSchema.pick({
-      id: true,
-      guestName: true,
-      phone: true,
-      status: true,
-    }).parse({
-      id: data.bookingId,
+    parsed = UpdateBookingSchema.pick({ id: true, guestName: true, phone: true, status: true }).parse({
+      id:        data.bookingId,
       guestName: data.guestName,
-      phone: data.phone,
-      status: "cancelled",
-    });
+      phone:     data.phone,
+      status:    "cancelled",
+    }) as typeof parsed;
   } catch (err: any) {
     res.status(400).json({ error: err?.issues?.[0]?.message ?? "Invalid cancellation details." });
     return;
@@ -103,12 +108,30 @@ async function handleCancel(req: any, res: any, data: Record<string, unknown>) {
   }
 
   req.log.info({ bookingId: updated.id }, "Booking cancelled");
-  res.json({
-    found: true,
-    success: true,
+
+  const room = await getRoomById(updated.roomId).catch(() => null);
+
+  sendCancellationNotifications({
     bookingId: updated.id,
-    checkIn: updated.checkIn,
-    checkOut: updated.checkOut,
+    guestName: updated.guestName,
+    phone:     updated.phone,
+    roomName:  room?.name ?? updated.roomId,
+    checkIn:   updated.checkIn,
+    checkOut:  updated.checkOut,
+  }).catch(err => {
+    req.log.error({ error: (err as Error).message }, "Cancellation notification error (non-blocking)");
+  });
+
+  updateBookingStatusInSheet(updated.id, "cancelled").catch(err => {
+    req.log.error({ error: (err as Error).message, bookingId: updated.id }, "Sheets status update error (non-blocking)");
+  });
+
+  res.json({
+    found:     true,
+    success:   true,
+    bookingId: updated.id,
+    checkIn:   updated.checkIn,
+    checkOut:  updated.checkOut,
   });
 }
 
