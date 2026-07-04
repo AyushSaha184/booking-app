@@ -80,35 +80,26 @@ export default function PhotoGallery({ onBack }: Props) {
 
       {/* ── Grid ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 px-5">
-        {PHOTOS.map((photo, idx) => {
-          const Icon = TYPE_ICON[photo.type] ?? Building2;
-          return (
-            <motion.div
-              key={photo.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, delay: idx * 0.01 }}
-              onClick={() => open(idx)}
-              className="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200"
-            >
-              <div className="aspect-square overflow-hidden">
-                <img
-                  src={photo.src}
-                  alt={photo.name}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-              </div>
-              <div className="flex items-center gap-2 px-3 py-3">
-                <div className="w-7 h-7 rounded-lg bg-[#8B1538]/8 grid place-items-center shrink-0">
-                  <Icon className="w-3.5 h-3.5 text-[#8B1538]" strokeWidth={1.5} />
-                </div>
-                <p className="text-xs font-medium text-gray-700 truncate">{photo.name}</p>
-              </div>
-            </motion.div>
-          );
-        })}
+        {PHOTOS.map((photo, idx) => (
+          <motion.div
+            key={photo.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2, delay: idx * 0.01 }}
+            onClick={() => open(idx)}
+            className="cursor-pointer bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200"
+          >
+            <div className="aspect-square overflow-hidden">
+              <img
+                src={photo.src}
+                alt={photo.name}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+              />
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       {/* ── Lightbox ── */}

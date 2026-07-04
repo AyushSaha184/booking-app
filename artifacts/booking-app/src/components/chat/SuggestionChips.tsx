@@ -56,9 +56,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
           <span className="block text-[2.8rem] sm:text-[3.6rem] text-[#8B1538] font-normal">Stay Awaits</span>
         </h1>
 
-        {/* Description */}
-        <p className="text-sm text-gray-400 leading-relaxed max-w-xs mb-5">Premium rooms and memorable experiences.</p>
-
       </motion.div>
       {/* ── Action cards ── */}
       <div className="space-y-3 mb-5">
