@@ -1,31 +1,23 @@
-/* ─────────────────────────────────────────────────
-   Tailwind CSS v4 — CSS-first configuration
-   Luxe Concierge Cream & Red Theme
-   ───────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/* ─────────────────────────────────────────────────
-   Design Tokens  →  Tailwind theme
-   ───────────────────────────────────────────────── */
 @theme {
   /* Colors */
-  --color-background:       #F5F0E8;
-  --color-surface:          rgba(255, 255, 255, 0.65);
+  --color-background: #F5F0E8;
+  --color-surface: rgba(255, 255, 255, 0.65);
   --color-surface-elevated: rgba(255, 255, 255, 0.85);
-  --color-input:            rgba(255, 255, 255, 0.8);
-  --color-border:           rgba(185, 60, 60, 0.15);
-  --color-border-subtle:    rgba(185, 60, 60, 0.08);
-  --color-text-primary:     #2A1A1A;
-  --color-text-secondary:   rgba(80, 40, 40, 0.65);
-  --color-text-tertiary:    rgba(150, 60, 60, 0.55);
-  --color-accent:           #B93C3C;
-  --color-accent-muted:     rgba(185, 60, 60, 0.08);
-  --color-accent-text:      #B93C3C;
-  --color-danger:           #B93C3C;
-  --color-success:          #4ade80;
+  --color-input: rgba(255, 255, 255, 0.8);
+  --color-border: rgba(185, 60, 60, 0.15);
+  --color-border-subtle: rgba(185, 60, 60, 0.08);
+  --color-text-primary: #2A1A1A;
+  --color-text-secondary: rgba(80, 40, 40, 0.65);
+  --color-text-tertiary: rgba(150, 60, 60, 0.55);
+  --color-accent: #B93C3C;
+  --color-accent-muted: rgba(185, 60, 60, 0.08);
+  --color-accent-text: #B93C3C;
+  --color-danger: #B93C3C;
+  --color-success: #4ade80;
 
-  /* Border-radius */
+  /* Border radius */
   --radius-sm: 8px;
   --radius-md: 10px;
   --radius-lg: 12px;
@@ -36,73 +28,14 @@
   --font-serif: 'Playfair Display', Georgia, serif;
 }
 
-/* ─────────────────────────────────────────────────
-   CSS Custom Properties (legacy compat + shadcn)
-   ───────────────────────────────────────────────── */
-:root {
-  /* Dorshi Holiday Resort — core palette */
-  --primary:        #8B1538;
-  --primary-light:  #B93C3C;
-  --primary-dark:   #6E0F2A;
-  --background:     #FAFAF8;
-  --surface:        #FFFFFF;
-  --surface-cream:  #F5F0E8;
-  --text:           #1F1F1F;
-  --text-muted:     #6B7280;
-  --text-primary:   #2A1A1A;
-  --text-secondary: rgba(80, 40, 40, 0.65);
-  --text-tertiary:  rgba(150, 60, 60, 0.55);
-  --success:        #059669;
-  --error:          #E11D48;
-  --border:         #E5E7EB;
-  --border-subtle:  rgba(0, 0, 0, 0.06);
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap');
 
-  /* Legacy tokens (preserved for backward compatibility) */
-  --bg:             #F5F0E8;
-  --bg-surface:     rgba(255, 255, 255, 0.65);
-  --bg-elevated:    rgba(255, 255, 255, 0.85);
-  --bg-input:       rgba(255, 255, 255, 0.8);
-  --accent:         #B93C3C;
-  --accent-muted:   rgba(185, 60, 60, 0.08);
-  --accent-text:    #B93C3C;
-  --danger:         #B93C3C;
-  --accent-color:   #B93C3C;
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-
-  /* shadcn/ui mapping */
-  --background-shadcn:   60 9% 98%;     /* #FAFAF8 */
-  --foreground:   0 0% 12%;              /* #1F1F1F */
-  --card:         0 0% 100%;
-  --card-foreground: 0 0% 12%;
-  --popover:      0 0% 100%;
-  --popover-foreground: 0 0% 12%;
-  --primary-shadcn:      340 67% 31%;   /* #8B1538 */
-  --primary-foreground: 60 9% 98%;
-  --secondary:    60 5% 96%;
-  --secondary-foreground: 0 0% 12%;
-  --muted:        60 5% 96%;
-  --muted-foreground: 220 9% 46%;
-  --accent-shadcn: 340 67% 31%;
-  --accent-shadcn-foreground: 60 9% 98%;
-  --destructive:  0 84% 57%;
-  --destructive-foreground: 0 0% 98%;
-  --border-shadcn: 220 13% 91%;
-  --input-shadcn:  220 13% 91%;
-  --ring:         340 67% 31%;
-  --radius: 0.75rem;
-}
-
-/* ─────────────────────────────────────────────────
-   Base reset + global styles
-   ───────────────────────────────────────────────── */
+/* Base reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -113,207 +46,55 @@ html {
 body {
   font-family: var(--font-sans);
   background-color: #F5F0E8;
-  background-image: 
-    radial-gradient(ellipse 60% 40% at 50% 15%, rgba(185,60,60,0.05) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 50% at 85% 85%, rgba(185,60,60,0.04) 0%, transparent 60%);
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
   min-height: 100%;
-  position: relative;
   overflow-x: hidden;
 }
 
-/* ─────────────────────────────────────────────────
-   Scrollbar styling
-   ───────────────────────────────────────────────── */
-html, body, .scroller, [class*="overflow-y-auto"] {
-  --scrollbar-thumb: rgba(185, 60, 60, 0.2);
-  --scrollbar-track: transparent;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-  scrollbar-width: thin;
-}
-
-html:hover, body:hover, .scroller:hover, [class*="overflow-y-auto"]:hover {
-  --scrollbar-thumb: rgba(185, 60, 60, 0.4);
-}
-
-@supports not (scrollbar-color: auto) {
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgba(185, 60, 60, 0.2);
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(185, 60, 60, 0.4);
-  }
-}
-
-/* ─────────────────────────────────────────────────
-   Form element reset
-   ───────────────────────────────────────────────── */
+/* Form reset */
 input, select, textarea, button {
   font-family: inherit;
   color: inherit;
 }
 
-::placeholder { color: rgba(150, 60, 60, 0.45); }
-
-input[type="date"] {
-  -webkit-appearance: none;
-  color-scheme: light;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.3) sepia(1) hue-rotate(315deg);
-  cursor: pointer;
+::placeholder { 
+  color: rgba(150, 60, 60, 0.45); 
 }
 
 input:focus, select:focus, textarea:focus {
-  border-color: rgba(185, 60, 60, 0.4) !important;
   outline: none;
 }
 
-/* ─────────────────────────────────────────────────
-   Custom Utilities  (Tailwind v4 @utility layer)
-   ───────────────────────────────────────────────── */
-@layer utilities {
-  .font-serif {
-    font-family: 'Playfair Display', Georgia, serif;
-  }
-
-  .glass {
-    backdrop-filter: blur(16px) saturate(1.2);
-    -webkit-backdrop-filter: blur(16px) saturate(1.2);
-    background-color: rgba(255, 255, 255, 0.65);
-    border: 0.5px solid rgba(185, 60, 60, 0.15);
-  }
-
-  .glow {
-    box-shadow: 0 0 20px rgba(185, 60, 60, 0.15);
-  }
-  .glow-sm {
-    box-shadow: 0 0 12px rgba(185, 60, 60, 0.1);
-  }
-
-  .gradient-accent {
-    background: linear-gradient(
-      135deg,
-      #B93C3C 0%,
-      #a02f2f 100%
-    );
-  }
-
-  .text-gradient-red {
-    background: linear-gradient(135deg, #2A1A1A 0%, #B93C3C 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .animate-shake {
-    animation: shake 0.4s ease;
-  }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%       { transform: translateX(-4px); }
-  40%       { transform: translateX(4px); }
-  60%       { transform: translateX(-3px); }
-  80%       { transform: translateX(3px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ─────────────────────────────────────────────────
-   Responsive utilities
-   ───────────────────────────────────────────────── */
-
-/* Safe area support for notched phones */
-@supports (padding: max(0px)) {
-  .safe-top {
-    padding-top: max(env(safe-area-inset-top), 0px);
-  }
-  .safe-bottom {
-    padding-bottom: max(env(safe-area-inset-bottom), 0px);
-  }
-  .safe-left {
-    padding-left: max(env(safe-area-inset-left), 0px);
-  }
-  .safe-right {
-    padding-right: max(env(safe-area-inset-right), 0px);
-  }
-}
-
-/* Prevent horizontal scroll on mobile */
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-/* Better touch targets on mobile */
-@media (max-width: 640px) {
-  button, a, input, select {
-    min-height: 44px;
-  }
-
-  /* Larger text on mobile for readability */
-  body {
-    font-size: 16px;
-  }
-}
-
-/* Tablet breakpoint */
-@media (min-width: 640px) and (max-width: 1024px) {
-  .container-responsive {
-    max-width: 768px;
-    margin: 0 auto;
-  }
-}
-
-/* Desktop breakpoint */
-@media (min-width: 1024px) {
-  .container-responsive {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-}
-
-/* Fix for iOS date inputs */
-input[type="date"] {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-/* Smooth scrolling for all devices */
-* {
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Prevent zoom on input focus (iOS) */
+/* Prevent iOS zoom on inputs */
 @media screen and (max-width: 768px) {
-  input[type="text"],
-  input[type="tel"],
-  input[type="email"],
-  input[type="number"],
-  input[type="date"],
-  select,
-  textarea {
+  input, select, textarea {
     font-size: 16px !important;
+  }
+}
+
+/* Safe area for notched phones */
+@supports (padding: max(0px)) {
+  .safe-top { padding-top: max(env(safe-area-inset-top), 0px); }
+  .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(185, 60, 60, 0.2);
+  border-radius: 3px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

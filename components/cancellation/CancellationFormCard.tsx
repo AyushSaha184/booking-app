@@ -146,7 +146,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
                   animate={{ opacity: 1, y: 0 }}
                   className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3"
                 >
-                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                   <p className="text-sm text-red-800">{error}</p>
                 </motion.div>
               )}
@@ -154,7 +154,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-gray-700 to-gray-900 text-white font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-xl bg-linear-to-r from-gray-700 to-gray-900 text-white font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -253,7 +253,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             {/* Warning Card */}
             <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200 space-y-2">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-amber-900">Cancellation Policy</p>
                   <p className="text-xs text-amber-800 leading-relaxed">
@@ -274,7 +274,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
               </button>
               <button
                 onClick={handleCancel}
-                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                className="flex-1 h-12 rounded-xl bg-linear-to-r from-red-600 to-red-700 text-white font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
               >
                 Confirm Cancellation
               </button>
@@ -310,7 +310,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             <div className="pt-4 space-y-3">
               <button
                 onClick={onBack}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-[#8B1538] to-[#B93C3C] text-white font-medium shadow-lg hover:shadow-xl transition-all"
+                className="w-full h-12 rounded-xl bg-linear-to-r from-[#8B1538] to-[#B93C3C] text-white font-medium shadow-lg hover:shadow-xl transition-all"
               >
                 Return to Home
               </button>

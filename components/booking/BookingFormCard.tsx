@@ -31,7 +31,7 @@ function RoomImagePlaceholder({ roomType }: { roomType: string }) {
   const cls = colors[roomType?.toLowerCase()] ?? colors.standard
 
   return (
-    <div className={cn('w-full h-full bg-gradient-to-br flex items-center justify-center', cls)}>
+    <div className={cn('w-full h-full bg-linear-to-br flex items-center justify-center', cls)}>
       <BedDouble className="w-10 h-10 text-white/70" />
     </div>
   )
@@ -165,7 +165,7 @@ export default function BookingFormCard({
 
         <button
           onClick={onBack}
-          className="mt-4 flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#8B1538] to-[#B93C3C] text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
+          className="mt-4 flex items-center gap-2 px-6 py-3 bg-linear-to-r from-[#8B1538] to-[#B93C3C] text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
           Return Home
@@ -380,7 +380,7 @@ export default function BookingFormCard({
         <button
           type="submit"
           disabled={isSubmitting || !watchedValues.roomId || loadingRooms}
-          className="w-full h-14 rounded-xl bg-gradient-to-r from-[#8B1538] to-[#B93C3C] text-white text-lg font-semibold shadow-lg shadow-[#8B1538]/20 hover:shadow-xl hover:shadow-[#8B1538]/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all flex items-center justify-center gap-2"
+          className="w-full h-14 rounded-xl bg-linear-to-r from-[#8B1538] to-[#B93C3C] text-white text-lg font-semibold shadow-lg shadow-[#8B1538]/20 hover:shadow-xl hover:shadow-[#8B1538]/30 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 transition-all flex items-center justify-center gap-2"
         >
           {isSubmitting ? (
             <>
