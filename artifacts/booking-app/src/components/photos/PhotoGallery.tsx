@@ -78,23 +78,6 @@ export default function PhotoGallery({ onBack }: Props) {
           </div>
         </div>
 
-        {/* Category pills — horizontally scrollable */}
-        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
-          {CATEGORIES.map(c => (
-            <button
-              key={c}
-              onClick={() => setCat(c)}
-              className={cn(
-                'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap',
-                cat === c
-                  ? 'bg-[#8B1538] text-white'
-                  : 'bg-white text-gray-600 border border-gray-200 active:bg-gray-50',
-              )}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* ── Grid ── */}
