@@ -1,204 +1,207 @@
-import React, { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, ZoomIn, Camera, ArrowLeft } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface PhotoItem {
-  id: string;
-  name: string;
-  type: string;
-  src: string;
-}
+interface Photo { id: string; name: string; type: string; src: string }
 
-const PHOTOS: PhotoItem[] = [
-  { id: '1', name: 'Resort Exterior', type: 'Common Area', src: '/assets/IMG-20260622-WA0036.webp' },
-  { id: '2', name: 'Swimming Pool', type: 'Recreation', src: '/assets/IMG-20260622-WA0035.webp' },
-  { id: '3', name: 'Pool Area', type: 'Recreation', src: '/assets/IMG-20260622-WA0034.webp' },
-  { id: '4', name: 'Resort View', type: 'Common Area', src: '/assets/IMG-20260622-WA0033.webp' },
-  { id: '5', name: 'Garden Area', type: 'Common Area', src: '/assets/IMG-20260622-WA0032.webp' },
-  { id: '6', name: 'Restaurant', type: 'Dining', src: '/assets/IMG-20260622-WA0031.webp' },
-  { id: '7', name: 'Dining Area', type: 'Dining', src: '/assets/IMG-20260622-WA0030.webp' },
-  { id: '8', name: 'Food Service', type: 'Dining', src: '/assets/IMG-20260622-WA0029.webp' },
-  { id: '9', name: 'Resort Entrance', type: 'Common Area', src: '/assets/IMG-20260622-WA0028.webp' },
-  { id: '10', name: 'Property View', type: 'Common Area', src: '/assets/IMG-20260622-WA0027.webp' },
-  { id: '11', name: 'Room Interior', type: 'Accommodation', src: '/assets/IMG-20260622-WA0026.webp' },
-  { id: '12', name: 'Guest Room', type: 'Accommodation', src: '/assets/IMG-20260622-WA0025.webp' },
-  { id: '13', name: 'Bedroom Suite', type: 'Accommodation', src: '/assets/IMG-20260622-WA0024.webp' },
-  { id: '14', name: 'Bathroom', type: 'Accommodation', src: '/assets/IMG-20260622-WA0023.webp' },
-  { id: '15', name: 'Room Amenities', type: 'Accommodation', src: '/assets/IMG-20260622-WA0022.webp' },
-  { id: '16', name: 'Balcony View', type: 'Accommodation', src: '/assets/IMG-20260622-WA0021.webp' },
-  { id: '17', name: 'Evening View', type: 'Common Area', src: '/assets/IMG-20260622-WA0020.webp' },
-  { id: '18', name: 'Landscaping', type: 'Common Area', src: '/assets/IMG-20260622-WA0019.webp' },
-  { id: '19', name: 'Outdoor Seating', type: 'Common Area', src: '/assets/IMG-20260622-WA0018.webp' },
-  { id: '20', name: 'Walkway', type: 'Common Area', src: '/assets/IMG-20260622-WA0017.webp' },
-  { id: '21', name: 'Surroundings', type: 'Common Area', src: '/assets/IMG-20260622-WA0016.webp' },
-  { id: '22', name: 'Resort Facade', type: 'Common Area', src: '/assets/IMG-20260622-WA0015.webp' },
-  { id: '23', name: 'Another View', type: 'Common Area', src: '/assets/IMG-20260622-WA0014.webp' },
-  { id: '24', name: 'Scenic Shot', type: 'Common Area', src: '/assets/IMG-20260622-WA0013.webp' },
-  { id: '25', name: 'More Views', type: 'Common Area', src: '/assets/IMG-20260622-WA0012.webp' },
-  { id: '26', name: 'Property Shot', type: 'Common Area', src: '/assets/IMG-20260622-WA0011.webp' },
-  { id: '27', name: 'Resort Scene', type: 'Common Area', src: '/assets/IMG-20260622-WA0010.webp' },
-  { id: '28', name: 'Corridor', type: 'Common Area', src: '/assets/IMG-20260622-WA0009.webp' },
-  { id: '29', name: 'Interior', type: 'Common Area', src: '/assets/IMG-20260622-WA0008.webp' },
-  { id: '30', name: 'Detail Shot', type: 'Common Area', src: '/assets/IMG-20260622-WA0007.webp' },
-  { id: '31', name: 'Resort Area', type: 'Common Area', src: '/assets/IMG-20260622-WA0006.webp' },
-  { id: '32', name: 'Final View', type: 'Common Area', src: '/assets/IMG-20260622-WA0005.webp' },
+const PHOTOS: Photo[] = [
+  { id: '1',  name: 'Resort Exterior',  type: 'Resort',    src: '/assets/IMG-20260622-WA0036.webp' },
+  { id: '2',  name: 'Swimming Pool',    type: 'Recreation',src: '/assets/IMG-20260622-WA0035.webp' },
+  { id: '3',  name: 'Pool Area',        type: 'Recreation',src: '/assets/IMG-20260622-WA0034.webp' },
+  { id: '4',  name: 'Resort View',      type: 'Resort',    src: '/assets/IMG-20260622-WA0033.webp' },
+  { id: '5',  name: 'Garden',           type: 'Resort',    src: '/assets/IMG-20260622-WA0032.webp' },
+  { id: '6',  name: 'Restaurant',       type: 'Dining',    src: '/assets/IMG-20260622-WA0031.webp' },
+  { id: '7',  name: 'Dining Hall',      type: 'Dining',    src: '/assets/IMG-20260622-WA0030.webp' },
+  { id: '8',  name: 'Food & Service',   type: 'Dining',    src: '/assets/IMG-20260622-WA0029.webp' },
+  { id: '9',  name: 'Entrance',         type: 'Resort',    src: '/assets/IMG-20260622-WA0028.webp' },
+  { id: '10', name: 'Property View',    type: 'Resort',    src: '/assets/IMG-20260622-WA0027.webp' },
+  { id: '11', name: 'Room Interior',    type: 'Rooms',     src: '/assets/IMG-20260622-WA0026.webp' },
+  { id: '12', name: 'Guest Room',       type: 'Rooms',     src: '/assets/IMG-20260622-WA0025.webp' },
+  { id: '13', name: 'Bedroom Suite',    type: 'Rooms',     src: '/assets/IMG-20260622-WA0024.webp' },
+  { id: '14', name: 'Bathroom',         type: 'Rooms',     src: '/assets/IMG-20260622-WA0023.webp' },
+  { id: '15', name: 'Room Amenities',   type: 'Rooms',     src: '/assets/IMG-20260622-WA0022.webp' },
+  { id: '16', name: 'Balcony View',     type: 'Rooms',     src: '/assets/IMG-20260622-WA0021.webp' },
+  { id: '17', name: 'Evening View',     type: 'Resort',    src: '/assets/IMG-20260622-WA0020.webp' },
+  { id: '18', name: 'Landscaping',      type: 'Resort',    src: '/assets/IMG-20260622-WA0019.webp' },
+  { id: '19', name: 'Outdoor Seating',  type: 'Resort',    src: '/assets/IMG-20260622-WA0018.webp' },
+  { id: '20', name: 'Walkway',          type: 'Resort',    src: '/assets/IMG-20260622-WA0017.webp' },
+  { id: '21', name: 'Surroundings',     type: 'Resort',    src: '/assets/IMG-20260622-WA0016.webp' },
+  { id: '22', name: 'Resort Facade',    type: 'Resort',    src: '/assets/IMG-20260622-WA0015.webp' },
+  { id: '23', name: 'Scenic Shot',      type: 'Resort',    src: '/assets/IMG-20260622-WA0014.webp' },
+  { id: '24', name: 'View',             type: 'Resort',    src: '/assets/IMG-20260622-WA0013.webp' },
+  { id: '25', name: 'Property',         type: 'Resort',    src: '/assets/IMG-20260622-WA0012.webp' },
+  { id: '26', name: 'Resort Scene',     type: 'Resort',    src: '/assets/IMG-20260622-WA0011.webp' },
+  { id: '27', name: 'Corridor',         type: 'Resort',    src: '/assets/IMG-20260622-WA0010.webp' },
+  { id: '28', name: 'Interior',         type: 'Resort',    src: '/assets/IMG-20260622-WA0009.webp' },
+  { id: '29', name: 'Detail',           type: 'Resort',    src: '/assets/IMG-20260622-WA0008.webp' },
+  { id: '30', name: 'Garden Path',      type: 'Resort',    src: '/assets/IMG-20260622-WA0007.webp' },
+  { id: '31', name: 'Resort Area',      type: 'Resort',    src: '/assets/IMG-20260622-WA0006.webp' },
+  { id: '32', name: 'Final View',       type: 'Resort',    src: '/assets/IMG-20260622-WA0005.webp' },
 ];
 
-const categories = ['All', ...Array.from(new Set(PHOTOS.map(p => p.type)))];
+const CATEGORIES = ['All', ...Array.from(new Set(PHOTOS.map(p => p.type)))];
 
-interface PhotoGalleryProps {
-  onBack?: () => void;
-}
+interface Props { onBack?: () => void }
 
-export default function PhotoGallery({ onBack }: PhotoGalleryProps) {
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+export default function PhotoGallery({ onBack }: Props) {
+  const [cat, setCat] = useState('All');
+  const [lbIdx, setLbIdx] = useState<number | null>(null);
 
-  const filteredPhotos = selectedCategory === 'All' ? PHOTOS : PHOTOS.filter(p => p.type === selectedCategory);
+  const filtered = cat === 'All' ? PHOTOS : PHOTOS.filter(p => p.type === cat);
 
-  const openLightbox = (index: number) => setLightboxIndex(index);
-  const closeLightbox = () => setLightboxIndex(null);
-  const goNext = () => setLightboxIndex(prev => prev !== null && prev < filteredPhotos.length - 1 ? prev + 1 : prev);
-  const goPrev = () => setLightboxIndex(prev => prev !== null && prev > 0 ? prev - 1 : prev);
+  const open  = (i: number) => setLbIdx(i);
+  const close = useCallback(() => setLbIdx(null), []);
+  const prev  = useCallback(() => setLbIdx(i => (i !== null && i > 0 ? i - 1 : i)), []);
+  const next  = useCallback(() => setLbIdx(i => (i !== null && i < filtered.length - 1 ? i + 1 : i)), [filtered.length]);
+
+  /* Keyboard navigation */
+  useEffect(() => {
+    if (lbIdx === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft')  prev();
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'Escape')     close();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [lbIdx, prev, next, close]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-8 py-8">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4 px-4"
-      >
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 hover:border-[#8B1538]/40 transition-all text-sm font-medium text-gray-700 mb-2"
-          >
-            <ArrowLeft className="w-4 h-4 text-gray-500" />
-            Go Back
-          </button>
-        )}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm">
-          <Camera className="w-4 h-4 text-[#D4A574]" />
-          <span className="text-sm font-medium text-gray-700">Resort Gallery</span>
+    <div className="pb-8">
+      {/* ── Header ── */}
+      <div className="sticky top-0 z-10 bg-[#F5F0E8]/90 backdrop-blur-md border-b border-gray-100 px-4 pt-4 pb-3">
+        <div className="flex items-center gap-3 mb-3">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center shrink-0 shadow-sm"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
+          )}
+          <div>
+            <h2 className="font-serif text-xl text-gray-900 leading-tight">Photo Gallery</h2>
+            <p className="text-xs text-gray-400">{filtered.length} photos</p>
+          </div>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-serif text-gray-900">
-          Explore Our <span className="italic text-[#8B1538]">Paradise</span>
-        </h1>
-        <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
-          Take a visual journey through Dorshi Holiday Resort cum Restaurant
-        </p>
-      </motion.div>
 
+        {/* Category pills — horizontally scrollable */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-0.5">
+          {CATEGORIES.map(c => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
+              className={cn(
+                'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap',
+                cat === c
+                  ? 'bg-[#8B1538] text-white'
+                  : 'bg-white text-gray-600 border border-gray-200 active:bg-gray-50',
+              )}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Grid ── */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="flex flex-wrap justify-center gap-2 sm:gap-3 px-4"
+        layout
+        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1 sm:gap-2 px-2 pt-3"
       >
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setSelectedCategory(category)}
-            className={cn(
-              "px-4 sm:px-6 py-2 rounded-full text-sm font-medium transition-all",
-              selectedCategory === category
-                ? "bg-[#8B1538] text-white shadow-lg shadow-[#8B1538]/20"
-                : "bg-white text-gray-600 border border-gray-200 hover:border-[#8B1538]/40 hover:text-[#8B1538]"
-            )}
-          >
-            {category}
-          </button>
-        ))}
-      </motion.div>
-
-      <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 px-4">
         <AnimatePresence mode="popLayout">
-          {filteredPhotos.map((photo, index) => (
+          {filtered.map((photo, idx) => (
             <motion.div
               key={photo.id}
               layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, delay: index * 0.02 }}
-              onClick={() => openLightbox(index)}
-              className="group relative aspect-square rounded-2xl overflow-hidden cursor-pointer bg-gray-100 shadow-sm hover:shadow-2xl transition-all duration-300"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => open(idx)}
+              className="relative aspect-square rounded-xl overflow-hidden cursor-pointer bg-gray-100 group"
             >
               <img
                 src={photo.src}
                 alt={photo.name}
                 loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                decoding="async"
+                className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm grid place-items-center shadow-lg">
-                  <ZoomIn className="w-6 h-6 text-gray-900" />
-                </div>
+              {/* Overlay on hover (desktop) */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center">
+                <ZoomIn className="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
               </div>
-              <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-white/90 backdrop-blur-sm text-xs font-medium text-gray-700 shadow-sm">
-                {photo.type}
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <p className="text-white font-semibold text-sm sm:text-base">{photo.name}</p>
+              {/* Name overlay at bottom */}
+              <div className="absolute bottom-0 left-0 right-0 px-2 py-1.5 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <p className="text-white text-xs font-medium truncate">{photo.name}</p>
               </div>
             </motion.div>
           ))}
         </AnimatePresence>
       </motion.div>
 
+      {/* ── Lightbox ── */}
       <AnimatePresence>
-        {lightboxIndex !== null && (
+        {lbIdx !== null && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={closeLightbox}
+            className="fixed inset-0 z-50 bg-black flex flex-col"
+            onClick={close}
           >
-            <button onClick={closeLightbox} className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm grid place-items-center hover:bg-white/20 transition-colors z-10">
-              <X className="w-6 h-6 text-white" />
-            </button>
-            {lightboxIndex > 0 && (
+            {/* Top bar */}
+            <div className="flex items-center justify-between px-4 py-3 z-10 shrink-0" onClick={e => e.stopPropagation()}>
+              <p className="text-white/60 text-sm font-medium">{lbIdx + 1} / {filtered.length}</p>
+              <p className="text-white text-sm font-semibold">{filtered[lbIdx].name}</p>
               <button
-                onClick={(e) => { e.stopPropagation(); goPrev(); }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm grid place-items-center hover:bg-white/20 transition-colors z-10"
+                onClick={close}
+                className="w-9 h-9 rounded-full bg-white/10 grid place-items-center active:bg-white/20"
               >
-                <ChevronLeft className="w-6 h-6 text-white" />
+                <X className="w-5 h-5 text-white" />
               </button>
-            )}
-            {lightboxIndex < filteredPhotos.length - 1 && (
-              <button
-                onClick={(e) => { e.stopPropagation(); goNext(); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm grid place-items-center hover:bg-white/20 transition-colors z-10"
-              >
-                <ChevronRight className="w-6 h-6 text-white" />
-              </button>
-            )}
-            <motion.div
-              key={lightboxIndex}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="relative max-w-5xl max-h-[90vh] w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="relative w-full h-[70vh] rounded-2xl overflow-hidden shadow-2xl">
-                <img
-                  src={filteredPhotos[lightboxIndex].src}
-                  alt={filteredPhotos[lightboxIndex].name}
-                  className="w-full h-full object-contain"
+            </div>
+
+            {/* Image */}
+            <div className="flex-1 flex items-center justify-center relative overflow-hidden" onClick={e => e.stopPropagation()}>
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={lbIdx}
+                  src={filtered[lbIdx].src}
+                  alt={filtered[lbIdx].name}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.18 }}
+                  className="max-w-full max-h-full object-contain select-none"
+                  draggable={false}
                 />
-              </div>
-              <div className="mt-4 text-center">
-                <p className="text-white font-semibold text-lg">{filteredPhotos[lightboxIndex].name}</p>
-                <p className="text-white/70 text-sm">{filteredPhotos[lightboxIndex].type}</p>
-              </div>
-            </motion.div>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm font-medium">
-              {lightboxIndex + 1} / {filteredPhotos.length}
+              </AnimatePresence>
+
+              {/* Prev / Next */}
+              {lbIdx > 0 && (
+                <button
+                  onClick={prev}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 grid place-items-center active:bg-white/20"
+                >
+                  <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+              )}
+              {lbIdx < filtered.length - 1 && (
+                <button
+                  onClick={next}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 grid place-items-center active:bg-white/20"
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </button>
+              )}
+            </div>
+
+            {/* Type label */}
+            <div className="shrink-0 flex justify-center py-3" onClick={e => e.stopPropagation()}>
+              <span className="text-white/50 text-xs bg-white/10 px-3 py-1 rounded-full">{filtered[lbIdx].type}</span>
             </div>
           </motion.div>
         )}

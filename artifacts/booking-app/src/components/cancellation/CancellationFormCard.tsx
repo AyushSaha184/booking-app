@@ -1,276 +1,279 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Search, Loader2, CheckCircle2, AlertCircle, Calendar, User, Phone } from 'lucide-react';
-import { AnimatedInput } from '@/components/ui/AnimatedInput';
+import {
+  ChevronLeft, Search, Loader2, CheckCircle2,
+  AlertCircle, Calendar, User, Phone, Check,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface CancellationFormCardProps {
-  onBack: () => void;
+interface Props { onBack: () => void }
+
+interface FormData { guestName: string; phone: string }
+
+interface BookingInfo {
+  id: string; guestName: string; roomId: string;
+  checkIn: string; checkOut: string; guests: number; status: string;
 }
 
-interface CancellationFormData {
-  guestName: string;
-  phone: string;
+function fmt(d: string) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-interface LookupResult {
-  id: string;
-  guestName: string;
-  roomId: string;
-  checkIn: string;
-  checkOut: string;
-  guests: number;
-  status: string;
+function Field({ label, value, icon: Icon }: { label: string; value: string; icon: typeof User }) {
+  return (
+    <div className="space-y-0.5">
+      <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">{label}</p>
+      <div className="flex items-center gap-1.5">
+        <Icon className="w-3.5 h-3.5 text-gray-300 shrink-0" />
+        <p className="text-sm font-semibold text-gray-800 truncate">{value}</p>
+      </div>
+    </div>
+  );
 }
 
-function formatDate(dateStr: string) {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+export default function CancellationFormCard({ onBack }: Props) {
+  const [step, setStep] = useState<'form' | 'loading' | 'found' | 'success'>('form');
+  const [booking, setBooking] = useState<BookingInfo | null>(null);
+  const [error, setError] = useState('');
 
-export default function CancellationFormCard({ onBack }: CancellationFormCardProps) {
-  const [step, setStep] = useState<'form' | 'searching' | 'found' | 'success'>('form');
-  const [bookingDetails, setBookingDetails] = useState<LookupResult | null>(null);
-  const [error, setError] = useState<string>('');
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>();
 
-  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<CancellationFormData>();
-
-  const handleSearch = async (data: CancellationFormData) => {
-    setStep('searching');
+  const onSearch = async (data: FormData) => {
     setError('');
+    setStep('loading');
     try {
       const res = await fetch('/api/cancellations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'lookup', guestName: data.guestName, phone: data.phone }),
       });
-      const result = await res.json();
-      if (!res.ok || !result.found) {
-        setError(result.message || 'Booking not found. Please check your name and phone number.');
+      const json = await res.json();
+      if (!res.ok || !json.found) {
+        setError(json.message ?? 'No booking found. Please check your name and phone number.');
         setStep('form');
         return;
       }
-      setBookingDetails(result.booking);
+      setBooking(json.booking);
       setStep('found');
     } catch {
-      setError('Unable to connect to the server. Please try again later.');
+      setError('Could not reach the server. Please try again.');
       setStep('form');
     }
   };
 
-  const handleCancel = async () => {
-    if (!bookingDetails) return;
-    setStep('searching');
-    const data = watch();
+  const onCancel = async () => {
+    if (!booking) return;
+    setError('');
+    setStep('loading');
+    const { guestName, phone } = watch();
     try {
       const res = await fetch('/api/cancellations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'cancel', bookingId: bookingDetails.id, guestName: data.guestName, phone: data.phone }),
+        body: JSON.stringify({ action: 'cancel', bookingId: booking.id, guestName, phone }),
       });
-      const result = await res.json();
-      if (!res.ok || !result.success) {
-        setError(result.error || 'Cancellation failed. Please try again.');
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setError(json.error ?? 'Cancellation failed. Please try again.');
         setStep('found');
         return;
       }
       setStep('success');
     } catch {
-      setError('Unable to process cancellation. Please try again later.');
+      setError('Could not process your cancellation. Please try again.');
       setStep('found');
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-2xl mx-auto space-y-6"
-    >
-      <div className="flex items-center gap-4">
+    <div className="px-4 py-5 max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
         <button
           onClick={onBack}
-          className="w-10 h-10 rounded-full bg-white border border-gray-200 grid place-items-center hover:bg-gray-50 hover:border-[#8B1538]/40 transition-all shadow-sm"
+          className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center shrink-0 shadow-sm"
         >
           <ChevronLeft className="w-5 h-5 text-gray-600" />
         </button>
         <div>
-          <h2 className="font-serif text-2xl sm:text-3xl text-gray-900">Cancel Booking</h2>
-          <p className="text-sm text-gray-500">We're sorry to see you go</p>
+          <h2 className="font-serif text-xl text-gray-900 leading-tight">Cancel Booking</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Enter your details to find your reservation</p>
         </div>
       </div>
 
       <AnimatePresence mode="wait">
+
+        {/* ── Search form ── */}
         {step === 'form' && (
           <motion.form
             key="form"
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            onSubmit={handleSubmit(handleSearch)}
-            className="space-y-6"
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.2 }}
+            onSubmit={handleSubmit(onSearch)}
+            className="space-y-4"
           >
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-              <div className="space-y-2">
-                <h3 className="text-lg font-semibold text-gray-800">Find Your Booking</h3>
-                <p className="text-sm text-gray-500">Enter your details to proceed with cancellation</p>
-              </div>
-              <div className="space-y-4">
-                <AnimatedInput
-                  label="Full Name"
-                  leftIcon={<User className="w-4 h-4" />}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-600 mb-1 block">Full Name</label>
+                <input
+                  {...register('guestName', { required: 'Name is required', minLength: { value: 2, message: 'Too short' } })}
                   placeholder="John Doe"
-                  error={errors.guestName?.message}
-                  {...register('guestName', { required: 'Name is required', minLength: { value: 2, message: 'Name is too short' } })}
+                  className={cn(
+                    'w-full h-11 px-3 rounded-xl border bg-gray-50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
+                    errors.guestName ? 'border-red-300' : 'border-gray-200',
+                  )}
                 />
-                <AnimatedInput
-                  label="Phone Number"
-                  leftIcon={<Phone className="w-4 h-4" />}
+                {errors.guestName && <p className="text-xs text-red-500 mt-1">{errors.guestName.message}</p>}
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600 mb-1 block">Phone Number</label>
+                <input
+                  {...register('phone', { required: 'Phone is required', minLength: { value: 10, message: 'Invalid phone number' } })}
                   placeholder="+91 98765 43210"
                   inputMode="tel"
-                  error={errors.phone?.message}
-                  {...register('phone', { required: 'Phone number is required', minLength: { value: 10, message: 'Invalid phone number' } })}
+                  className={cn(
+                    'w-full h-11 px-3 rounded-xl border bg-gray-50 text-sm text-gray-900 placeholder:text-gray-300 outline-none focus:bg-white focus:border-[#8B1538] transition-colors',
+                    errors.phone ? 'border-red-300' : 'border-gray-200',
+                  )}
                 />
+                {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone.message}</p>}
               </div>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3"
-                >
-                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-800">{error}</p>
-                  <button type="button" onClick={() => setError('')} className="ml-auto text-xs text-red-600 hover:text-red-800 underline shrink-0">Dismiss</button>
-                </motion.div>
-              )}
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-gray-700 to-gray-900 text-white font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
-              >
-                {isSubmitting ? <><Loader2 className="w-4 h-4 animate-spin" />Searching...</> : <><Search className="w-4 h-4" />Find Booking</>}
-              </button>
             </div>
+
+            {error && (
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-12 rounded-xl bg-gray-900 text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isSubmitting
+                ? <><Loader2 className="w-4 h-4 animate-spin" /> Searching…</>
+                : <><Search className="w-4 h-4" /> Find My Booking</>}
+            </button>
           </motion.form>
         )}
 
-        {step === 'searching' && (
+        {/* ── Loading ── */}
+        {step === 'loading' && (
           <motion.div
-            key="searching"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="bg-white p-12 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center space-y-4"
+            key="loading"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center gap-3 py-20"
           >
-            <Loader2 className="w-12 h-12 text-[#8B1538] animate-spin" />
-            <p className="text-gray-600 font-medium">
-              {bookingDetails ? 'Processing cancellation...' : 'Finding your booking...'}
+            <Loader2 className="w-10 h-10 text-[#8B1538] animate-spin" />
+            <p className="text-sm text-gray-500">
+              {booking ? 'Processing cancellation…' : 'Finding your booking…'}
             </p>
           </motion.div>
         )}
 
-        {step === 'found' && bookingDetails && (
+        {/* ── Booking found ── */}
+        {step === 'found' && booking && (
           <motion.div
             key="found"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="space-y-6"
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4"
           >
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-sm space-y-6">
-              <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-                <div className="w-12 h-12 rounded-xl bg-[#8B1538]/10 grid place-items-center">
-                  <CheckCircle2 className="w-6 h-6 text-[#8B1538]" />
+            {/* Booking card */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-4">
+              <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 grid place-items-center">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">Booking Found</h3>
-                  <p className="text-sm text-gray-500">ID: {bookingDetails.id}</p>
+                  <p className="font-semibold text-gray-900 text-sm">Booking Found</p>
+                  <p className="text-xs text-gray-400 font-mono">{booking.id}</p>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Guest</p>
-                    <p className="text-sm font-semibold text-gray-900 flex items-center gap-2"><User className="w-4 h-4 text-gray-400" />{bookingDetails.guestName}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Room ID</p>
-                    <p className="text-sm font-semibold text-gray-900">{bookingDetails.roomId}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in</p>
-                    <p className="text-sm font-semibold text-gray-900 flex items-center gap-2"><Calendar className="w-4 h-4 text-gray-400" />{formatDate(bookingDetails.checkIn)}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Check-out</p>
-                    <p className="text-sm font-semibold text-gray-900 flex items-center gap-2"><Calendar className="w-4 h-4 text-gray-400" />{formatDate(bookingDetails.checkOut)}</p>
-                  </div>
-                </div>
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                <Field label="Guest" value={booking.guestName} icon={User} />
+                <Field label="Room" value={booking.roomId} icon={Phone} />
+                <Field label="Check-in" value={fmt(booking.checkIn)} icon={Calendar} />
+                <Field label="Check-out" value={fmt(booking.checkOut)} icon={Calendar} />
               </div>
             </div>
-            <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200 space-y-2">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-amber-900">Cancellation Policy</p>
-                  <p className="text-xs text-amber-800 leading-relaxed">
-                    Cancellations made within 48 hours of check-in are non-refundable. A cancellation fee of 20% may apply. Are you sure you want to proceed?
-                  </p>
-                </div>
+
+            {/* Policy notice */}
+            <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-amber-900 mb-0.5">Cancellation Policy</p>
+                <p className="text-xs text-amber-800 leading-relaxed">
+                  Cancellations within 48 hours of check-in are non-refundable. A 20% fee may apply. This cannot be undone.
+                </p>
               </div>
             </div>
+
             {error && (
-              <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                <p className="text-sm text-red-800">{error}</p>
+              <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
               </div>
             )}
-            <div className="flex gap-3">
-              <button onClick={() => setStep('form')} className="flex-1 h-12 rounded-xl bg-white border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-all">Go Back</button>
+
+            <div className="grid grid-cols-2 gap-3">
               <button
-                onClick={handleCancel}
-                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white font-medium shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                onClick={() => setStep('form')}
+                className="h-12 rounded-xl bg-white border border-gray-200 text-gray-700 font-medium text-sm active:bg-gray-50"
               >
-                Confirm Cancellation
+                Go Back
+              </button>
+              <button
+                onClick={onCancel}
+                className="h-12 rounded-xl bg-red-600 text-white font-semibold text-sm shadow-md shadow-red-600/25"
+              >
+                Cancel Booking
               </button>
             </div>
           </motion.div>
         )}
 
+        {/* ── Success ── */}
         {step === 'success' && (
           <motion.div
             key="success"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white p-8 sm:p-12 rounded-2xl border border-gray-200 shadow-sm text-center space-y-6"
+            className="flex flex-col items-center text-center gap-5 py-10"
           >
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
-              className="w-20 h-20 rounded-full bg-green-100 grid place-items-center mx-auto"
+              transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
+              className="w-20 h-20 rounded-full bg-emerald-100 grid place-items-center"
             >
-              <CheckCircle2 className="w-12 h-12 text-green-600" />
+              <Check className="w-10 h-10 text-emerald-600" strokeWidth={2.5} />
             </motion.div>
-            <div className="space-y-2">
-              <h3 className="text-2xl font-serif text-gray-900">Cancellation Successful</h3>
-              <p className="text-sm text-gray-600 max-w-md mx-auto">
-                Your booking has been cancelled successfully.
+            <div>
+              <p className="font-serif text-2xl text-gray-900 mb-1">Cancelled</p>
+              <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+                Your booking has been successfully cancelled.
               </p>
             </div>
             <button
               onClick={onBack}
-              className="w-full h-12 rounded-xl bg-gradient-to-r from-[#8B1538] to-[#B93C3C] text-white font-medium shadow-lg hover:shadow-xl transition-all"
+              className="w-full max-w-xs h-12 rounded-xl bg-[#8B1538] text-white font-semibold shadow-md"
             >
-              Return to Home
+              Return Home
             </button>
           </motion.div>
         )}
+
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 }

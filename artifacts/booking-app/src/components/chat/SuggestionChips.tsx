@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Sparkles } from 'lucide-react';
+import { Calendar, XCircle, Image as ImageIcon, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos';
@@ -9,126 +8,94 @@ interface SuggestionChipsProps {
   onSelectView: (view: 'booking' | 'cancellation' | 'photos') => void;
 }
 
-type CardView = 'booking' | 'cancellation' | 'photos';
-
-interface CardConfig {
-  view: CardView;
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  iconColor: string;
-  iconBg: string;
-  overlayClass: string;
-  decorativeClass: string;
-}
-
-const CARDS: CardConfig[] = [
+const CARDS = [
   {
-    view: 'booking',
-    icon: <Calendar className="w-6 h-6" />,
-    title: 'Book Your Stay',
-    subtitle: 'Reserve your perfect room',
-    iconColor: 'text-[#8B1538]',
+    view: 'booking' as const,
+    icon: Calendar,
+    label: 'Book Your Stay',
+    sub: 'Reserve a room for your dates',
     iconBg: 'bg-[#8B1538]/10',
-    overlayClass: 'bg-gradient-to-br from-[#8B1538] to-[#B93C3C]',
-    decorativeClass: 'bg-gradient-to-br from-[#8B1538] to-[#B93C3C]',
+    iconColor: 'text-[#8B1538]',
+    accent: '#8B1538',
   },
   {
-    view: 'cancellation',
-    icon: <XCircle className="w-6 h-6" />,
-    title: 'Cancel Booking',
-    subtitle: 'Manage your reservations',
-    iconColor: 'text-gray-700',
+    view: 'cancellation' as const,
+    icon: XCircle,
+    label: 'Cancel Booking',
+    sub: 'Manage an existing reservation',
     iconBg: 'bg-gray-100',
-    overlayClass: 'bg-gradient-to-br from-gray-700 to-gray-900',
-    decorativeClass: 'bg-gradient-to-br from-gray-700 to-gray-900',
+    iconColor: 'text-gray-600',
+    accent: '#374151',
   },
   {
-    view: 'photos',
-    icon: <ImageIcon className="w-6 h-6" />,
-    title: 'View Gallery',
-    subtitle: 'Explore our resort',
-    iconColor: 'text-[#D4A574]',
-    iconBg: 'bg-[#D4A574]/10',
-    overlayClass: 'bg-gradient-to-br from-[#D4A574] to-[#B8956A]',
-    decorativeClass: 'bg-gradient-to-br from-[#D4A574] to-[#B8956A]',
+    view: 'photos' as const,
+    icon: ImageIcon,
+    label: 'View Gallery',
+    sub: 'Explore our resort & dining',
+    iconBg: 'bg-amber-50',
+    iconColor: 'text-amber-600',
+    accent: '#D97706',
   },
 ];
 
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-};
-
-const staggerItem = {
-  hidden: { opacity: 0, y: 20 },
-  show: { y: 0, opacity: 1, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number] } },
-};
-
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="show"
-      className="w-full max-w-4xl mx-auto space-y-12 py-8"
-    >
-      <motion.div variants={staggerItem} className="text-center space-y-6 px-4">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white border border-gray-200 shadow-sm"
-        >
-          <Sparkles className="w-4 h-4 text-[#D4A574]" />
-          <span className="text-sm font-medium text-gray-700">Dorshi Resort</span>
-        </motion.div>
-
-        <div className="space-y-4">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-gray-900 leading-tight">
-            Your Dream Stay
-            <br />
-            <span className="italic text-[#8B1538]">Awaits</span>
-          </h1>
-          <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Welcome to Dorshi Holiday Resort cum Restaurant. Choose how you'd like to continue —
-            we're here to make every moment memorable.
-          </p>
-        </div>
+    <div className="px-4 pt-8 pb-6 max-w-2xl mx-auto">
+      {/* Hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        className="mb-8 text-center"
+      >
+        <p className="text-xs font-semibold tracking-[0.18em] text-[#8B1538]/70 uppercase mb-3">
+          Dorshi Holiday Resort
+        </p>
+        <h1 className="font-serif text-[2.4rem] leading-[1.15] text-gray-900">
+          Your Dream Stay
+          <br />
+          <em className="text-[#8B1538] not-italic font-serif italic">Awaits</em>
+        </h1>
+        <p className="mt-3 text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+          Premium rooms, fine dining, and memorable experiences — all in one place.
+        </p>
       </motion.div>
 
-      <motion.div variants={staggerContainer} className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 px-4">
-        {CARDS.map((card) => (
-          <motion.button
-            key={card.view}
-            variants={staggerItem}
-            onClick={() => onSelectView(card.view)}
-            whileHover={{ y: -8, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-            className="group relative bg-white rounded-3xl p-6 sm:p-8 border border-gray-200 shadow-sm hover:shadow-2xl transition-all duration-300 text-left overflow-hidden"
-          >
-            <div className={cn("absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300", card.overlayClass)} />
-            <div className={cn("w-14 h-14 rounded-2xl grid place-items-center mb-6 transition-all duration-300", card.iconBg, "group-hover:scale-110")}>
-              <div className={card.iconColor}>{card.icon}</div>
-            </div>
-            <div className="space-y-2 relative z-10">
-              <h3 className="text-xl sm:text-2xl font-serif text-gray-900 group-hover:text-[#8B1538] transition-colors">
-                {card.title}
-              </h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{card.subtitle}</p>
-            </div>
-            <div className="absolute bottom-6 right-6 w-10 h-10 rounded-full bg-gray-100 grid place-items-center opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-1">
-              <ArrowRight className="w-5 h-5 text-gray-600" />
-            </div>
-            <div className={cn("absolute -bottom-10 -right-10 w-32 h-32 rounded-full opacity-0 group-hover:opacity-10 transition-opacity duration-500", card.decorativeClass)} />
-          </motion.button>
-        ))}
-      </motion.div>
+      {/* Action cards */}
+      <div className="space-y-3">
+        {CARDS.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <motion.button
+              key={card.view}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 + i * 0.07 }}
+              onClick={() => onSelectView(card.view)}
+              whileTap={{ scale: 0.98 }}
+              className="w-full flex items-center gap-4 bg-white rounded-2xl px-4 py-4 border border-gray-100 shadow-sm active:bg-gray-50 text-left"
+            >
+              <div className={cn('w-11 h-11 rounded-xl grid place-items-center shrink-0', card.iconBg)}>
+                <Icon className={cn('w-5 h-5', card.iconColor)} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-gray-900 text-sm">{card.label}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{card.sub}</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
+            </motion.button>
+          );
+        })}
+      </div>
 
-      <motion.div variants={staggerItem} className="text-center pt-8 border-t border-gray-100 mx-4">
-        <p className="text-sm text-gray-400">✨ Premium hospitality since 2024</p>
-      </motion.div>
-    </motion.div>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="text-center text-xs text-gray-300 mt-8"
+      >
+        ✦ Premium hospitality since 2024
+      </motion.p>
+    </div>
   );
 }
