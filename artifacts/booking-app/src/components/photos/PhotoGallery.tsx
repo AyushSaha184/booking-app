@@ -74,7 +74,6 @@ export default function PhotoGallery({ onBack }: Props) {
         <div className="flex items-center gap-3 mb-3">
           <div>
             <h2 className="font-serif text-xl text-gray-900 leading-tight">Photo Gallery</h2>
-            <p className="text-xs text-gray-400">{filtered.length} photos</p>
           </div>
         </div>
 
