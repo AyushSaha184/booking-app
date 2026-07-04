@@ -40,7 +40,7 @@ const PHOTOS: Photo[] = [
   { id: '32', name: 'Final View',       type: 'Resort',    src: '/assets/IMG-20260622-WA0005.webp' },
 ];
 
-const CATEGORIES = ['All', ...Array.from(new Set(PHOTOS.map(p => p.type)))];
+const CATEGORIES = ['All', ...Array.from(new Set(PHOTOS.map(p => p.type)))].filter(c => c !== 'Resort');
 
 interface Props { onBack?: () => void }
 
