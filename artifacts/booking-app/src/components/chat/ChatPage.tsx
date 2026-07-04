@@ -42,8 +42,9 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-[100dvh] w-full bg-[#F5F0E8] overflow-hidden">
       <ChatHeader onClose={handleBack} />
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <AnimatePresence mode="wait" initial={false}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden flex justify-center">
+        <div className="w-full max-w-3xl">
+          <AnimatePresence mode="wait" initial={false}>
           {view === 'welcome' && (
             <motion.div key="welcome" variants={pageVariants} initial="enter" animate="center" exit="exit" transition={{ duration: 0.22 }}>
               <SuggestionChips onSelectView={handleSelectView} />
@@ -69,7 +70,8 @@ export default function ChatPage() {
               <PhotoGallery onBack={handleBack} />
             </motion.div>
           )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

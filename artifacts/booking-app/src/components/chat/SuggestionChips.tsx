@@ -40,7 +40,7 @@ const CARDS = [
 
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
-    <div className="px-4 pt-8 pb-6 max-w-2xl mx-auto">
+    <div className="px-4 pt-8 pb-6">
       {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}

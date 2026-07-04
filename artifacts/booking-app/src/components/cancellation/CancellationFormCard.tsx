@@ -88,19 +88,11 @@ export default function CancellationFormCard({ onBack }: Props) {
   };
 
   return (
-    <div className="px-4 py-5 max-w-2xl mx-auto">
+    <div className="px-4 py-5">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={onBack}
-          className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center shrink-0 shadow-sm"
-        >
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
-        </button>
-        <div>
-          <h2 className="font-serif text-xl text-gray-900 leading-tight">Cancel Booking</h2>
-          <p className="text-xs text-gray-400 mt-0.5">Enter your details to find your reservation</p>
-        </div>
+      <div className="mb-6">
+        <h2 className="font-serif text-xl text-gray-900 leading-tight">Cancel Booking</h2>
+        <p className="text-xs text-gray-400 mt-0.5">Enter your details to find your reservation</p>
       </div>
 
       <AnimatePresence mode="wait">

@@ -72,14 +72,6 @@ export default function PhotoGallery({ onBack }: Props) {
       {/* ── Header ── */}
       <div className="sticky top-0 z-10 bg-[#F5F0E8]/90 backdrop-blur-md border-b border-gray-100 px-4 pt-4 pb-3">
         <div className="flex items-center gap-3 mb-3">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center shrink-0 shadow-sm"
-            >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
-            </button>
-          )}
           <div>
             <h2 className="font-serif text-xl text-gray-900 leading-tight">Photo Gallery</h2>
             <p className="text-xs text-gray-400">{filtered.length} photos</p>
