@@ -25,13 +25,12 @@ export const CreateBookingSchema = z.object({
 })
 
 export const LookupBookingSchema = z.object({
-  guestName: z.string().min(1, 'Name is required').max(100),
   phone: z.string().min(10).max(15).regex(PHONE_REGEX),
+  bookingId: z.string().min(1, 'Booking ID is required').startsWith('BK-', 'Invalid format'),
 })
 
 export const CancelBookingSchema = z.object({
   bookingId: z.string().min(1),
-  guestName: z.string().min(1).max(100),
   phone: z.string().min(10).max(15).regex(PHONE_REGEX),
 })
 

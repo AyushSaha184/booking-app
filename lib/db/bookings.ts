@@ -46,15 +46,15 @@ async function _createBookingLegacy(data: unknown) {
   return booking
 }
 
-export async function lookupBooking(guestName: string, phone: string) {
-  const validated = LookupBookingSchema.parse({ guestName, phone })
+export async function lookupBooking(phone: string, bookingId: string) {
+  const validated = LookupBookingSchema.parse({ phone, bookingId })
 
   const [booking] = await db()
     .select()
     .from(bookings)
     .where(
       and(
-        sql`lower(${bookings.guestName}) = lower(${validated.guestName})`,
+        eq(bookings.id, validated.bookingId),
         eq(bookings.phone, validated.phone),
         eq(bookings.status, 'confirmed')
       )
@@ -64,8 +64,8 @@ export async function lookupBooking(guestName: string, phone: string) {
   return booking ?? null
 }
 
-export async function cancelBooking(bookingId: string, guestName: string, phone: string) {
-  const validated = CancelBookingSchema.parse({ bookingId, guestName, phone })
+export async function cancelBooking(bookingId: string, phone: string) {
+  const validated = CancelBookingSchema.parse({ bookingId, phone })
 
   const booking = await db()
     .select()
@@ -82,8 +82,7 @@ export async function cancelBooking(bookingId: string, guestName: string, phone:
     return null
   }
 
-  if (booking[0].guestName.toLowerCase() !== validated.guestName.toLowerCase() ||
-      booking[0].phone !== validated.phone) {
+  if (booking[0].phone !== validated.phone) {
     return null
   }
 
@@ -97,7 +96,7 @@ export async function cancelBooking(bookingId: string, guestName: string, phone:
 
   sendCancellationNotifications({
     bookingId: updated.id,
-    guestName: validated.guestName,
+    guestName: updated.guestName,
     phone: validated.phone,
     roomName: room?.name || 'Unknown Room',
     checkIn: updated.checkIn,

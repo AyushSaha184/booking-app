@@ -72,8 +72,12 @@ export default function BookingFormCard({
       guestName: '',
       phone: '',
       roomId: initialRooms?.[0]?.id ?? '',
-      checkIn: prefill?.checkIn ?? '',
-      checkOut: prefill?.checkOut ?? '',
+      checkIn: prefill?.checkIn || new Date().toISOString().split('T')[0],
+      checkOut: prefill?.checkOut || (() => {
+        const d = new Date()
+        d.setDate(d.getDate() + 1)
+        return d.toISOString().split('T')[0]
+      })(),
       guests: prefill?.guests ?? 1,
     },
     mode: 'onBlur',
@@ -178,10 +182,10 @@ export default function BookingFormCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-3xl mx-auto space-y-6"
+      className="w-full max-w-4xl mx-auto space-y-8"
     >
       {/* Title block */}
-      <div className="text-left px-1 space-y-1">
+      <div className="text-center px-1 space-y-1">
         <h2 className="font-serif text-3xl font-semibold text-gray-900 leading-tight">
           Reserve Your Stay
         </h2>
@@ -189,11 +193,11 @@ export default function BookingFormCard({
       </div>
 
       {/* Stacked Form Cards */}
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
         
         {/* CARD 1: Guest Details */}
-        <div className="bg-white p-6 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-5">
-          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center gap-2 text-left">
+        <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-7">
+          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center justify-center gap-2 text-center">
             <User className="w-4 h-4 text-[#8E9CAE]" />
             Guest Details
           </h3>
@@ -206,7 +210,7 @@ export default function BookingFormCard({
                 type="text"
                 placeholder="John Doe"
                 {...register('guestName', { required: 'Name is required' })}
-                className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 px-4 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+                className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4.5 px-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
               />
               {errors.guestName && (
                 <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.guestName.message}</p>
@@ -221,7 +225,7 @@ export default function BookingFormCard({
                 type="tel"
                 placeholder="+91 98765 43210"
                 {...register('phone', { required: 'Phone is required' })}
-                className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 px-4 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+                className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4.5 px-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
               />
               {errors.phone && (
                 <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.phone.message}</p>
@@ -231,8 +235,8 @@ export default function BookingFormCard({
         </div>
 
         {/* CARD 2: Stay Details */}
-        <div className="bg-white p-6 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-5">
-          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center gap-2 text-left">
+        <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-7">
+          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center justify-center gap-2 text-center">
             <Calendar className="w-4 h-4 text-[#8E9CAE]" />
             Stay Details
           </h3>
@@ -246,9 +250,9 @@ export default function BookingFormCard({
                   type="date"
                   min={today}
                   {...register('checkIn')}
-                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 pl-4 pr-10 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
+                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4.5 pl-5 pr-11 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
                   <Calendar className="w-4 h-4" />
                 </div>
               </div>
@@ -264,9 +268,9 @@ export default function BookingFormCard({
                   type="date"
                   min={checkIn || today}
                   {...register('checkOut')}
-                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 pl-4 pr-10 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
+                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4.5 pl-5 pr-11 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
                   <Calendar className="w-4 h-4" />
                 </div>
               </div>
@@ -277,7 +281,7 @@ export default function BookingFormCard({
           </div>
 
           {/* Stepper block */}
-          <div className="flex items-center justify-between py-2.5 mt-2">
+          <div className="flex items-center justify-between py-3 mt-3">
             <div className="flex items-center gap-3">
               <Users className="w-5 h-5 text-[#8E9CAE]" strokeWidth={2} />
               <div className="text-left">
@@ -289,7 +293,7 @@ export default function BookingFormCard({
               <button
                 type="button"
                 onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
-                className="w-8 h-8 rounded-full border border-gray-250 flex items-center justify-center text-gray-400 bg-white hover:border-gray-400 hover:text-gray-600 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+                className="w-11 h-11 rounded-full border border-gray-250 flex items-center justify-center text-gray-400 bg-white hover:border-gray-400 hover:text-gray-600 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
                 disabled={(guests || 1) <= 1}
               >
                 −
@@ -298,7 +302,7 @@ export default function BookingFormCard({
               <button
                 type="button"
                 onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (guests || 1) + 1))}
-                className="w-8 h-8 rounded-full border border-gray-250 flex items-center justify-center text-gray-400 bg-white hover:border-gray-400 hover:text-gray-600 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+                className="w-11 h-11 rounded-full border border-gray-250 flex items-center justify-center text-gray-400 bg-white hover:border-gray-400 hover:text-gray-600 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
                 disabled={(guests || 1) >= (selectedRoom?.capacity || 4)}
               >
                 +
@@ -308,16 +312,25 @@ export default function BookingFormCard({
         </div>
 
         {/* CARD 3: Choose Your Room */}
-        <div className="bg-white p-6 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-5">
-          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center gap-2 text-left">
+        <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-7">
+          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center justify-center gap-2 text-center">
             <BedDouble className="w-4 h-4 text-[#8E9CAE]" />
             Choose Your Room
+            {rooms.length > 0 && (
+              <span className="ml-1.5 px-2 py-0.5 bg-[#7C1A36]/10 text-[#7C1A36] text-[10px] rounded-full normal-case font-semibold">
+                {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} available
+              </span>
+            )}
           </h3>
 
-          {/* Dashed placeholder when no dates chosen */}
+          {/* Dashed placeholder when no dates chosen or no rooms found */}
           {rooms.length === 0 && !loadingRooms && (
-            <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/40 rounded-2xl py-6 px-4 text-center flex items-center justify-center">
-              <span className="text-sm text-gray-400 font-medium">Pick your dates above to see available rooms</span>
+            <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/40 rounded-2xl py-10 px-6 text-center flex items-center justify-center">
+              <span className="text-sm text-gray-400 font-medium">
+                {checkIn && checkOut
+                  ? "No rooms available for the selected dates"
+                  : "Pick your dates above to see available rooms"}
+              </span>
             </div>
           )}
 
@@ -394,7 +407,7 @@ export default function BookingFormCard({
 
         {/* Price Summary (shown conditionally as its own card) */}
         {nights > 0 && selectedRoom && !loadingRooms && (
-          <div className="bg-white p-5 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-4">
+          <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-4">
             <h3 className="text-sm font-bold text-gray-850 text-left">Price Summary</h3>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between text-gray-500">
@@ -422,11 +435,11 @@ export default function BookingFormCard({
         )}
 
         {/* Submit Button */}
-        <div className="pt-2">
+        <div className="pt-4">
           <button
             type="submit"
             disabled={isSubmitting || loadingRooms}
-            className="w-full h-14 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.12)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.12)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             {isSubmitting ? (
               <>

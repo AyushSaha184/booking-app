@@ -58,11 +58,11 @@ export default function PhotoGallery({ onBack }: { onBack?: () => void }) {
   return (
     <div className="w-full space-y-6">
       {/* Title block */}
-      <div className="text-left px-1 space-y-1">
+      <div className="text-center px-1 space-y-1">
         <h1 className="font-serif text-3xl font-bold text-gray-900 leading-tight">
-          Photo <span className="text-[#7C1A36]">Gallery</span>
+          Photo Gallery
         </h1>
-        <p className="text-xs text-gray-500">Explore the beauty of Dorshi Resort</p>
+        <p className="text-sm text-gray-400">Explore the beauty of Dorshi Resort</p>
       </div>
 
       {/* Photo Grid */}

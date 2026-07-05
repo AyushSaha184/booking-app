@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { lookupBooking, cancelBooking } from '@/lib/db/bookings'
 import { checkRateLimit } from '@/lib/ratelimit'
-import { UpdateBookingSchema, validateRequestSize } from '@/lib/validation'
+import { CancelBookingSchema, validateRequestSize } from '@/lib/validation'
 import { logger } from '@/lib/logger'
 
 function getClientIp(req: Request): string {
@@ -73,17 +73,17 @@ export async function POST(req: Request) {
 }
 
 function handleLookup(data: Record<string, unknown>) {
-  const guestName = typeof data.guestName === 'string' ? data.guestName.trim() : ''
   const phone = typeof data.phone === 'string' ? data.phone.trim() : ''
+  const bookingId = typeof data.bookingId === 'string' ? data.bookingId.trim() : ''
 
-  if (!guestName || !phone) {
+  if (!phone || !bookingId) {
     return NextResponse.json(
-      { error: 'Name and phone number are required.' },
+      { error: 'Booking ID and phone number are required.' },
       { status: 400 }
     )
   }
 
-  return lookupBooking(guestName, phone)
+  return lookupBooking(phone, bookingId)
     .then((booking) => {
       if (!booking) {
         logger.info('Cancellations lookup: not found')
@@ -109,7 +109,7 @@ function handleLookup(data: Record<string, unknown>) {
     .catch((err: unknown) => {
       if (err instanceof Error && err.message.toLowerCase().includes('invalid')) {
         return NextResponse.json(
-          { error: 'Invalid name or phone format.' },
+          { error: 'Invalid Booking ID or phone format.' },
           { status: 400 }
         )
       }
@@ -120,16 +120,9 @@ function handleLookup(data: Record<string, unknown>) {
 function handleCancel(data: Record<string, unknown>) {
   let parsed
   try {
-    parsed = UpdateBookingSchema.pick({
-      id: true,
-      guestName: true,
-      phone: true,
-      status: true,
-    }).parse({
-      id: data.bookingId,
-      guestName: data.guestName,
+    parsed = CancelBookingSchema.parse({
+      bookingId: data.bookingId,
       phone: data.phone,
-      status: 'cancelled',
     })
   } catch (err: any) {
     return NextResponse.json(
@@ -138,10 +131,10 @@ function handleCancel(data: Record<string, unknown>) {
     )
   }
 
-  return cancelBooking(parsed.id, parsed.guestName, parsed.phone)
+  return cancelBooking(parsed.bookingId, parsed.phone)
     .then((updated) => {
       if (!updated) {
-        logger.warn('Cancellation failed: verification mismatch or not found', { bookingId: parsed.id })
+        logger.warn('Cancellation failed: verification mismatch or not found', { bookingId: parsed.bookingId })
         return NextResponse.json(
           { success: false, error: 'Booking not found or details do not match.' },
           { status: 404 }

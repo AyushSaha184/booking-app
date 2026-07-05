@@ -151,12 +151,12 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
       </div>
 
       {/* Action Cards List */}
-      <div className="space-y-5 max-w-xl mx-auto px-4">
+      <div className="space-y-7 max-w-xl mx-auto px-4">
         {CARDS.map((card) => (
           <button
             key={card.view}
             onClick={() => onSelectView(card.view)}
-            className="w-full flex items-center bg-white rounded-3xl py-5 px-6 sm:py-6 sm:px-8 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
+            className="w-full flex items-center bg-white rounded-3xl py-6 px-8 sm:py-8 sm:px-10 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
           >
             <div className="flex items-center gap-4">
               {/* Icon Container */}
