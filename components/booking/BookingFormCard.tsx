@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion } from 'framer-motion'
-import { User, Phone, ChevronLeft, Loader2, BedDouble, Users, Calendar, Check } from 'lucide-react'
-import { AnimatedInput } from '@/components/ui/AnimatedInput'
+import { User, ChevronLeft, Loader2, BedDouble, Users, Calendar, Check } from 'lucide-react'
 import { CreateBookingSchema } from '@/lib/validation'
 import { checkmarkDraw, bounceIn } from '@/lib/animations'
 import { cn } from '@/lib/utils'
@@ -183,63 +182,75 @@ export default function BookingFormCard({
     >
       {/* Title block */}
       <div className="text-left px-1 space-y-1">
-        <h2 className="font-serif text-3xl font-bold text-gray-900 leading-tight">
-          Reserve <span className="text-[#7C1A36]">Your Stay</span>
+        <h2 className="font-serif text-3xl font-semibold text-gray-900 leading-tight">
+          Reserve Your Stay
         </h2>
-        <p className="text-xs text-gray-500">Fill in your details to secure a room</p>
+        <p className="text-sm text-gray-400">Fill in your details to secure a room</p>
       </div>
 
-      {/* Main Single Form Card */}
-      <form onSubmit={handleSubmit(onFormSubmit)} className="bg-white p-6 sm:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-8">
+      {/* Stacked Form Cards */}
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
         
-        {/* SECTION 1: Guest Details */}
-        <div className="space-y-5">
-          <h3 className="text-xs font-bold text-[#A12444] uppercase tracking-wider flex items-center gap-2 text-left">
-            <User className="w-4 h-4 text-[#A12444]" />
+        {/* CARD 1: Guest Details */}
+        <div className="bg-white p-6 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-5">
+          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center gap-2 text-left">
+            <User className="w-4 h-4 text-[#8E9CAE]" />
             Guest Details
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <AnimatedInput
-              label="Full Name"
-              leftIcon={<User className="w-4 h-4" />}
-              placeholder="John Doe"
-              error={errors.guestName?.message}
-              {...register('guestName', { required: 'Name is required' })}
-            />
-            <AnimatedInput
-              label="Phone Number"
-              leftIcon={<Phone className="w-4 h-4" />}
-              placeholder="+91 98765 43210"
-              inputMode="tel"
-              error={errors.phone?.message}
-              {...register('phone', { required: 'Phone is required' })}
-            />
+          <div className="flex flex-col gap-4">
+            <div className="space-y-2 text-left">
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Full Name
+              </label>
+              <input
+                type="text"
+                placeholder="John Doe"
+                {...register('guestName', { required: 'Name is required' })}
+                className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 px-4 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+              />
+              {errors.guestName && (
+                <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.guestName.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2 text-left">
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                placeholder="+91 98765 43210"
+                {...register('phone', { required: 'Phone is required' })}
+                className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 px-4 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+              />
+              {errors.phone && (
+                <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.phone.message}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        <hr className="border-gray-100" />
-
-        {/* SECTION 2: Stay Details */}
-        <div className="space-y-5">
-          <h3 className="text-xs font-bold text-[#A12444] uppercase tracking-wider flex items-center gap-2 text-left">
-            <Calendar className="w-4 h-4 text-[#A12444]" />
+        {/* CARD 2: Stay Details */}
+        <div className="bg-white p-6 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-5">
+          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center gap-2 text-left">
+            <Calendar className="w-4 h-4 text-[#8E9CAE]" />
             Stay Details
           </h3>
 
           {/* Side-by-Side Date Pickers */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2 text-left">
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-in</label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36] transition-colors pointer-events-none">
-                  <Calendar className="w-4 h-4" />
-                </div>
                 <input
                   type="date"
                   min={today}
                   {...register('checkIn')}
-                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 pl-11 pr-4 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
+                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 pl-4 pr-10 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
                 />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                  <Calendar className="w-4 h-4" />
+                </div>
               </div>
               {errors.checkIn && (
                 <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.checkIn.message}</p>
@@ -249,15 +260,15 @@ export default function BookingFormCard({
             <div className="space-y-2 text-left">
               <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-out</label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36] transition-colors pointer-events-none">
-                  <Calendar className="w-4 h-4" />
-                </div>
                 <input
                   type="date"
                   min={checkIn || today}
                   {...register('checkOut')}
-                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 pl-11 pr-4 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
+                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-3.5 pl-4 pr-10 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
                 />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                  <Calendar className="w-4 h-4" />
+                </div>
               </div>
               {errors.checkOut && (
                 <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.checkOut.message}</p>
@@ -266,30 +277,28 @@ export default function BookingFormCard({
           </div>
 
           {/* Stepper block */}
-          <div className="flex items-center justify-between bg-[#FAFAF9] p-4 rounded-xl border border-gray-100">
+          <div className="flex items-center justify-between py-2.5 mt-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 shrink-0">
-                <Users className="w-5 h-5 text-[#7C1A36]" />
-              </div>
+              <Users className="w-5 h-5 text-[#8E9CAE]" strokeWidth={2} />
               <div className="text-left">
-                <p className="text-sm font-semibold text-gray-800 leading-tight">Guests</p>
-                <p className="text-[11px] text-gray-500 mt-0.5">Max {selectedRoom?.capacity || 4} guests</p>
+                <p className="text-base font-semibold text-gray-905 leading-tight">Guests</p>
+                <p className="text-xs text-gray-400 mt-0.5">Max {selectedRoom?.capacity || 4}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
-                className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center text-gray-600 hover:border-[#7C1A36] hover:text-[#7C1A36] transition-all shadow-xs disabled:opacity-40"
+                className="w-8 h-8 rounded-full border border-gray-250 flex items-center justify-center text-gray-400 bg-white hover:border-gray-400 hover:text-gray-600 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
                 disabled={(guests || 1) <= 1}
               >
                 −
               </button>
-              <span className="text-base font-bold text-gray-900 w-6 text-center">{guests || 1}</span>
+              <span className="text-base font-bold text-gray-900 w-4 text-center">{guests || 1}</span>
               <button
                 type="button"
                 onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (guests || 1) + 1))}
-                className="w-9 h-9 rounded-full bg-white border border-gray-200 grid place-items-center text-gray-600 hover:border-[#7C1A36] hover:text-[#7C1A36] transition-all shadow-xs disabled:opacity-40"
+                className="w-8 h-8 rounded-full border border-gray-250 flex items-center justify-center text-gray-400 bg-white hover:border-gray-400 hover:text-gray-600 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
                 disabled={(guests || 1) >= (selectedRoom?.capacity || 4)}
               >
                 +
@@ -298,20 +307,17 @@ export default function BookingFormCard({
           </div>
         </div>
 
-        <hr className="border-gray-100" />
-
-        {/* SECTION 3: Choose Your Room */}
-        <div className="space-y-5">
-          <h3 className="text-xs font-bold text-[#A12444] uppercase tracking-wider flex items-center gap-2 text-left">
-            <BedDouble className="w-4 h-4 text-[#A12444]" />
+        {/* CARD 3: Choose Your Room */}
+        <div className="bg-white p-6 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-5">
+          <h3 className="text-xs font-bold text-[#8E9CAE] uppercase tracking-wider flex items-center gap-2 text-left">
+            <BedDouble className="w-4 h-4 text-[#8E9CAE]" />
             Choose Your Room
           </h3>
 
           {/* Dashed placeholder when no dates chosen */}
           {rooms.length === 0 && !loadingRooms && (
-            <div className="border border-dashed border-gray-300 bg-[#FAFAF9]/50 rounded-2xl p-6 text-center flex items-center justify-center gap-3">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-500 font-medium">Pick your dates above to see available rooms</span>
+            <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/40 rounded-2xl py-6 px-4 text-center flex items-center justify-center">
+              <span className="text-sm text-gray-400 font-medium">Pick your dates above to see available rooms</span>
             </div>
           )}
 
@@ -386,28 +392,25 @@ export default function BookingFormCard({
           )}
         </div>
 
-        {/* SECTION 4: Price Summary */}
+        {/* Price Summary (shown conditionally as its own card) */}
         {nights > 0 && selectedRoom && !loadingRooms && (
-          <>
-            <hr className="border-gray-100" />
-            <div className="bg-[#FAFAF9] p-5 rounded-2xl border border-gray-150 space-y-4">
-              <h3 className="text-sm font-bold text-gray-800 text-left">Price Summary</h3>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between text-gray-500">
-                  <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} Night{nights > 1 ? 's' : ''}</span>
-                  <span className="font-semibold text-gray-700">₹{subtotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>Taxes & Fees (12%)</span>
-                  <span className="font-semibold text-gray-700">₹{tax.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-base font-bold text-gray-900 pt-3 border-t border-gray-200">
-                  <span>Total</span>
-                  <span className="text-[#7C1A36]">₹{total.toLocaleString('en-IN')}</span>
-                </div>
+          <div className="bg-white p-5 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-4">
+            <h3 className="text-sm font-bold text-gray-850 text-left">Price Summary</h3>
+            <div className="space-y-2 text-xs">
+              <div className="flex justify-between text-gray-500">
+                <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} Night{nights > 1 ? 's' : ''}</span>
+                <span className="font-semibold text-gray-700">₹{subtotal.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between text-gray-500">
+                <span>Taxes & Fees (12%)</span>
+                <span className="font-semibold text-gray-700">₹{tax.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between text-base font-bold text-gray-900 pt-3 border-t border-gray-100">
+                <span>Total</span>
+                <span className="text-[#7C1A36]">₹{total.toLocaleString('en-IN')}</span>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* Error */}
@@ -419,20 +422,22 @@ export default function BookingFormCard({
         )}
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting || loadingRooms}
-          className="w-full h-13 rounded-xl bg-[#7C1A36] text-white text-base font-bold shadow-sm hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-5 h-5 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            'Confirm Booking'
-          )}
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={isSubmitting || loadingRooms}
+            className="w-full h-14 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.12)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              'Confirm Booking'
+            )}
+          </button>
+        </div>
       </form>
     </motion.div>
   )

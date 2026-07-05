@@ -57,13 +57,13 @@ export default function ChatPage() {
   const containerMaxWidth = view === 'photos' ? 'max-w-6xl' : 'max-w-3xl'
 
   return (
-    <div className="min-h-screen w-full bg-background overflow-y-auto overflow-x-hidden py-6 px-4 sm:px-6 md:py-8">
-      <div className={cn("mx-auto space-y-6 transition-all duration-300", containerMaxWidth)}>
-        {/* Header */}
-        <ChatHeader onClose={handleClose} />
+    <div className="min-h-screen w-full bg-background flex flex-col overflow-x-hidden">
+      {/* Header */}
+      <ChatHeader onClose={handleClose} />
 
-        {/* Content area */}
-        <main className="w-full">
+      {/* Content area */}
+      <main className="flex-1 w-full py-8 px-4 sm:px-6 flex items-center justify-center">
+        <div className={cn("w-full mx-auto transition-all duration-300 my-auto", containerMaxWidth)}>
           <AnimatePresence mode="wait">
             {view === 'welcome' && (
               <motion.div
@@ -118,8 +118,8 @@ export default function ChatPage() {
               </motion.div>
             )}
           </AnimatePresence>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   )
 }

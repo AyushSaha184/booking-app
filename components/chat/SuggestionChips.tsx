@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, XCircle, Image as ImageIcon, ArrowRight, Star, MapPin } from 'lucide-react'
+import { Calendar, XCircle, Image as ImageIcon, Star, MapPin } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos'
@@ -132,24 +132,31 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
 
         {/* Rating Block */}
         <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
-          <div className="flex text-amber-500">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className="w-4 h-4 fill-current" />
-            ))}
+          <div className="flex gap-0.5 text-amber-500">
+            <Star className="w-4 h-4 fill-current" />
+            <Star className="w-4 h-4 fill-current" />
+            <Star className="w-4 h-4 fill-current" />
+            <Star className="w-4 h-4 fill-current" />
+            <div className="relative w-4 h-4 shrink-0">
+              <Star className="absolute top-0 left-0 w-4 h-4 text-amber-500" />
+              <div className="absolute top-0 left-0 w-2 h-4 overflow-hidden">
+                <Star className="w-4 h-4 fill-current text-amber-500" />
+              </div>
+            </div>
           </div>
-          <span className="font-semibold ml-1">4.9</span>
+          <span className="font-semibold ml-1">4.5</span>
           <span className="text-gray-400 font-normal ml-0.5">•</span>
-          <span className="text-gray-400">200+ reviews</span>
+          <span className="text-gray-400">100+ reviews</span>
         </div>
       </div>
 
       {/* Action Cards List */}
-      <div className="space-y-3.5 max-w-xl mx-auto px-4">
+      <div className="space-y-5 max-w-xl mx-auto px-4">
         {CARDS.map((card) => (
           <button
             key={card.view}
             onClick={() => onSelectView(card.view)}
-            className="w-full flex items-center justify-between bg-white rounded-3xl p-4 sm:p-5 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
+            className="w-full flex items-center bg-white rounded-3xl py-5 px-6 sm:py-6 sm:px-8 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
           >
             <div className="flex items-center gap-4">
               {/* Icon Container */}
@@ -172,11 +179,6 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
                 </p>
               </div>
             </div>
-
-            {/* Circle Arrow on Right */}
-            <div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0 transition-all duration-300 group-hover:bg-[#7C1A36]/5 group-hover:border-[#7C1A36]/20">
-              <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-[#7C1A36] transition-colors" />
-            </div>
           </button>
         ))}
       </div>
@@ -187,7 +189,7 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
           {/* Column 1 */}
           <div className="flex flex-col items-center justify-center space-y-1 py-1">
             <DoubleDoorIcon />
-            <span className="text-sm font-bold text-gray-900 font-sans">6 Rooms</span>
+            <span className="text-sm font-bold text-gray-900 font-sans">9 Rooms</span>
             <span className="text-[10px] text-gray-400 font-medium">All categories</span>
           </div>
 

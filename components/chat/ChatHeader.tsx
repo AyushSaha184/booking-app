@@ -16,7 +16,7 @@ interface ChatHeaderProps {
 export default function ChatHeader({ onClose }: ChatHeaderProps) {
   return (
     <header
-      className="flex items-center justify-between px-6 py-4 bg-white rounded-3xl border border-gray-200 shadow-sm shrink-0 z-20 w-full"
+      className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-150 shrink-0 z-20 w-full"
     >
       {/* Brand */}
       <div className="flex items-center gap-3 min-w-0">
@@ -49,9 +49,9 @@ export default function ChatHeader({ onClose }: ChatHeaderProps) {
         onClick={onClose}
         aria-label="Go Back"
         title="Back"
-        className="shrink-0 w-11 h-11 rounded-full bg-white border border-gray-200 flex items-center justify-center cursor-pointer text-gray-600 hover:text-[#7C1A36] hover:border-[#7C1A36]/30 hover:bg-[#7C1A36]/5 active:scale-95 transition-all duration-200 shadow-sm"
+        className="shrink-0 text-gray-800 hover:text-[#7C1A36] active:scale-95 transition-all duration-200 cursor-pointer"
       >
-        <ArrowLeft className="w-5 h-5" strokeWidth={2} />
+        <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
       </button>
     </header>
   )
