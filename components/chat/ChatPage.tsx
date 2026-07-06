@@ -57,15 +57,17 @@ export default function ChatPage() {
   const containerMaxWidth =
     view === 'photos'
       ? 'max-w-6xl'
-      : view === 'booking' || view === 'cancellation'
+      : view === 'booking'
+      ? 'max-w-4xl'
+      : view === 'cancellation'
       ? 'max-w-3xl'
       : 'max-w-2xl'
 
   return (
     <div className="min-h-screen w-full bg-background flex flex-col overflow-x-hidden">
       {/* Content area */}
-      <main className="flex-1 w-full py-8 px-4 sm:px-6 flex items-center justify-center">
-        <div className={cn("w-full mx-auto transition-all duration-300 my-auto flex flex-col gap-6", containerMaxWidth)}>
+      <main className="flex-1 w-full py-8 px-4 sm:px-6 flex justify-center">
+        <div className={cn("w-full mx-auto transition-all duration-300 flex flex-col gap-6", containerMaxWidth)}>
           {/* Header */}
           <ChatHeader onClose={handleClose} />
 

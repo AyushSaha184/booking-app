@@ -25,10 +25,10 @@ interface BookingFormCardProps {
 const inputWrapCls =
   'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-xl overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
 
-const iconCls = 'w-14 h-14 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
+const iconCls = 'w-12 h-12 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
 
 const inputCls =
-  'flex-1 h-14 px-4 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+  'flex-1 h-12 px-4 bg-transparent text-sm text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
 function RoomImagePlaceholder({ roomType }: { roomType: string }) {
   const colors: Record<string, string> = {
@@ -213,7 +213,7 @@ export default function BookingFormCard({
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-800">Full Name</label>
               <div className={inputWrapCls}>
-                <span className={iconCls}><User className="w-5 h-5" /></span>
+                <span className={iconCls}><User className="w-[18px] h-[18px]" /></span>
                 <input
                   type="text"
                   placeholder="John Doe"
@@ -228,7 +228,7 @@ export default function BookingFormCard({
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-800">Phone Number</label>
               <div className={inputWrapCls}>
-                <span className={iconCls}><Phone className="w-5 h-5" /></span>
+                <span className={iconCls}><Phone className="w-[18px] h-[18px]" /></span>
                 <input
                   type="tel"
                   placeholder="+91 98765 43210"
@@ -254,7 +254,7 @@ export default function BookingFormCard({
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-800">Check-in</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Calendar className="w-5 h-5" /></span>
+                  <span className={iconCls}><Calendar className="w-[18px] h-[18px]" /></span>
                   <input
                     type="date"
                     min={today}
@@ -268,7 +268,7 @@ export default function BookingFormCard({
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-800">Check-out</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Calendar className="w-5 h-5" /></span>
+                  <span className={iconCls}><Calendar className="w-[18px] h-[18px]" /></span>
                   <input
                     type="date"
                     min={checkIn || today}
@@ -283,10 +283,10 @@ export default function BookingFormCard({
             {/* Guest stepper */}
             <div className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
-                <Users className="w-5 h-5 text-[#7C1A36]" strokeWidth={2} />
+                <Users className="w-[18px] h-[18px] text-[#7C1A36]" strokeWidth={2} />
                 <div>
-                  <p className="text-base font-semibold text-gray-900 leading-tight">Guests</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Max {selectedRoom?.capacity || 4}</p>
+                  <p className="text-sm font-semibold text-gray-900 leading-tight">Guests</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Max {selectedRoom?.capacity || 4}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">

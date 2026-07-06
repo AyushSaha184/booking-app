@@ -33,10 +33,10 @@ function formatDate(dateStr: string) {
 const inputWrapCls =
   'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-xl overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
 
-const iconCls = 'w-14 h-14 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
+const iconCls = 'w-12 h-12 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
 
 const inputCls =
-  'flex-1 h-14 px-4 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+  'flex-1 h-12 px-4 bg-transparent text-sm text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
 export default function CancellationFormCard({ onBack }: CancellationFormCardProps) {
   const [step, setStep] = useState<'form' | 'searching' | 'found' | 'success' | 'error'>('form')
@@ -124,7 +124,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-800">Booking ID</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Hash className="w-5 h-5" /></span>
+                  <span className={iconCls}><Hash className="w-[18px] h-[18px]" /></span>
                   <input
                     type="text"
                     placeholder="BK-XXXXXX"
@@ -142,7 +142,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-800">Phone Number</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Phone className="w-5 h-5" /></span>
+                  <span className={iconCls}><Phone className="w-[18px] h-[18px]" /></span>
                   <input
                     type="tel"
                     inputMode="tel"
