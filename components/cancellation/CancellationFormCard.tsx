@@ -31,12 +31,12 @@ function formatDate(dateStr: string) {
 
 /* ── Shared input styles ───────────────────────────── */
 const inputWrapCls =
-  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-xl transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
+  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-xl overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
 
-const iconCls = 'pl-4 pr-3 shrink-0 flex items-center text-[#7C1A36]'
+const iconCls = 'w-14 h-14 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
 
 const inputCls =
-  'flex-1 py-4 pr-5 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+  'flex-1 h-14 px-4 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
 export default function CancellationFormCard({ onBack }: CancellationFormCardProps) {
   const [step, setStep] = useState<'form' | 'searching' | 'found' | 'success' | 'error'>('form')

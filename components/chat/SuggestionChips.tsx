@@ -109,10 +109,10 @@ const ClocheIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Hero Section — left-aligned */}
-      <div className="space-y-4 px-4">
+      {/* Hero Section — centered */}
+      <div className="text-center flex flex-col items-center justify-center space-y-4 px-4">
         {/* Location Tag */}
-        <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#A12444] uppercase">
+        <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#A12444] uppercase justify-center">
           <MapPin className="w-3.5 h-3.5 text-[#A12444]" />
           <span>Dorshi Holiday Resort</span>
         </div>
@@ -125,13 +125,13 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
             <span className="text-[#7C1A36]">Stay Awaits</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-500 max-w-md leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto leading-relaxed">
             Premium rooms, fine dining, and memorable experiences crafted for discerning travelers.
           </p>
         </div>
 
         {/* Rating Block */}
-        <div className="flex items-center gap-1 text-sm text-gray-600">
+        <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
           <div className="flex gap-0.5 text-amber-500">
             <Star className="w-4 h-4 fill-current" />
             <Star className="w-4 h-4 fill-current" />
