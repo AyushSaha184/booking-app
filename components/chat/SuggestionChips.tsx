@@ -108,7 +108,7 @@ const ClocheIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
-    <div className="w-full space-y-8 py-4">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Hero Section — left-aligned */}
       <div className="space-y-4 px-4">
         {/* Location Tag */}
