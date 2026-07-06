@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, XCircle, Image as ImageIcon, Star, MapPin, ArrowRight } from 'lucide-react'
+import { Calendar, XCircle, Image as ImageIcon, Star, MapPin } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos'
@@ -38,18 +38,18 @@ const CARDS: CardConfig[] = [
     icon: <XCircle className="w-5 h-5" />,
     title: 'Cancel Booking',
     subtitle: 'Manage your reservation',
-    iconColor: 'text-[#7C1A36]',
-    iconBg: 'bg-[#7C1A36]/5',
-    iconBorder: 'border-[#7C1A36]/15',
+    iconColor: 'text-gray-500',
+    iconBg: 'bg-gray-100',
+    iconBorder: 'border-gray-200/60',
   },
   {
     view: 'photos',
     icon: <ImageIcon className="w-5 h-5" />,
     title: 'View Gallery',
     subtitle: 'Explore our resort',
-    iconColor: 'text-[#7C1A36]',
-    iconBg: 'bg-[#7C1A36]/5',
-    iconBorder: 'border-[#7C1A36]/15',
+    iconColor: 'text-amber-600',
+    iconBg: 'bg-amber-50/60',
+    iconBorder: 'border-amber-100',
   },
 ]
 
@@ -108,11 +108,11 @@ const ClocheIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Hero Section — centered */}
-      <div className="text-center flex flex-col items-center justify-center space-y-4 px-4">
+    <div className="w-full space-y-8">
+      {/* Hero Section — left-aligned to match reference */}
+      <div className="text-left flex flex-col items-start justify-start space-y-4 px-1">
         {/* Location Tag */}
-        <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#A12444] uppercase justify-center">
+        <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#A12444] uppercase justify-start">
           <MapPin className="w-3.5 h-3.5 text-[#A12444]" />
           <span>Dorshi Holiday Resort</span>
         </div>
@@ -125,13 +125,13 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
             <span className="text-[#7C1A36]">Stay Awaits</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-500 max-w-md leading-relaxed">
             Premium rooms, fine dining, and memorable experiences crafted for discerning travelers.
           </p>
         </div>
 
         {/* Rating Block */}
-        <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+        <div className="flex items-center justify-start gap-1 text-sm text-gray-600">
           <div className="flex gap-0.5 text-amber-500">
             <Star className="w-4 h-4 fill-current" />
             <Star className="w-4 h-4 fill-current" />
@@ -150,46 +150,39 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
         </div>
       </div>
 
-      {/* Action Cards List */}
-      <div className="space-y-4 max-w-xl mx-auto px-4">
+      {/* Action Cards List — expanded width and tight vertical spacing */}
+      <div className="space-y-3 w-full">
         {CARDS.map((card) => (
           <button
             key={card.view}
             onClick={() => onSelectView(card.view)}
-            className="w-full flex items-center justify-between bg-white rounded-2xl py-5 px-6 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
+            className="w-full flex items-center justify-start bg-white rounded-3xl py-5 px-6 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group gap-4"
           >
-            <div className="flex items-center gap-4">
-              {/* Icon Container */}
-              <div className={cn(
-                "w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105",
-                card.iconBg,
-                card.iconBorder,
-                card.iconColor
-              )}>
-                {card.icon}
-              </div>
-
-              {/* Text */}
-              <div>
-                <h3 className="text-base font-bold text-gray-900 leading-tight font-sans">
-                  {card.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-gray-500 leading-relaxed mt-0.5">
-                  {card.subtitle}
-                </p>
-              </div>
+            {/* Icon Container */}
+            <div className={cn(
+              "w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105",
+              card.iconBg,
+              card.iconBorder,
+              card.iconColor
+            )}>
+              {card.icon}
             </div>
 
-            {/* Right Arrow */}
-            <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center shrink-0 text-[#7C1A36] group-hover:bg-[#7C1A36]/5 transition-colors duration-200">
-              <ArrowRight className="w-4 h-4" />
+            {/* Text */}
+            <div>
+              <h3 className="text-base font-bold text-gray-900 leading-tight font-sans">
+                {card.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-500 leading-relaxed mt-0.5">
+                {card.subtitle}
+              </p>
             </div>
           </button>
         ))}
       </div>
 
-      {/* Bottom Stats Card */}
-      <div className="max-w-xl mx-auto px-4">
+      {/* Bottom Stats Card — expanded width */}
+      <div className="w-full">
         <div className="bg-white rounded-3xl border border-gray-200 shadow-xs divide-x divide-gray-100 grid grid-cols-3 p-5 text-center">
           {/* Column 1 */}
           <div className="flex flex-col items-center justify-center space-y-1 py-1">

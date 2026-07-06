@@ -118,7 +118,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             className="space-y-5"
           >
             {/* Card */}
-            <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-10 space-y-6">
+            <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-12 md:p-14 space-y-6">
 
               {/* Booking ID */}
               <div className="space-y-2">
@@ -217,7 +217,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             exit={{ opacity: 0, scale: 0.95 }}
             className="space-y-5"
           >
-            <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] space-y-6">
+            <div className="bg-white p-8 sm:p-12 md:p-14 rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] space-y-6">
               <div className="flex items-center justify-center gap-3 pb-4 border-b border-gray-100">
                 <div className="w-12 h-12 rounded-xl bg-[#7C1A36]/5 border border-[#7C1A36]/10 grid place-items-center">
                   <CheckCircle2 className="w-6 h-6 text-[#7C1A36]" />
@@ -287,7 +287,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white p-8 sm:p-12 rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] text-center space-y-6"
+            className="bg-white p-8 sm:p-12 md:p-14 rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] text-center space-y-6"
           >
             <motion.div
               initial={{ scale: 0 }}

@@ -200,7 +200,7 @@ export default function BookingFormCard({
       {/* Single continuous form card */}
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
 
-        <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-10 space-y-8">
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-12 md:p-14 space-y-8">
 
           {/* ─── GUEST DETAILS ─── */}
           <section className="space-y-5">
@@ -397,47 +397,48 @@ export default function BookingFormCard({
               </div>
             )}
           </section>
-        </div>
-
-        {/* Price Summary */}
-        {nights > 0 && selectedRoom && !loadingRooms && (
-          <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-10 space-y-4">
-            <h3 className="text-sm font-bold text-gray-900 text-left">Price Summary</h3>
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between text-gray-500">
-                <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} Night{nights > 1 ? 's' : ''}</span>
-                <span className="font-semibold text-gray-700">₹{subtotal.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between text-gray-500">
-                <span>Taxes & Fees (12%)</span>
-                <span className="font-semibold text-gray-700">₹{tax.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex justify-between text-base font-bold text-gray-900 pt-3 border-t border-gray-100">
-                <span>Total</span>
-                <span className="text-[#7C1A36]">₹{total.toLocaleString('en-IN')}</span>
+          {/* Price Summary */}
+          {nights > 0 && selectedRoom && !loadingRooms && (
+            <div className="pt-6 border-t border-gray-100 space-y-4">
+              <h3 className="text-sm font-bold text-gray-900 text-left">Price Summary</h3>
+              <div className="space-y-2 text-xs">
+                <div className="flex justify-between text-gray-500">
+                  <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} Night{nights > 1 ? 's' : ''}</span>
+                  <span className="font-semibold text-gray-700">₹{subtotal.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between text-gray-500">
+                  <span>Taxes & Fees (12%)</span>
+                  <span className="font-semibold text-gray-700">₹{tax.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between text-base font-bold text-gray-900 pt-3 border-t border-gray-100">
+                  <span>Total</span>
+                  <span className="text-[#7C1A36]">₹{total.toLocaleString('en-IN')}</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Error */}
-        {submitError && (
-          <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
-            <span className="text-red-600">⚠</span>
-            <p className="text-sm text-red-800 text-left">{submitError}</p>
-          </div>
-        )}
+          {/* Error */}
+          {submitError && (
+            <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
+              <span className="text-red-600">⚠</span>
+              <p className="text-sm text-red-800 text-left">{submitError}</p>
+            </div>
+          )}
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={isSubmitting || loadingRooms}
-          className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
-        >
-          {isSubmitting ? (
-            <><Loader2 className="w-5 h-5 animate-spin" />Processing...</>
-          ) : 'Confirm Booking'}
-        </button>
+          {/* Submit */}
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={isSubmitting || loadingRooms}
+              className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+            >
+              {isSubmitting ? (
+                <><Loader2 className="w-5 h-5 animate-spin" />Processing...</>
+              ) : 'Confirm Booking'}
+            </button>
+          </div>
+        </div>
       </form>
     </motion.div>
   )
