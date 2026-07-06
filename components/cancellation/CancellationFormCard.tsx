@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, Search, Loader2, CheckCircle2, AlertCircle, Calendar, User } from 'lucide-react'
+import { ChevronLeft, Search, Loader2, CheckCircle2, AlertCircle, Calendar, User, Phone, Hash } from 'lucide-react'
 
 interface CancellationFormCardProps {
   onBack: () => void
@@ -110,10 +110,10 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-3xl mx-auto space-y-8"
     >
-      {/* Title block */}
-      <div className="text-center px-1 space-y-1">
+      {/* Title block — left-aligned, "Booking" in maroon */}
+      <div className="text-left px-1 space-y-1">
         <h2 className="font-serif text-3xl font-semibold text-gray-900 leading-tight">
-          Cancel Booking
+          Cancel <span className="text-[#7C1A36]">Booking</span>
         </h2>
         <p className="text-sm text-gray-400">Enter your details to find your reservation</p>
       </div>
@@ -131,39 +131,51 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
           >
             {/* White card container for inputs */}
             <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-7">
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5">
+                {/* Booking ID */}
                 <div className="space-y-2 text-left">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <label className="block text-sm font-semibold text-gray-800">
                     Booking ID
                   </label>
-                  <input
-                    type="text"
-                    placeholder="BK-XXXXXX"
-                    {...register('bookingId', {
-                      required: 'Booking ID is required',
-                      pattern: { value: /^BK-/, message: 'Must start with BK-' }
-                    })}
-                    className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4.5 px-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
-                  />
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36]">
+                      <Hash className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="BK-XXXXXX"
+                      {...register('bookingId', {
+                        required: 'Booking ID is required',
+                        pattern: { value: /^BK-/, message: 'Must start with BK-' }
+                      })}
+                      className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4 pl-12 pr-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+                    />
+                  </div>
                   {errors.bookingId && (
                     <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.bookingId.message}</p>
                   )}
                 </div>
 
+                {/* Phone Number */}
                 <div className="space-y-2 text-left">
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <label className="block text-sm font-semibold text-gray-800">
                     Phone Number
                   </label>
-                  <input
-                    type="tel"
-                    placeholder="+91 98765 43210"
-                    inputMode="tel"
-                    {...register('phone', {
-                      required: 'Phone number is required',
-                      minLength: { value: 10, message: 'Invalid phone number' }
-                    })}
-                    className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4.5 px-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
-                  />
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36]">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <input
+                      type="tel"
+                      placeholder="+91 98765 43210"
+                      inputMode="tel"
+                      {...register('phone', {
+                        required: 'Phone number is required',
+                        minLength: { value: 10, message: 'Invalid phone number' }
+                      })}
+                      className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4 pl-12 pr-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+                    />
+                  </div>
                   {errors.phone && (
                     <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.phone.message}</p>
                   )}

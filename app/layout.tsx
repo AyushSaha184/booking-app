@@ -15,7 +15,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,      // prevent iOS double-tap zoom
   userScalable: false,
-  themeColor: '#0f0f0f',
+  themeColor: '#FAFAF8',
   viewportFit: 'cover', // needed for safe-area-inset on notched phones
 }
 

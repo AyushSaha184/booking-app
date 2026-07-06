@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, XCircle, Image as ImageIcon, Star, MapPin } from 'lucide-react'
+import { Calendar, XCircle, Image as ImageIcon, Star, MapPin, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export type ChatView = 'welcome' | 'booking' | 'cancellation' | 'photos'
@@ -38,18 +38,18 @@ const CARDS: CardConfig[] = [
     icon: <XCircle className="w-5 h-5" />,
     title: 'Cancel Booking',
     subtitle: 'Manage your reservation',
-    iconColor: 'text-gray-500',
-    iconBg: 'bg-gray-100',
-    iconBorder: 'border-gray-200',
+    iconColor: 'text-[#7C1A36]',
+    iconBg: 'bg-[#7C1A36]/5',
+    iconBorder: 'border-[#7C1A36]/15',
   },
   {
     view: 'photos',
     icon: <ImageIcon className="w-5 h-5" />,
     title: 'View Gallery',
     subtitle: 'Explore our resort',
-    iconColor: 'text-[#D4A574]',
-    iconBg: 'bg-[#D4A574]/10',
-    iconBorder: 'border-[#D4A574]/20',
+    iconColor: 'text-[#7C1A36]',
+    iconBg: 'bg-[#7C1A36]/5',
+    iconBorder: 'border-[#7C1A36]/15',
   },
 ]
 
@@ -109,10 +109,10 @@ const ClocheIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
     <div className="w-full space-y-8 py-4">
-      {/* Hero Section */}
-      <div className="text-center space-y-4 px-4">
+      {/* Hero Section — left-aligned */}
+      <div className="space-y-4 px-4">
         {/* Location Tag */}
-        <div className="inline-flex items-center gap-1.5 justify-center text-xs font-semibold tracking-wider text-[#A12444] uppercase">
+        <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#A12444] uppercase">
           <MapPin className="w-3.5 h-3.5 text-[#A12444]" />
           <span>Dorshi Holiday Resort</span>
         </div>
@@ -125,13 +125,13 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
             <span className="text-[#7C1A36]">Stay Awaits</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-500 max-w-md leading-relaxed">
             Premium rooms, fine dining, and memorable experiences crafted for discerning travelers.
           </p>
         </div>
 
         {/* Rating Block */}
-        <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
+        <div className="flex items-center gap-1 text-sm text-gray-600">
           <div className="flex gap-0.5 text-amber-500">
             <Star className="w-4 h-4 fill-current" />
             <Star className="w-4 h-4 fill-current" />
@@ -145,18 +145,18 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
             </div>
           </div>
           <span className="font-semibold ml-1">4.5</span>
-          <span className="text-gray-400 font-normal ml-0.5">•</span>
+          <span className="text-gray-400 font-normal ml-0.5">·</span>
           <span className="text-gray-400">100+ reviews</span>
         </div>
       </div>
 
       {/* Action Cards List */}
-      <div className="space-y-7 max-w-xl mx-auto px-4">
+      <div className="space-y-4 max-w-xl mx-auto px-4">
         {CARDS.map((card) => (
           <button
             key={card.view}
             onClick={() => onSelectView(card.view)}
-            className="w-full flex items-center bg-white rounded-3xl py-6 px-8 sm:py-8 sm:px-10 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
+            className="w-full flex items-center justify-between bg-white rounded-2xl py-5 px-6 border border-gray-200 shadow-xs hover:shadow-md active:scale-[0.99] transition-all duration-200 text-left cursor-pointer group"
           >
             <div className="flex items-center gap-4">
               {/* Icon Container */}
@@ -178,6 +178,11 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
                   {card.subtitle}
                 </p>
               </div>
+            </div>
+
+            {/* Right Arrow */}
+            <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center shrink-0 text-[#7C1A36] group-hover:bg-[#7C1A36]/5 transition-colors duration-200">
+              <ArrowRight className="w-4 h-4" />
             </div>
           </button>
         ))}

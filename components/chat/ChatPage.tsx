@@ -54,7 +54,7 @@ export default function ChatPage() {
     setView('welcome')
   }, [])
 
-  const containerMaxWidth = view === 'photos' ? 'max-w-6xl' : 'max-w-3xl'
+  const containerMaxWidth = view === 'photos' ? 'max-w-6xl' : 'max-w-2xl'
 
   return (
     <div className="min-h-screen w-full bg-background flex flex-col overflow-x-hidden">
