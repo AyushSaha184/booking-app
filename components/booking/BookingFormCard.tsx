@@ -21,6 +21,15 @@ interface BookingFormCardProps {
   onFetchRooms?: (checkIn: string, checkOut: string) => Promise<Room[]>
 }
 
+/* ── Shared input wrapper styles ───────────────────── */
+const inputWrapCls =
+  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-xl transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
+
+const iconCls = 'pl-4 pr-3 shrink-0 flex items-center text-[#7C1A36]'
+
+const inputCls =
+  'flex-1 py-4 pr-5 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+
 function RoomImagePlaceholder({ roomType }: { roomType: string }) {
   const colors: Record<string, string> = {
     suite: 'from-amber-600 to-orange-700',
@@ -126,6 +135,7 @@ export default function BookingFormCard({
     }
   }
 
+  /* ── Confirmed screen ──────────────────────────── */
   if (confirmed) {
     return (
       <motion.div
@@ -154,19 +164,13 @@ export default function BookingFormCard({
             />
           </svg>
         </motion.div>
-
         <div className="space-y-2">
           <p className="text-2xl font-serif text-gray-900">Booking Confirmed!</p>
-          <p className="text-sm text-gray-600">
-            Your reservation is confirmed. We look forward to welcoming you.
-          </p>
+          <p className="text-sm text-gray-600">Your reservation is confirmed. We look forward to welcoming you.</p>
           {bookingRef && (
-            <p className="mt-3 text-sm font-mono text-[#7C1A36] font-semibold tracking-wider">
-              Ref: {bookingRef}
-            </p>
+            <p className="mt-3 text-sm font-mono text-[#7C1A36] font-semibold tracking-wider">Ref: {bookingRef}</p>
           )}
         </div>
-
         <button
           onClick={onBack}
           className="mt-4 flex items-center gap-2 px-6 py-3 bg-[#7C1A36] text-white rounded-xl font-medium shadow-md hover:bg-[#651227] transition-all"
@@ -178,13 +182,14 @@ export default function BookingFormCard({
     )
   }
 
+  /* ── Main form ─────────────────────────────────── */
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-4xl mx-auto space-y-8"
+      className="w-full max-w-4xl mx-auto space-y-6"
     >
-      {/* Title block — left-aligned, "Your Stay" in maroon */}
+      {/* Title block — left-aligned */}
       <div className="text-left px-1 space-y-1">
         <h2 className="font-serif text-3xl font-semibold text-gray-900 leading-tight">
           Reserve <span className="text-[#7C1A36]">Your Stay</span>
@@ -193,114 +198,93 @@ export default function BookingFormCard({
       </div>
 
       {/* Single continuous form card */}
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8">
-        
-        <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-8">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
 
-          {/* ─── GUEST DETAILS SECTION ─── */}
-          <div className="space-y-5">
-            <h3 className="text-xs font-bold text-[#7C1A36] uppercase tracking-wider flex items-center gap-2">
-              <User className="w-4 h-4 text-[#7C1A36]" />
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-10 space-y-8">
+
+          {/* ─── GUEST DETAILS ─── */}
+          <section className="space-y-5">
+            <h3 className="flex items-center gap-2 text-xs font-bold text-[#7C1A36] uppercase tracking-wider">
+              <User className="w-4 h-4" />
               Guest Details
             </h3>
 
             {/* Full Name */}
-            <div className="space-y-2 text-left">
-              <label className="block text-sm font-semibold text-gray-800">
-                Full Name
-              </label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36]">
-                  <User className="w-5 h-5" />
-                </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-800">Full Name</label>
+              <div className={inputWrapCls}>
+                <span className={iconCls}><User className="w-5 h-5" /></span>
                 <input
                   type="text"
                   placeholder="John Doe"
                   {...register('guestName', { required: 'Name is required' })}
-                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4 pl-12 pr-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+                  className={inputCls}
                 />
               </div>
-              {errors.guestName && (
-                <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.guestName.message}</p>
-              )}
+              {errors.guestName && <p className="text-xs text-red-600 pl-1">⚠ {errors.guestName.message}</p>}
             </div>
 
             {/* Phone Number */}
-            <div className="space-y-2 text-left">
-              <label className="block text-sm font-semibold text-gray-800">
-                Phone Number
-              </label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36]">
-                  <Phone className="w-5 h-5" />
-                </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-800">Phone Number</label>
+              <div className={inputWrapCls}>
+                <span className={iconCls}><Phone className="w-5 h-5" /></span>
                 <input
                   type="tel"
                   placeholder="+91 98765 43210"
                   {...register('phone', { required: 'Phone is required' })}
-                  className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4 pl-12 pr-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 placeholder:text-[#C37A8C]/50"
+                  className={inputCls}
                 />
               </div>
-              {errors.phone && (
-                <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.phone.message}</p>
-              )}
+              {errors.phone && <p className="text-xs text-red-600 pl-1">⚠ {errors.phone.message}</p>}
             </div>
-          </div>
+          </section>
 
-          {/* Divider */}
           <div className="border-t border-gray-100" />
 
-          {/* ─── STAY DETAILS SECTION ─── */}
-          <div className="space-y-5">
-            <h3 className="text-xs font-bold text-[#7C1A36] uppercase tracking-wider flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#7C1A36]" />
+          {/* ─── STAY DETAILS ─── */}
+          <section className="space-y-5">
+            <h3 className="flex items-center gap-2 text-xs font-bold text-[#7C1A36] uppercase tracking-wider">
+              <Calendar className="w-4 h-4" />
               Stay Details
             </h3>
 
-            {/* Side-by-Side Date Pickers */}
+            {/* Date pickers */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 text-left">
+              <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-800">Check-in</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36] pointer-events-none">
-                    <Calendar className="w-5 h-5" />
-                  </div>
+                <div className={inputWrapCls}>
+                  <span className={iconCls}><Calendar className="w-5 h-5" /></span>
                   <input
                     type="date"
                     min={today}
                     {...register('checkIn')}
-                    className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4 pl-12 pr-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
+                    className={cn(inputCls, 'cursor-pointer')}
                   />
                 </div>
-                {errors.checkIn && (
-                  <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.checkIn.message}</p>
-                )}
+                {errors.checkIn && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkIn.message}</p>}
               </div>
 
-              <div className="space-y-2 text-left">
+              <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-800">Check-out</label>
-                <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#7C1A36] pointer-events-none">
-                    <Calendar className="w-5 h-5" />
-                  </div>
+                <div className={inputWrapCls}>
+                  <span className={iconCls}><Calendar className="w-5 h-5" /></span>
                   <input
                     type="date"
                     min={checkIn || today}
                     {...register('checkOut')}
-                    className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl py-4 pl-12 pr-5 text-base text-gray-900 outline-none transition-all duration-200 focus:bg-white focus:border-[#7C1A36] focus:ring-4 focus:ring-[#7C1A36]/5 cursor-pointer text-left"
+                    className={cn(inputCls, 'cursor-pointer')}
                   />
                 </div>
-                {errors.checkOut && (
-                  <p className="text-xs text-red-600 mt-1 pl-1">⚠ {errors.checkOut.message}</p>
-                )}
+                {errors.checkOut && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkOut.message}</p>}
               </div>
             </div>
 
-            {/* Stepper block */}
+            {/* Guest stepper */}
             <div className="flex items-center justify-between py-3">
               <div className="flex items-center gap-3">
                 <Users className="w-5 h-5 text-[#7C1A36]" strokeWidth={2} />
-                <div className="text-left">
+                <div>
                   <p className="text-base font-semibold text-gray-900 leading-tight">Guests</p>
                   <p className="text-xs text-gray-400 mt-0.5">Max {selectedRoom?.capacity || 4}</p>
                 </div>
@@ -309,8 +293,8 @@ export default function BookingFormCard({
                 <button
                   type="button"
                   onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
-                  className="w-11 h-11 rounded-full border border-gray-250 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/30 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
                   disabled={(guests || 1) <= 1}
+                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
                 >
                   −
                 </button>
@@ -318,50 +302,47 @@ export default function BookingFormCard({
                 <button
                   type="button"
                   onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (guests || 1) + 1))}
-                  className="w-11 h-11 rounded-full border border-gray-250 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/30 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
                   disabled={(guests || 1) >= (selectedRoom?.capacity || 4)}
+                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
                 >
                   +
                 </button>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Divider */}
           <div className="border-t border-gray-100" />
 
-          {/* ─── CHOOSE YOUR ROOM SECTION ─── */}
-          <div className="space-y-5">
-            <h3 className="text-xs font-bold text-[#7C1A36] uppercase tracking-wider flex items-center gap-2">
-              <BedDouble className="w-4 h-4 text-[#7C1A36]" />
+          {/* ─── CHOOSE YOUR ROOM ─── */}
+          <section className="space-y-5">
+            <h3 className="flex items-center gap-2 text-xs font-bold text-[#7C1A36] uppercase tracking-wider">
+              <BedDouble className="w-4 h-4" />
               Choose Your Room
               {rooms.length > 0 && (
-                <span className="ml-1.5 px-2 py-0.5 bg-[#7C1A36]/10 text-[#7C1A36] text-[10px] rounded-full normal-case font-semibold">
+                <span className="ml-1 px-2 py-0.5 bg-[#7C1A36]/10 text-[#7C1A36] text-[10px] rounded-full normal-case font-semibold">
                   {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} available
                 </span>
               )}
             </h3>
 
-            {/* Dashed placeholder when no dates chosen or no rooms found */}
+            {/* Placeholder */}
             {rooms.length === 0 && !loadingRooms && (
-              <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/40 rounded-2xl py-10 px-6 text-center flex items-center justify-center gap-2">
+              <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/60 rounded-2xl py-10 px-6 flex items-center justify-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
                 <span className="text-sm text-gray-400 font-medium">
-                  {checkIn && checkOut
-                    ? "No rooms available for the selected dates"
-                    : "Pick your dates above to see available rooms"}
+                  {checkIn && checkOut ? 'No rooms available for the selected dates' : 'Pick your dates above to see available rooms'}
                 </span>
               </div>
             )}
 
             {loadingRooms && (
-              <div className="flex flex-col items-center justify-center p-8 space-y-2 border border-dashed border-gray-200 rounded-2xl">
+              <div className="border border-dashed border-gray-200 rounded-2xl py-10 flex flex-col items-center gap-2">
                 <Loader2 className="w-6 h-6 text-[#7C1A36] animate-spin" />
                 <p className="text-xs text-gray-500">Searching for available rooms...</p>
               </div>
             )}
 
-            {/* Available Rooms list */}
+            {/* Available Rooms */}
             {rooms.length > 0 && !loadingRooms && (
               <div className="grid grid-cols-1 gap-4">
                 {rooms.map((room) => {
@@ -373,13 +354,12 @@ export default function BookingFormCard({
                       onClick={() => setValue('roomId', room.id)}
                       whileTap={{ scale: 0.99 }}
                       className={cn(
-                        "relative flex flex-col sm:flex-row bg-white rounded-2xl border-2 overflow-hidden transition-all text-left shadow-xs cursor-pointer",
+                        'relative flex flex-col sm:flex-row bg-white rounded-2xl border-2 overflow-hidden transition-all text-left shadow-xs cursor-pointer',
                         isSelected
-                          ? "border-[#7C1A36] ring-4 ring-[#7C1A36]/5 shadow-sm"
-                          : "border-gray-200 hover:border-gray-200 hover:shadow-sm"
+                          ? 'border-[#7C1A36] ring-4 ring-[#7C1A36]/5 shadow-sm'
+                          : 'border-gray-200 hover:shadow-sm'
                       )}
                     >
-                      {/* Room Image */}
                       <div className="sm:w-44 h-36 sm:h-auto bg-gray-100 relative overflow-hidden shrink-0">
                         <RoomImagePlaceholder roomType={room.type} />
                         {isSelected && (
@@ -388,31 +368,24 @@ export default function BookingFormCard({
                           </div>
                         )}
                       </div>
-
-                      {/* Room Details */}
                       <div className="flex-1 p-4 flex flex-col justify-between">
                         <div>
                           <h4 className="font-serif text-lg text-gray-900 mb-0.5">{room.name}</h4>
-                          <p className="text-xs text-gray-500 mb-2.5">
-                            {room.type} • {room.capacity} Guests
-                          </p>
+                          <p className="text-xs text-gray-500 mb-2.5">{room.type} • {room.capacity} Guests</p>
                           <div className="flex flex-wrap gap-1.5">
                             <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded-full font-medium">Free WiFi</span>
                             <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded-full font-medium">Breakfast</span>
                             <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded-full font-medium">AC</span>
                           </div>
                         </div>
-
                         <div className="flex justify-between items-end mt-4 pt-3 border-t border-gray-100">
                           <div>
                             <span className="text-xl font-bold text-[#7C1A36]">₹{room.pricePerNight.toLocaleString('en-IN')}</span>
                             <span className="text-xs text-gray-400 ml-0.5">/ night</span>
                           </div>
                           <span className={cn(
-                            "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all",
-                            isSelected
-                              ? "bg-[#7C1A36] text-white"
-                              : "bg-gray-100 text-gray-600"
+                            'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                            isSelected ? 'bg-[#7C1A36] text-white' : 'bg-gray-100 text-gray-600'
                           )}>
                             {isSelected ? 'Selected' : 'Select'}
                           </span>
@@ -423,13 +396,13 @@ export default function BookingFormCard({
                 })}
               </div>
             )}
-          </div>
+          </section>
         </div>
 
-        {/* Price Summary (shown conditionally as its own card) */}
+        {/* Price Summary */}
         {nights > 0 && selectedRoom && !loadingRooms && (
-          <div className="bg-white p-8 sm:p-10 rounded-3xl border border-gray-200/60 shadow-[0_2px_8px_rgba(0,0,0,0.01)] space-y-4">
-            <h3 className="text-sm font-bold text-gray-850 text-left">Price Summary</h3>
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-10 space-y-4">
+            <h3 className="text-sm font-bold text-gray-900 text-left">Price Summary</h3>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between text-gray-500">
                 <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} Night{nights > 1 ? 's' : ''}</span>
@@ -455,23 +428,16 @@ export default function BookingFormCard({
           </div>
         )}
 
-        {/* Submit Button */}
-        <div className="pt-0">
-          <button
-            type="submit"
-            disabled={isSubmitting || loadingRooms}
-            className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.12)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              'Confirm Booking'
-            )}
-          </button>
-        </div>
+        {/* Submit */}
+        <button
+          type="submit"
+          disabled={isSubmitting || loadingRooms}
+          className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          {isSubmitting ? (
+            <><Loader2 className="w-5 h-5 animate-spin" />Processing...</>
+          ) : 'Confirm Booking'}
+        </button>
       </form>
     </motion.div>
   )
