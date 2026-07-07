@@ -31,7 +31,9 @@
 }
 
 /* Base reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -52,22 +54,30 @@ body {
 }
 
 /* Form reset */
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
   font-family: inherit;
   color: inherit;
 }
 
-::placeholder { 
-  color: rgba(150, 60, 60, 0.45); 
+::placeholder {
+  color: rgba(150, 60, 60, 0.45);
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
 }
 
 /* Prevent iOS zoom on inputs */
 @media screen and (max-width: 768px) {
-  input, select, textarea {
+
+  input,
+  select,
+  textarea {
     font-size: 16px;
   }
 }
@@ -76,6 +86,7 @@ input:focus, select:focus, textarea:focus {
 input[type="date"] {
   position: relative;
 }
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   position: absolute;
   top: 0;
@@ -90,17 +101,24 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 /* Safe area for notched phones */
 @supports (padding: max(0px)) {
-  .safe-top { padding-top: max(env(safe-area-inset-top), 0px); }
-  .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(185, 60, 60, 0.2);
   border-radius: 3px;

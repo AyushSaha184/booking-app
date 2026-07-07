@@ -24,8 +24,8 @@ interface BookingFormCardProps {
 /* ── Shared helper badges ────────────────────────── */
 function RoomTypeBadge({ type }: { type: string }) {
   const styles: Record<string, string> = {
-    suite:    'bg-amber-50 text-amber-700 border-amber-200',
-    deluxe:   'bg-accent/5 text-accent border-accent/15',
+    suite: 'bg-amber-50 text-amber-700 border-amber-200',
+    deluxe: 'bg-accent/5 text-accent border-accent/15',
     standard: 'bg-gray-100 text-gray-600 border-gray-200',
   }
   return (
@@ -82,14 +82,14 @@ export default function BookingFormCard({
     mode: 'onBlur',
   })
 
-  const checkIn  = watch('checkIn')
+  const checkIn = watch('checkIn')
   const checkOut = watch('checkOut')
-  const roomIds  = watch('roomIds') ?? []
+  const roomIds = watch('roomIds') ?? []
 
   /* ── Fetch available rooms whenever dates change ── */
   useEffect(() => {
     if (!checkIn || !checkOut) return
-    const inDate  = new Date(checkIn)
+    const inDate = new Date(checkIn)
     const outDate = new Date(checkOut)
     if (outDate <= inDate) return
 
@@ -131,12 +131,7 @@ export default function BookingFormCard({
 
   /* ── Price calculation ──────────────────────────── */
   const selectedRooms = rooms.filter(r => roomIds.includes(r.id))
-  const nights = checkIn && checkOut
-    ? Math.max(1, Math.ceil(
-        (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
-      ))
-    : 0
-  const total = selectedRooms.length * 5000 * nights
+  const total = selectedRooms.length * 5000
 
   /* ── Submit ─────────────────────────────────────── */
   const onFormSubmit = async (data: FormValues) => {
@@ -226,18 +221,22 @@ export default function BookingFormCard({
         </h2>
         <p className="text-xs text-gray-400">Fill in your details to secure a room</p>
       </div>
+      <div
+        style={{ display: 'flex', flexDirection: 'column', gap: '20px', backgroundColor: 'red' }}
+        className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7"
+      ></div>
+      <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-4">
 
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7 space-y-5">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7 flex flex-col gap-5">
 
           {/* ─── GUEST DETAILS ─── */}
-          <section className="space-y-3">
+          <section className="flex flex-col gap-3">
             <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
               <User className="w-3.5 h-3.5" />
               Guest Details
             </h3>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <label className="block text-[13px] font-semibold text-gray-800">Full Name</label>
               <div className={inputWrapCls}>
                 <span className={iconCls}><User className="w-4 h-4" /></span>
@@ -251,7 +250,7 @@ export default function BookingFormCard({
               {errors.guestName && <p className="text-xs text-red-600 pl-1">⚠ {errors.guestName.message}</p>}
             </div>
 
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <label className="block text-[13px] font-semibold text-gray-800">Phone Number</label>
               <div className={inputWrapCls}>
                 <span className={iconCls}><Phone className="w-4 h-4" /></span>
@@ -269,14 +268,14 @@ export default function BookingFormCard({
           <div className="border-t border-gray-100" />
 
           {/* ─── STAY DETAILS ─── */}
-          <section className="space-y-3">
+          <section className="flex flex-col gap-3">
             <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
               <Calendar className="w-3.5 h-3.5" />
               Stay Details
             </h3>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <label className="block text-[13px] font-semibold text-gray-800">Check-in</label>
                 <DatePicker
                   value={checkIn}
@@ -288,7 +287,7 @@ export default function BookingFormCard({
                 {errors.checkIn && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkIn.message}</p>}
               </div>
 
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <label className="block text-[13px] font-semibold text-gray-800">Check-out</label>
                 <DatePicker
                   value={checkOut}
@@ -305,7 +304,7 @@ export default function BookingFormCard({
           <div className="border-t border-gray-100" />
 
           {/* ─── CHOOSE YOUR ROOMS ─── */}
-          <section className="space-y-3">
+          <section className="flex flex-col gap-3">
             <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
               <BedDouble className="w-3.5 h-3.5" />
               Choose Your Room{roomIds.length > 1 ? 's' : ''}
@@ -352,7 +351,7 @@ export default function BookingFormCard({
 
             {/* Room grid */}
             {rooms.length > 0 && !loadingRooms && (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-1 gap-3">
                   {rooms.map((room) => {
                     const isSelected = roomIds.includes(room.id)
@@ -403,22 +402,21 @@ export default function BookingFormCard({
                   })}
                 </div>
 
-                {/* Real-time total calculation line */}
-                {roomIds.length > 0 && (
-                  <div className="flex items-center justify-between p-3 bg-accent/[0.03] border border-accent/10 rounded-xl animate-in fade-in duration-200 mt-3">
-                    <div className="text-left">
-                      <p className="text-[13px] font-semibold text-gray-800">
-                        {roomIds.length} Room{roomIds.length > 1 ? 's' : ''} Selected
-                      </p>
-                      <p className="text-[10px] text-gray-400">
-                        ₹5,000 per room {nights > 0 ? `× ${nights} night${nights > 1 ? 's' : ''}` : ''} · No taxes
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Total Price</p>
-                      <p className="text-sm font-bold text-accent">
-                        ₹{total.toLocaleString('en-IN')}
-                      </p>
+                {/* ─── PRICE SUMMARY ─── */}
+                {selectedRooms.length > 0 && (
+                  <div className="pt-4 border-t border-gray-100 space-y-3 mt-3">
+                    <h3 className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Price Summary</h3>
+                    <div className="space-y-1.5 text-xs">
+                      <div className="flex justify-between text-gray-500">
+                        <span>{selectedRooms.length} Room{selectedRooms.length > 1 ? 's' : ''} × ₹5,000 / night</span>
+                        <span className="font-semibold text-gray-700">
+                          ₹{total.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
+                        <span>Total (per night)</span>
+                        <span className="text-accent">₹{total.toLocaleString('en-IN')}</span>
+                      </div>
                     </div>
                   </div>
                 )}
