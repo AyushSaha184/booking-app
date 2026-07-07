@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion } from 'framer-motion'
 import { User, ChevronLeft, Loader2, BedDouble, Calendar, Check, Phone, AlertCircle } from 'lucide-react'
+import DatePicker from '@/components/ui/DatePicker'
 import { CreateMultiBookingSchema } from '@/lib/validation'
 import { checkmarkDraw, bounceIn } from '@/lib/animations'
 import { cn } from '@/lib/utils'
@@ -134,9 +135,7 @@ export default function BookingFormCard({
         (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
       ))
     : 0
-  const subtotal = selectedRooms.reduce((sum, r) => sum + r.pricePerNight * nights, 0)
-  const tax      = Math.round(subtotal * 0.12)
-  const total    = subtotal + tax
+  const total = selectedRooms.length * 5000 * nights
 
   /* ── Submit ─────────────────────────────────────── */
   const onFormSubmit = async (data: FormValues) => {
@@ -278,29 +277,23 @@ export default function BookingFormCard({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="block text-[13px] font-semibold text-gray-800">Check-in</label>
-                <div className={inputWrapCls}>
-                  <span className={iconCls}><Calendar className="w-4 h-4" /></span>
-                  <input
-                    type="date"
-                    min={today}
-                    {...register('checkIn')}
-                    className={cn(inputCls, 'cursor-pointer')}
-                  />
-                </div>
+                <DatePicker
+                  value={checkIn}
+                  onChange={(val) => setValue('checkIn', val, { shouldValidate: true })}
+                  min={today}
+                  placeholder="dd/mm/yyyy"
+                />
                 {errors.checkIn && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkIn.message}</p>}
               </div>
 
               <div className="space-y-1">
                 <label className="block text-[13px] font-semibold text-gray-800">Check-out</label>
-                <div className={inputWrapCls}>
-                  <span className={iconCls}><Calendar className="w-4 h-4" /></span>
-                  <input
-                    type="date"
-                    min={checkIn || today}
-                    {...register('checkOut')}
-                    className={cn(inputCls, 'cursor-pointer')}
-                  />
-                </div>
+                <DatePicker
+                  value={checkOut}
+                  onChange={(val) => setValue('checkOut', val, { shouldValidate: true })}
+                  min={checkIn || today}
+                  placeholder="dd/mm/yyyy"
+                />
                 {errors.checkOut && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkOut.message}</p>}
               </div>
             </div>
@@ -356,82 +349,81 @@ export default function BookingFormCard({
 
             {/* Room grid */}
             {rooms.length > 0 && !loadingRooms && (
-              <div className="grid grid-cols-1 gap-3">
-                {rooms.map((room) => {
-                  const isSelected = roomIds.includes(room.id)
-                  return (
-                    <motion.button
-                      key={room.id}
-                      type="button"
-                      onClick={() => toggleRoom(room.id)}
-                      whileTap={{ scale: 0.99 }}
-                      className={cn(
-                        'relative flex items-center gap-4 bg-white rounded-xl border-2 p-3.5 transition-all text-left cursor-pointer',
-                        isSelected
-                          ? 'border-[#7C1A36] ring-4 ring-[#7C1A36]/5 shadow-sm bg-[#7C1A36]/[0.02]'
-                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                      )}
-                    >
-                      {/* Checkbox indicator */}
-                      <div className={cn(
-                        'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
-                        isSelected
-                          ? 'bg-[#7C1A36] border-[#7C1A36]'
-                          : 'border-gray-300 bg-white'
-                      )}>
-                        {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-                      </div>
-
-                      {/* Room info */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <h4 className="font-semibold text-[13px] text-gray-900 truncate">{room.name}</h4>
-                          <RoomTypeBadge type={room.type} />
+              <div className="space-y-3">
+                <div className="grid grid-cols-1 gap-3">
+                  {rooms.map((room) => {
+                    const isSelected = roomIds.includes(room.id)
+                    return (
+                      <motion.button
+                        key={room.id}
+                        type="button"
+                        onClick={() => toggleRoom(room.id)}
+                        whileTap={{ scale: 0.99 }}
+                        className={cn(
+                          'relative flex items-center gap-4 bg-white rounded-xl border-2 p-3.5 transition-all text-left cursor-pointer',
+                          isSelected
+                            ? 'border-[#7C1A36] ring-4 ring-[#7C1A36]/5 shadow-sm bg-[#7C1A36]/[0.02]'
+                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                        )}
+                      >
+                        {/* Checkbox indicator */}
+                        <div className={cn(
+                          'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                          isSelected
+                            ? 'bg-[#7C1A36] border-[#7C1A36]'
+                            : 'border-gray-300 bg-white'
+                        )}>
+                          {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                         </div>
-                        <p className="text-[11px] text-gray-500">
-                          Capacity: {room.capacity} {room.capacity === 1 ? 'guest' : 'guests'}
-                          {room.description ? ` · ${room.description}` : ''}
-                        </p>
-                      </div>
 
-                      {/* Price */}
-                      <div className="text-right shrink-0">
-                        <p className="text-base font-bold text-[#7C1A36]">
-                          ₹{room.pricePerNight.toLocaleString('en-IN')}
-                        </p>
-                        <p className="text-[10px] text-gray-400">/ night</p>
-                      </div>
-                    </motion.button>
-                  )
-                })}
+                        {/* Room info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <h4 className="font-semibold text-[13px] text-gray-900 truncate">{room.name}</h4>
+                            <RoomTypeBadge type={room.type} />
+                          </div>
+                          <p className="text-[11px] text-gray-500">
+                            Capacity: {room.capacity} {room.capacity === 1 ? 'guest' : 'guests'}
+                            {room.description ? ` · ${room.description}` : ''}
+                          </p>
+                        </div>
+
+                        {/* Price */}
+                        <div className="text-right shrink-0">
+                          <p className="text-base font-bold text-[#7C1A36]">
+                            ₹{room.pricePerNight.toLocaleString('en-IN')}
+                          </p>
+                          <p className="text-[10px] text-gray-400">/ night</p>
+                        </div>
+                      </motion.button>
+                    )
+                  })}
+                </div>
+
+                {/* Real-time total calculation line */}
+                {roomIds.length > 0 && (
+                  <div className="flex items-center justify-between p-3 bg-[#7C1A36]/[0.03] border border-[#7C1A36]/10 rounded-xl animate-in fade-in duration-200 mt-3">
+                    <div className="text-left">
+                      <p className="text-[13px] font-semibold text-gray-800">
+                        {roomIds.length} Room{roomIds.length > 1 ? 's' : ''} Selected
+                      </p>
+                      <p className="text-[10px] text-gray-400">
+                        ₹5,000 per room {nights > 0 ? `× ${nights} night${nights > 1 ? 's' : ''}` : ''} · No taxes
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Total Price</p>
+                      <p className="text-sm font-bold text-[#7C1A36]">
+                        ₹{total.toLocaleString('en-IN')}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </section>
 
-          {/* ─── PRICE SUMMARY ─── */}
-          {selectedRooms.length > 0 && nights > 0 && (
-            <div className="pt-4 border-t border-gray-100 space-y-3">
-              <h3 className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Price Summary</h3>
-              <div className="space-y-1.5 text-xs">
-                {selectedRooms.map(r => (
-                  <div key={r.id} className="flex justify-between text-gray-500">
-                    <span>{r.name} × {nights} night{nights > 1 ? 's' : ''}</span>
-                    <span className="font-semibold text-gray-700">
-                      ₹{(r.pricePerNight * nights).toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                ))}
-                <div className="flex justify-between text-gray-500 pt-1">
-                  <span>Taxes &amp; Fees (12%)</span>
-                  <span className="font-semibold text-gray-700">₹{tax.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
-                  <span>Total</span>
-                  <span className="text-[#7C1A36]">₹{total.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {/* ─── ERROR ─── */}
           {submitError && (
