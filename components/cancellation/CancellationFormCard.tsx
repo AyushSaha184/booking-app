@@ -31,12 +31,12 @@ function formatDate(dateStr: string) {
 
 /* ── Shared input styles ───────────────────────────── */
 const inputWrapCls =
-  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-xl overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
+  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
 
-const iconCls = 'w-12 h-12 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
+const iconCls = 'w-10 h-10 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
 
 const inputCls =
-  'flex-1 h-12 px-4 bg-transparent text-sm text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+  'flex-1 h-10 px-3 bg-transparent text-[13px] text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
 export default function CancellationFormCard({ onBack }: CancellationFormCardProps) {
   const [step, setStep] = useState<'form' | 'searching' | 'found' | 'success' | 'error'>('form')
@@ -95,14 +95,14 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-3xl mx-auto space-y-6"
+      className="w-full max-w-3xl mx-auto space-y-4"
     >
       {/* Title block — left-aligned */}
-      <div className="text-left px-1 space-y-1">
-        <h2 className="font-serif text-3xl font-semibold text-gray-900 leading-tight">
+      <div className="text-left px-1 space-y-0.5">
+        <h2 className="font-serif text-2xl font-semibold text-gray-900 leading-tight">
           Cancel <span className="text-[#7C1A36]">Booking</span>
         </h2>
-        <p className="text-sm text-gray-400">Enter your details to find your reservation</p>
+        <p className="text-xs text-gray-400">Enter your details to find your reservation</p>
       </div>
 
       <AnimatePresence mode="wait">
@@ -115,16 +115,16 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
             onSubmit={handleSubmit(handleSearch)}
-            className="space-y-5"
+            className="space-y-4"
           >
             {/* Card */}
-            <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-12 md:p-14 space-y-6">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7 space-y-4">
 
               {/* Booking ID */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-800">Booking ID</label>
+              <div className="space-y-1">
+                <label className="block text-[13px] font-semibold text-gray-800">Booking ID</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Hash className="w-[18px] h-[18px]" /></span>
+                  <span className={iconCls}><Hash className="w-4 h-4" /></span>
                   <input
                     type="text"
                     placeholder="BK-XXXXXX"
@@ -139,10 +139,10 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
               </div>
 
               {/* Phone Number */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-800">Phone Number</label>
+              <div className="space-y-1">
+                <label className="block text-[13px] font-semibold text-gray-800">Phone Number</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Phone className="w-[18px] h-[18px]" /></span>
+                  <span className={iconCls}><Phone className="w-4 h-4" /></span>
                   <input
                     type="tel"
                     inputMode="tel"
@@ -181,7 +181,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full h-12 rounded-xl bg-[#7C1A36] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <><Loader2 className="w-5 h-5 animate-spin" />Searching...</>
@@ -217,7 +217,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             exit={{ opacity: 0, scale: 0.95 }}
             className="space-y-5"
           >
-            <div className="bg-white p-8 sm:p-12 md:p-14 rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] space-y-6">
+            <div className="bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] space-y-5">
               <div className="flex items-center justify-center gap-3 pb-4 border-b border-gray-100">
                 <div className="w-12 h-12 rounded-xl bg-[#7C1A36]/5 border border-[#7C1A36]/10 grid place-items-center">
                   <CheckCircle2 className="w-6 h-6 text-[#7C1A36]" />
@@ -266,13 +266,13 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             <div className="flex gap-4">
               <button
                 onClick={() => setStep('form')}
-                className="flex-1 h-16 rounded-2xl bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-all cursor-pointer"
+                className="flex-1 h-12 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-all cursor-pointer"
               >
                 Go Back
               </button>
               <button
                 onClick={handleCancel}
-                className="flex-1 h-16 rounded-2xl bg-[#7C1A36] text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] transition-all cursor-pointer"
+                className="flex-1 h-12 rounded-xl bg-[#7C1A36] text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] transition-all cursor-pointer"
               >
                 Confirm Cancellation
               </button>
@@ -287,7 +287,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white p-8 sm:p-12 md:p-14 rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] text-center space-y-6"
+            className="bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] text-center space-y-5"
           >
             <motion.div
               initial={{ scale: 0 }}
@@ -305,7 +305,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             </div>
             <button
               onClick={onBack}
-              className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] transition-all cursor-pointer"
+              className="w-full h-12 rounded-xl bg-[#7C1A36] text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] transition-all cursor-pointer"
             >
               Return to Home
             </button>

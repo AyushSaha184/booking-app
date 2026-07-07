@@ -23,12 +23,12 @@ interface BookingFormCardProps {
 
 /* ── Shared input wrapper styles ───────────────────── */
 const inputWrapCls =
-  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-xl overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
+  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
 
-const iconCls = 'w-12 h-12 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
+const iconCls = 'w-10 h-10 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
 
 const inputCls =
-  'flex-1 h-12 px-4 bg-transparent text-sm text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+  'flex-1 h-10 px-3 bg-transparent text-[13px] text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
 function RoomImagePlaceholder({ roomType }: { roomType: string }) {
   const colors: Record<string, string> = {
@@ -187,33 +187,33 @@ export default function BookingFormCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-4xl mx-auto space-y-6"
+      className="w-full max-w-4xl mx-auto space-y-4"
     >
       {/* Title block — left-aligned */}
-      <div className="text-left px-1 space-y-1">
-        <h2 className="font-serif text-3xl font-semibold text-gray-900 leading-tight">
+      <div className="text-left px-1 space-y-0.5">
+        <h2 className="font-serif text-2xl font-semibold text-gray-900 leading-tight">
           Reserve <span className="text-[#7C1A36]">Your Stay</span>
         </h2>
-        <p className="text-sm text-gray-400">Fill in your details to secure a room</p>
+        <p className="text-xs text-gray-400">Fill in your details to secure a room</p>
       </div>
 
       {/* Single continuous form card */}
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
 
-        <div className="bg-white rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-8 sm:p-12 md:p-14 space-y-8">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7 space-y-5">
 
           {/* ─── GUEST DETAILS ─── */}
-          <section className="space-y-5">
-            <h3 className="flex items-center gap-2 text-xs font-bold text-[#7C1A36] uppercase tracking-wider">
-              <User className="w-4 h-4" />
+          <section className="space-y-3">
+            <h3 className="flex items-center gap-2 text-[11px] font-bold text-[#7C1A36] uppercase tracking-wider">
+              <User className="w-3.5 h-3.5" />
               Guest Details
             </h3>
 
             {/* Full Name */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-800">Full Name</label>
+            <div className="space-y-1">
+              <label className="block text-[13px] font-semibold text-gray-800">Full Name</label>
               <div className={inputWrapCls}>
-                <span className={iconCls}><User className="w-[18px] h-[18px]" /></span>
+                <span className={iconCls}><User className="w-4 h-4" /></span>
                 <input
                   type="text"
                   placeholder="John Doe"
@@ -225,10 +225,10 @@ export default function BookingFormCard({
             </div>
 
             {/* Phone Number */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-800">Phone Number</label>
+            <div className="space-y-1">
+              <label className="block text-[13px] font-semibold text-gray-800">Phone Number</label>
               <div className={inputWrapCls}>
-                <span className={iconCls}><Phone className="w-[18px] h-[18px]" /></span>
+                <span className={iconCls}><Phone className="w-4 h-4" /></span>
                 <input
                   type="tel"
                   placeholder="+91 98765 43210"
@@ -243,18 +243,18 @@ export default function BookingFormCard({
           <div className="border-t border-gray-100" />
 
           {/* ─── STAY DETAILS ─── */}
-          <section className="space-y-5">
-            <h3 className="flex items-center gap-2 text-xs font-bold text-[#7C1A36] uppercase tracking-wider">
-              <Calendar className="w-4 h-4" />
+          <section className="space-y-3">
+            <h3 className="flex items-center gap-2 text-[11px] font-bold text-[#7C1A36] uppercase tracking-wider">
+              <Calendar className="w-3.5 h-3.5" />
               Stay Details
             </h3>
 
             {/* Date pickers */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-800">Check-in</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="block text-[13px] font-semibold text-gray-800">Check-in</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Calendar className="w-[18px] h-[18px]" /></span>
+                  <span className={iconCls}><Calendar className="w-4 h-4" /></span>
                   <input
                     type="date"
                     min={today}
@@ -265,10 +265,10 @@ export default function BookingFormCard({
                 {errors.checkIn && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkIn.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-gray-800">Check-out</label>
+              <div className="space-y-1">
+                <label className="block text-[13px] font-semibold text-gray-800">Check-out</label>
                 <div className={inputWrapCls}>
-                  <span className={iconCls}><Calendar className="w-[18px] h-[18px]" /></span>
+                  <span className={iconCls}><Calendar className="w-4 h-4" /></span>
                   <input
                     type="date"
                     min={checkIn || today}
@@ -281,29 +281,29 @@ export default function BookingFormCard({
             </div>
 
             {/* Guest stepper */}
-            <div className="flex items-center justify-between py-3">
+            <div className="flex items-center justify-between py-2">
               <div className="flex items-center gap-3">
-                <Users className="w-[18px] h-[18px] text-[#7C1A36]" strokeWidth={2} />
+                <Users className="w-4 h-4 text-[#7C1A36]" strokeWidth={2} />
                 <div>
-                  <p className="text-sm font-semibold text-gray-900 leading-tight">Guests</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Max {selectedRoom?.capacity || 4}</p>
+                  <p className="text-[13px] font-semibold text-gray-900 leading-tight">Guests</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">Max {selectedRoom?.capacity || 4}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <button
                   type="button"
                   onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
                   disabled={(guests || 1) <= 1}
-                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
+                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-sm font-medium"
                 >
                   −
                 </button>
-                <span className="text-base font-bold text-gray-900 w-4 text-center">{guests || 1}</span>
+                <span className="text-sm font-bold text-gray-900 w-4 text-center">{guests || 1}</span>
                 <button
                   type="button"
                   onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (guests || 1) + 1))}
                   disabled={(guests || 1) >= (selectedRoom?.capacity || 4)}
-                  className="w-11 h-11 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-lg font-medium"
+                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-sm font-medium"
                 >
                   +
                 </button>
@@ -314,9 +314,9 @@ export default function BookingFormCard({
           <div className="border-t border-gray-100" />
 
           {/* ─── CHOOSE YOUR ROOM ─── */}
-          <section className="space-y-5">
-            <h3 className="flex items-center gap-2 text-xs font-bold text-[#7C1A36] uppercase tracking-wider">
-              <BedDouble className="w-4 h-4" />
+          <section className="space-y-3">
+            <h3 className="flex items-center gap-2 text-[11px] font-bold text-[#7C1A36] uppercase tracking-wider">
+              <BedDouble className="w-3.5 h-3.5" />
               Choose Your Room
               {rooms.length > 0 && (
                 <span className="ml-1 px-2 py-0.5 bg-[#7C1A36]/10 text-[#7C1A36] text-[10px] rounded-full normal-case font-semibold">
@@ -327,9 +327,9 @@ export default function BookingFormCard({
 
             {/* Placeholder */}
             {rooms.length === 0 && !loadingRooms && (
-              <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/60 rounded-2xl py-10 px-6 flex items-center justify-center gap-2">
-                <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
-                <span className="text-sm text-gray-400 font-medium">
+              <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/60 rounded-xl py-6 px-4 flex items-center justify-center gap-2">
+                <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <span className="text-xs text-gray-400 font-medium">
                   {checkIn && checkOut ? 'No rooms available for the selected dates' : 'Pick your dates above to see available rooms'}
                 </span>
               </div>
@@ -427,11 +427,11 @@ export default function BookingFormCard({
           )}
 
           {/* Submit */}
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="submit"
               disabled={isSubmitting || loadingRooms}
-              className="w-full h-16 rounded-2xl bg-[#7C1A36] text-white text-base font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full h-12 rounded-xl bg-[#7C1A36] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <><Loader2 className="w-5 h-5 animate-spin" />Processing...</>
