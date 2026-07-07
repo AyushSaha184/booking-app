@@ -108,9 +108,9 @@ const ClocheIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) {
   return (
-    <div className="w-full space-y-16">
+    <div className="w-full flex flex-col gap-16">
       {/* Hero Section — centered */}
-      <div className="text-center flex flex-col items-center justify-center space-y-4 px-4">
+      <div className="text-center flex flex-col items-center justify-center gap-4 px-4">
         {/* Location Tag */}
         <div className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#A12444] uppercase justify-center">
           <MapPin className="w-3.5 h-3.5 text-[#A12444]" />
@@ -118,7 +118,7 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
         </div>
 
         {/* Main Heading */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <h1 className="text-4xl sm:text-5xl font-serif text-gray-900 leading-tight">
             Your Dream
             <br />
@@ -151,7 +151,7 @@ export default function SuggestionChips({ onSelectView }: SuggestionChipsProps) 
       </div>
 
       {/* Action Cards List — expanded width and tight vertical spacing */}
-      <div className="space-y-3 w-full">
+      <div className="w-full flex flex-col gap-3">
         {CARDS.map((card) => (
           <button
             key={card.view}

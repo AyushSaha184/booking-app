@@ -21,19 +21,11 @@ interface BookingFormCardProps {
   onFetchRooms?: (checkIn: string, checkOut: string) => Promise<Room[]>
 }
 
-/* ── Shared input wrapper styles ───────────────────── */
-const inputWrapCls =
-  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
-
-const iconCls = 'w-10 h-10 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
-
-const inputCls =
-  'flex-1 h-10 px-3 bg-transparent text-[13px] text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
-
+/* ── Shared helper badges ────────────────────────── */
 function RoomTypeBadge({ type }: { type: string }) {
   const styles: Record<string, string> = {
     suite:    'bg-amber-50 text-amber-700 border-amber-200',
-    deluxe:   'bg-[#7C1A36]/5 text-[#7C1A36] border-[#7C1A36]/15',
+    deluxe:   'bg-accent/5 text-accent border-accent/15',
     standard: 'bg-gray-100 text-gray-600 border-gray-200',
   }
   return (
@@ -52,6 +44,15 @@ export default function BookingFormCard({
   onBack,
   onFetchRooms,
 }: BookingFormCardProps) {
+  /* ── Fast Refresh (HMR) local style classes mapped to theme colors ── */
+  const inputWrapCls =
+    'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/5'
+
+  const iconCls = 'w-11 h-11 flex items-center justify-center border-r border-gray-200 shrink-0 text-accent transition-colors focus-within:border-accent'
+
+  const inputCls =
+    'flex-1 h-11 px-3 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+
   const [submitError, setSubmitError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
   const [bookingRef, setBookingRef] = useState('')
@@ -195,14 +196,14 @@ export default function BookingFormCard({
               : 'Your reservation is confirmed. We look forward to welcoming you.'}
           </p>
           {bookingRef && (
-            <p className="mt-3 text-sm font-mono text-[#7C1A36] font-semibold tracking-wider">
+            <p className="mt-3 text-sm font-mono text-accent font-semibold tracking-wider">
               Ref: {bookingRef}
             </p>
           )}
         </div>
         <button
           onClick={onBack}
-          className="mt-4 flex items-center gap-2 px-6 py-3 bg-[#7C1A36] text-white rounded-xl font-medium shadow-md hover:bg-[#651227] transition-all"
+          className="mt-4 flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-xl font-medium shadow-md hover:bg-brand-red-hover transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
           Return Home
@@ -221,7 +222,7 @@ export default function BookingFormCard({
       {/* Title block */}
       <div className="text-left px-1 space-y-0.5">
         <h2 className="font-serif text-2xl font-semibold text-gray-900 leading-tight">
-          Reserve <span className="text-[#7C1A36]">Your Stay</span>
+          Reserve <span className="text-accent">Your Stay</span>
         </h2>
         <p className="text-xs text-gray-400">Fill in your details to secure a room</p>
       </div>
@@ -231,7 +232,7 @@ export default function BookingFormCard({
 
           {/* ─── GUEST DETAILS ─── */}
           <section className="space-y-3">
-            <h3 className="flex items-center gap-2 text-[11px] font-bold text-[#7C1A36] uppercase tracking-wider">
+            <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
               <User className="w-3.5 h-3.5" />
               Guest Details
             </h3>
@@ -269,7 +270,7 @@ export default function BookingFormCard({
 
           {/* ─── STAY DETAILS ─── */}
           <section className="space-y-3">
-            <h3 className="flex items-center gap-2 text-[11px] font-bold text-[#7C1A36] uppercase tracking-wider">
+            <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
               <Calendar className="w-3.5 h-3.5" />
               Stay Details
             </h3>
@@ -282,6 +283,7 @@ export default function BookingFormCard({
                   onChange={(val) => setValue('checkIn', val, { shouldValidate: true })}
                   min={today}
                   placeholder="dd/mm/yyyy"
+                  align="left"
                 />
                 {errors.checkIn && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkIn.message}</p>}
               </div>
@@ -293,6 +295,7 @@ export default function BookingFormCard({
                   onChange={(val) => setValue('checkOut', val, { shouldValidate: true })}
                   min={checkIn || today}
                   placeholder="dd/mm/yyyy"
+                  align="right"
                 />
                 {errors.checkOut && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkOut.message}</p>}
               </div>
@@ -303,11 +306,11 @@ export default function BookingFormCard({
 
           {/* ─── CHOOSE YOUR ROOMS ─── */}
           <section className="space-y-3">
-            <h3 className="flex items-center gap-2 text-[11px] font-bold text-[#7C1A36] uppercase tracking-wider">
+            <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
               <BedDouble className="w-3.5 h-3.5" />
               Choose Your Room{roomIds.length > 1 ? 's' : ''}
               {rooms.length > 0 && (
-                <span className="ml-1 px-2 py-0.5 bg-[#7C1A36]/10 text-[#7C1A36] text-[10px] rounded-full normal-case font-semibold">
+                <span className="ml-1 px-2 py-0.5 bg-accent/10 text-accent text-[10px] rounded-full normal-case font-semibold">
                   {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} available
                 </span>
               )}
@@ -329,7 +332,7 @@ export default function BookingFormCard({
             {/* Loading state */}
             {loadingRooms && (
               <div className="border border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2">
-                <Loader2 className="w-5 h-5 text-[#7C1A36] animate-spin" />
+                <Loader2 className="w-5 h-5 text-accent animate-spin" />
                 <p className="text-xs text-gray-500">Searching available rooms...</p>
               </div>
             )}
@@ -362,7 +365,7 @@ export default function BookingFormCard({
                         className={cn(
                           'relative flex items-center gap-4 bg-white rounded-xl border-2 p-3.5 transition-all text-left cursor-pointer',
                           isSelected
-                            ? 'border-[#7C1A36] ring-4 ring-[#7C1A36]/5 shadow-sm bg-[#7C1A36]/[0.02]'
+                            ? 'border-accent ring-4 ring-accent/5 shadow-sm bg-accent/[0.02]'
                             : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                         )}
                       >
@@ -370,7 +373,7 @@ export default function BookingFormCard({
                         <div className={cn(
                           'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
                           isSelected
-                            ? 'bg-[#7C1A36] border-[#7C1A36]'
+                            ? 'bg-accent border-accent'
                             : 'border-gray-300 bg-white'
                         )}>
                           {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
@@ -390,7 +393,7 @@ export default function BookingFormCard({
 
                         {/* Price */}
                         <div className="text-right shrink-0">
-                          <p className="text-base font-bold text-[#7C1A36]">
+                          <p className="text-base font-bold text-accent">
                             ₹{room.pricePerNight.toLocaleString('en-IN')}
                           </p>
                           <p className="text-[10px] text-gray-400">/ night</p>
@@ -402,7 +405,7 @@ export default function BookingFormCard({
 
                 {/* Real-time total calculation line */}
                 {roomIds.length > 0 && (
-                  <div className="flex items-center justify-between p-3 bg-[#7C1A36]/[0.03] border border-[#7C1A36]/10 rounded-xl animate-in fade-in duration-200 mt-3">
+                  <div className="flex items-center justify-between p-3 bg-accent/[0.03] border border-accent/10 rounded-xl animate-in fade-in duration-200 mt-3">
                     <div className="text-left">
                       <p className="text-[13px] font-semibold text-gray-800">
                         {roomIds.length} Room{roomIds.length > 1 ? 's' : ''} Selected
@@ -413,7 +416,7 @@ export default function BookingFormCard({
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] uppercase font-bold tracking-wider text-gray-400">Total Price</p>
-                      <p className="text-sm font-bold text-[#7C1A36]">
+                      <p className="text-sm font-bold text-accent">
                         ₹{total.toLocaleString('en-IN')}
                       </p>
                     </div>
@@ -438,7 +441,7 @@ export default function BookingFormCard({
             <button
               type="submit"
               disabled={isSubmitting || loadingRooms || roomIds.length === 0}
-              className="w-full h-12 rounded-xl bg-[#7C1A36] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full h-12 rounded-xl bg-accent text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-brand-red-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <><Loader2 className="w-4 h-4 animate-spin" />Processing...</>

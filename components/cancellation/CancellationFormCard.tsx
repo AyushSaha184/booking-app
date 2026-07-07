@@ -29,16 +29,18 @@ function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-/* ── Shared input styles ───────────────────────────── */
-const inputWrapCls =
-  'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5'
 
-const iconCls = 'w-10 h-10 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36] transition-colors focus-within:border-[#7C1A36]'
-
-const inputCls =
-  'flex-1 h-10 px-3 bg-transparent text-[13px] text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
 export default function CancellationFormCard({ onBack }: CancellationFormCardProps) {
+  /* ── Fast Refresh (HMR) local style classes mapped to theme colors ── */
+  const inputWrapCls =
+    'flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/5'
+
+  const iconCls = 'w-11 h-11 flex items-center justify-center border-r border-gray-200 shrink-0 text-accent transition-colors focus-within:border-accent'
+
+  const inputCls =
+    'flex-1 h-11 px-3 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
+
   const [step, setStep] = useState<'form' | 'searching' | 'found' | 'success' | 'error'>('form')
   const [bookingDetails, setBookingDetails] = useState<LookupResult | null>(null)
   const [error, setError] = useState<string>('')
@@ -100,7 +102,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
       {/* Title block — left-aligned */}
       <div className="text-left px-1 space-y-0.5">
         <h2 className="font-serif text-2xl font-semibold text-gray-900 leading-tight">
-          Cancel <span className="text-[#7C1A36]">Booking</span>
+          Cancel <span className="text-accent">Booking</span>
         </h2>
         <p className="text-xs text-gray-400">Enter your details to find your reservation</p>
       </div>
@@ -181,7 +183,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full h-12 rounded-xl bg-[#7C1A36] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full h-12 rounded-xl bg-accent text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-brand-red-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <><Loader2 className="w-5 h-5 animate-spin" />Searching...</>
@@ -201,7 +203,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             exit={{ opacity: 0 }}
             className="bg-white p-12 rounded-3xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] flex flex-col items-center justify-center space-y-4"
           >
-            <Loader2 className="w-10 h-10 text-[#7C1A36] animate-spin" />
+            <Loader2 className="w-10 h-10 text-accent animate-spin" />
             <p className="text-gray-600 font-medium">
               {bookingDetails ? 'Processing cancellation...' : 'Finding your booking...'}
             </p>
@@ -219,8 +221,8 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
           >
             <div className="bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] space-y-5">
               <div className="flex items-center justify-center gap-3 pb-4 border-b border-gray-100">
-                <div className="w-12 h-12 rounded-xl bg-[#7C1A36]/5 border border-[#7C1A36]/10 grid place-items-center">
-                  <CheckCircle2 className="w-6 h-6 text-[#7C1A36]" />
+                <div className="w-12 h-12 rounded-xl bg-accent/5 border border-accent/10 grid place-items-center">
+                  <CheckCircle2 className="w-6 h-6 text-accent" />
                 </div>
                 <div className="text-center">
                   <h3 className="text-lg font-bold text-gray-900 leading-tight">Booking Found</h3>
@@ -272,7 +274,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
               </button>
               <button
                 onClick={handleCancel}
-                className="flex-1 h-12 rounded-xl bg-[#7C1A36] text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] transition-all cursor-pointer"
+                className="flex-1 h-12 rounded-xl bg-accent text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-brand-red-hover transition-all cursor-pointer"
               >
                 Confirm Cancellation
               </button>
@@ -305,7 +307,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             </div>
             <button
               onClick={onBack}
-              className="w-full h-12 rounded-xl bg-[#7C1A36] text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] transition-all cursor-pointer"
+              className="w-full h-12 rounded-xl bg-accent text-white font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-brand-red-hover transition-all cursor-pointer"
             >
               Return to Home
             </button>

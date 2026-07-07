@@ -17,6 +17,7 @@ interface DatePickerProps {
   placeholder?: string
   className?: string
   id?: string
+  align?: 'left' | 'right'      // alignment layout prop
 }
 
 function toYMD(d: Date): string {
@@ -35,7 +36,7 @@ function formatDisplay(ymd: string): string {
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })
 }
 
-export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/yyyy', className, id }: DatePickerProps) {
+export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/yyyy', className, id, align = 'left' }: DatePickerProps) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -131,13 +132,13 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-[#7C1A36] focus-within:ring-4 focus-within:ring-[#7C1A36]/5 cursor-pointer"
+        className="w-full flex items-center bg-[#FAFAF9] border border-gray-200 rounded-lg overflow-hidden transition-all duration-200 focus-within:bg-white focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/5 cursor-pointer"
       >
-        <span className="w-10 h-10 flex items-center justify-center border-r border-gray-200 shrink-0 text-[#7C1A36]">
+        <span className="w-11 h-11 flex items-center justify-center border-r border-gray-200 shrink-0 text-accent">
           <Calendar className="w-4 h-4" />
         </span>
         <span className={cn(
-          'flex-1 h-10 px-3 flex items-center text-[13px] text-left',
+          'flex-1 h-11 px-3 flex items-center text-base text-left',
           value ? 'text-gray-900' : 'text-[#C37A8C]/50'
         )}>
           {value ? formatDisplay(value) : placeholder}
@@ -146,9 +147,12 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
 
       {/* ── Calendar dropdown ──────────────────────── */}
       {open && (
-        <div className="absolute z-50 mt-1.5 left-0 right-0 sm:left-auto sm:right-auto sm:w-[280px] bg-white border border-gray-200 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] overflow-hidden animate-in fade-in-0 slide-in-from-top-1 duration-150">
+        <div className={cn(
+          "absolute z-50 mt-1.5 w-[280px] bg-white border border-gray-200 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.12)] overflow-hidden animate-in fade-in-0 slide-in-from-top-1 duration-150",
+          align === 'right' ? 'right-0' : 'left-0'
+        )}>
           {/* Month/Year header */}
-          <div className="flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-[#7C1A36] to-[#A12444]">
+          <div className="flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-accent to-brand-red-hover">
             <button
               type="button"
               onClick={goPrev}
@@ -197,9 +201,9 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
                   className={cn(
                     'w-full aspect-square rounded-lg text-xs font-medium flex items-center justify-center transition-all cursor-pointer',
                     isDisabled && 'text-gray-300 cursor-default pointer-events-none',
-                    !isDisabled && !isSelected && 'hover:bg-[#7C1A36]/5 hover:text-[#7C1A36]',
-                    isToday && !isSelected && cell.inMonth && 'font-bold text-[#7C1A36] ring-1 ring-[#7C1A36]/20',
-                    isSelected && 'bg-[#7C1A36] text-white font-bold shadow-sm',
+                    !isDisabled && !isSelected && 'hover:bg-accent/5 hover:text-accent',
+                    isToday && !isSelected && cell.inMonth && 'font-bold text-accent ring-1 ring-accent/20',
+                    isSelected && 'bg-accent text-white font-bold shadow-sm',
                     !cell.inMonth && !isDisabled && 'text-gray-300',
                   )}
                 >
@@ -218,7 +222,7 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
                 setViewYear(t.getFullYear())
                 setViewMonth(t.getMonth())
               }}
-              className="text-[11px] font-semibold text-[#7C1A36] hover:underline cursor-pointer"
+              className="text-[11px] font-semibold text-accent hover:underline cursor-pointer"
             >
               Today
             </button>

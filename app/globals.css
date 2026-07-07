@@ -68,7 +68,7 @@ input:focus, select:focus, textarea:focus {
 /* Prevent iOS zoom on inputs */
 @media screen and (max-width: 768px) {
   input, select, textarea {
-    font-size: 16px !important;
+    font-size: 16px;
   }
 }
 
