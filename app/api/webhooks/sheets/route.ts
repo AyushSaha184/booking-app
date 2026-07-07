@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { updateBookingFromSheet } from '@/lib/db/bookings'
+import { db } from '@/lib/db/client'
+import { bookings } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { logger } from '@/lib/logger'
 
 function timingSafeEqual(a: string, b: string): boolean {
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
       )
     }
 
-    let data: unknown
+    let data: any
     try {
       data = JSON.parse(body)
     } catch {
@@ -55,7 +58,47 @@ export async function POST(req: Request) {
       )
     }
 
-    // 3. Update the database
+    if (typeof data !== 'object' || data === null) {
+      return NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      )
+    }
+
+    // 3. Handle deletion action
+    if (data.action === 'delete' || data.action === 'remove') {
+      const bookingId = data.id || data.bookingId
+      if (typeof bookingId !== 'string' || !bookingId.startsWith('BK-')) {
+        return NextResponse.json(
+          { error: 'Invalid Booking ID format. Must start with BK-' },
+          { status: 400 }
+        )
+      }
+
+      logger.info('Sheets webhook requested booking deletion', { bookingId })
+
+      const [deleted] = await db()
+        .delete(bookings)
+        .where(eq(bookings.id, bookingId))
+        .returning()
+
+      if (!deleted) {
+        logger.warn('Sheets webhook deletion: booking not found', { bookingId })
+        return NextResponse.json(
+          { error: `Booking ${bookingId} not found` },
+          { status: 404 }
+        )
+      }
+
+      logger.info('Sheets webhook deleted booking successfully', { bookingId })
+      return NextResponse.json({
+        success: true,
+        deleted: true,
+        bookingId,
+      })
+    }
+
+    // 4. Update the database
     const result = await updateBookingFromSheet(data)
 
     if (!result.success) {

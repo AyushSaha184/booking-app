@@ -94,6 +94,12 @@ export async function cancelBooking(bookingId: string, phone: string) {
 
   const room = await getRoomById(updated.roomId)
 
+  // Sync the cancellation status to Google Sheets (non-blocking)
+  const { updateBookingStatusInSheet } = require('../sheets/sync')
+  updateBookingStatusInSheet(updated.id, 'cancelled').catch((err: any) => {
+    console.error('Google Sheets cancellation sync failed:', err)
+  })
+
   sendCancellationNotifications({
     bookingId: updated.id,
     guestName: updated.guestName,
@@ -128,14 +134,11 @@ export async function updateBookingFromSheet(data: unknown): Promise<
       .where(eq(bookings.id, validated.id))
       .limit(1)
 
-    if (!existing) {
-      return { success: false, error: `Booking ${validated.id} not found`, code: 'NOT_FOUND' }
-    }
-
     // If status is changing to confirmed, or room/dates are changing on a confirmed booking,
-    // check for overlapping bookings (exclude this booking itself)
+    // or if this is a new confirmed booking, check for overlapping bookings
     const needsOverlapCheck =
       validated.status === 'confirmed' && (
+        !existing ||
         existing.roomId !== validated.roomId ||
         existing.checkIn !== validated.checkIn ||
         existing.checkOut !== validated.checkOut ||
@@ -166,7 +169,26 @@ export async function updateBookingFromSheet(data: unknown): Promise<
       }
     }
 
-    // Update the booking
+    if (!existing) {
+      // Create new booking (owner manually added to sheet)
+      const [inserted] = await db()
+        .insert(bookings)
+        .values({
+          id: validated.id,
+          guestName: validated.guestName,
+          phone: validated.phone,
+          roomId: validated.roomId,
+          checkIn: validated.checkIn,
+          checkOut: validated.checkOut,
+          guests: validated.guests,
+          status: validated.status,
+        })
+        .returning()
+
+      return { success: true, booking: inserted }
+    }
+
+    // Update the existing booking
     const [updated] = await db()
       .update(bookings)
       .set({
