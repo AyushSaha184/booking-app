@@ -19,14 +19,11 @@ const WELCOME_TEXT = 'Welcome to Dorshi Holiday Resort cum Restaurant! How can I
 
 export default function ChatPage() {
   const [view, setView] = useState<ChatView>('welcome')
-  const [rooms, setRooms] = useState<Room[]>([])
 
   const fetchRooms = useCallback(async (checkIn: string, checkOut: string): Promise<Room[]> => {
     const res = await fetch(`/api/rooms?checkIn=${checkIn}&checkOut=${checkOut}`)
     if (!res.ok) return []
-    const data: Room[] = await res.json()
-    setRooms(data)
-    return data
+    return res.json() as Promise<Room[]>
   }, [])
 
   const handleSubmit = useCallback(async (data: BookingFormData) => {
@@ -95,7 +92,6 @@ export default function ChatPage() {
                 <BookingFormCard
                   onSubmit={handleSubmit}
                   onBack={handleBack}
-                  availableRooms={rooms}
                   onFetchRooms={fetchRooms}
                 />
               </motion.div>

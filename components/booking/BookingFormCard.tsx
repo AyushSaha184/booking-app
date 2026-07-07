@@ -4,20 +4,19 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion } from 'framer-motion'
-import { User, ChevronLeft, Loader2, BedDouble, Users, Calendar, Check, Phone } from 'lucide-react'
-import { CreateBookingSchema } from '@/lib/validation'
+import { User, ChevronLeft, Loader2, BedDouble, Calendar, Check, Phone, AlertCircle } from 'lucide-react'
+import { CreateMultiBookingSchema } from '@/lib/validation'
 import { checkmarkDraw, bounceIn } from '@/lib/animations'
 import { cn } from '@/lib/utils'
 import type { Room, BookingFormData, BookingPrefill } from '@/types/booking'
 import type { z } from 'zod'
 
-type FormValues = z.infer<typeof CreateBookingSchema>
+type FormValues = z.infer<typeof CreateMultiBookingSchema>
 
 interface BookingFormCardProps {
   prefill?: BookingPrefill
   onSubmit: (data: BookingFormData) => Promise<{ success: boolean; booking?: { id: string } }>
   onBack: () => void
-  availableRooms?: Room[]
   onFetchRooms?: (checkIn: string, checkOut: string) => Promise<Room[]>
 }
 
@@ -30,18 +29,19 @@ const iconCls = 'w-10 h-10 flex items-center justify-center border-r border-gray
 const inputCls =
   'flex-1 h-10 px-3 bg-transparent text-[13px] text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
-function RoomImagePlaceholder({ roomType }: { roomType: string }) {
-  const colors: Record<string, string> = {
-    suite: 'from-amber-600 to-orange-700',
-    deluxe: 'from-[#7C1A36] to-[#B93C3C]',
-    standard: 'from-gray-200 to-gray-300',
+function RoomTypeBadge({ type }: { type: string }) {
+  const styles: Record<string, string> = {
+    suite:    'bg-amber-50 text-amber-700 border-amber-200',
+    deluxe:   'bg-[#7C1A36]/5 text-[#7C1A36] border-[#7C1A36]/15',
+    standard: 'bg-gray-100 text-gray-600 border-gray-200',
   }
-  const cls = colors[roomType?.toLowerCase()] ?? colors.standard
-
   return (
-    <div className={cn('w-full h-full bg-linear-to-br flex items-center justify-center', cls)}>
-      <BedDouble className="w-10 h-10 text-white/70" />
-    </div>
+    <span className={cn(
+      'px-2 py-0.5 rounded-full text-[10px] font-semibold border capitalize',
+      styles[type?.toLowerCase()] ?? styles.standard
+    )}>
+      {type}
+    </span>
   )
 }
 
@@ -49,25 +49,16 @@ export default function BookingFormCard({
   prefill,
   onSubmit,
   onBack,
-  availableRooms: initialRooms,
   onFetchRooms,
 }: BookingFormCardProps) {
   const [submitError, setSubmitError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
   const [bookingRef, setBookingRef] = useState('')
-  const [rooms, setRooms] = useState<Room[]>(initialRooms ?? [])
+  const [bookingCount, setBookingCount] = useState(0)
+  const [rooms, setRooms] = useState<Room[]>([])
   const [loadingRooms, setLoadingRooms] = useState(false)
-  const [today, setToday] = useState(() => new Date().toISOString().split('T')[0])
-
-  useEffect(() => {
-    const now = new Date()
-    const msUntilMidnight =
-      new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime()
-    const timer = setTimeout(() => {
-      setToday(new Date().toISOString().split('T')[0])
-    }, msUntilMidnight)
-    return () => clearTimeout(timer)
-  }, [])
+  const [roomsError, setRoomsError] = useState('')
+  const [today] = useState(() => new Date().toISOString().split('T')[0])
 
   const {
     register,
@@ -76,56 +67,89 @@ export default function BookingFormCard({
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
-    resolver: zodResolver(CreateBookingSchema),
+    resolver: zodResolver(CreateMultiBookingSchema),
     defaultValues: {
       guestName: '',
       phone: '',
-      roomId: initialRooms?.[0]?.id ?? '',
+      roomIds: [],
       checkIn: prefill?.checkIn || new Date().toISOString().split('T')[0],
       checkOut: prefill?.checkOut || (() => {
-        const d = new Date()
-        d.setDate(d.getDate() + 1)
-        return d.toISOString().split('T')[0]
+        const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]
       })(),
-      guests: prefill?.guests ?? 1,
     },
     mode: 'onBlur',
   })
 
-  const checkIn = watch('checkIn')
+  const checkIn  = watch('checkIn')
   const checkOut = watch('checkOut')
-  const roomId = watch('roomId')
-  const guests = watch('guests')
+  const roomIds  = watch('roomIds') ?? []
 
+  /* ── Fetch available rooms whenever dates change ── */
   useEffect(() => {
-    if (!onFetchRooms || initialRooms || !checkIn || !checkOut) return
+    if (!checkIn || !checkOut) return
+    const inDate  = new Date(checkIn)
+    const outDate = new Date(checkOut)
+    if (outDate <= inDate) return
+
     const timer = setTimeout(async () => {
       setLoadingRooms(true)
+      setRoomsError('')
+      setValue('roomIds', [])   // clear stale selection
       try {
-        const fetched = await onFetchRooms(checkIn, checkOut)
+        let fetched: Room[]
+        if (onFetchRooms) {
+          fetched = await onFetchRooms(checkIn, checkOut)
+        } else {
+          const res = await fetch(`/api/rooms?checkIn=${checkIn}&checkOut=${checkOut}`)
+          if (!res.ok) throw new Error('Failed to load rooms')
+          fetched = await res.json()
+        }
         setRooms(fetched)
-        if (fetched.length > 0) setValue('roomId', fetched[0].id)
+        if (fetched.length === 0) setRoomsError('No rooms are available for the selected dates.')
+      } catch {
+        setRoomsError('Could not load available rooms. Please try again.')
+        setRooms([])
       } finally {
         setLoadingRooms(false)
       }
     }, 400)
+
     return () => clearTimeout(timer)
-  }, [checkIn, checkOut, onFetchRooms, initialRooms, setValue])
+  }, [checkIn, checkOut, onFetchRooms, setValue])
 
-  const selectedRoom = rooms.find(r => r.id === roomId)
+  /* ── Toggle room selection ──────────────────────── */
+  const toggleRoom = (id: string) => {
+    const current = roomIds ?? []
+    if (current.includes(id)) {
+      setValue('roomIds', current.filter(r => r !== id), { shouldValidate: true })
+    } else {
+      setValue('roomIds', [...current, id], { shouldValidate: true })
+    }
+  }
+
+  /* ── Price calculation ──────────────────────────── */
+  const selectedRooms = rooms.filter(r => roomIds.includes(r.id))
   const nights = checkIn && checkOut
-    ? Math.max(1, Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(1, Math.ceil(
+        (new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)
+      ))
     : 0
-  const subtotal = selectedRoom ? selectedRoom.pricePerNight * nights : 0
-  const tax = Math.round(subtotal * 0.12)
-  const total = subtotal + tax
+  const subtotal = selectedRooms.reduce((sum, r) => sum + r.pricePerNight * nights, 0)
+  const tax      = Math.round(subtotal * 0.12)
+  const total    = subtotal + tax
 
+  /* ── Submit ─────────────────────────────────────── */
   const onFormSubmit = async (data: FormValues) => {
+    if (data.roomIds.length === 0) {
+      setSubmitError('Please select at least one room before confirming.')
+      return
+    }
     setSubmitError('')
     try {
-      const result = await onSubmit(data)
+      const result = await onSubmit({ ...data } as unknown as BookingFormData)
       if (result.success && result.booking) {
         setBookingRef(result.booking.id)
+        setBookingCount(data.roomIds.length)
         setConfirmed(true)
       } else {
         throw new Error('Booking could not be confirmed. Please try again.')
@@ -142,7 +166,7 @@ export default function BookingFormCard({
         variants={bounceIn}
         initial="hidden"
         animate="visible"
-        className="flex flex-col items-center gap-6 py-12 px-8 bg-white rounded-3xl border border-gray-200 shadow-lg w-full max-w-lg mx-auto text-center"
+        className="flex flex-col items-center gap-6 py-12 px-8 bg-white rounded-2xl border border-gray-200 shadow-lg w-full max-w-lg mx-auto text-center"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -166,9 +190,15 @@ export default function BookingFormCard({
         </motion.div>
         <div className="space-y-2">
           <p className="text-2xl font-serif text-gray-900">Booking Confirmed!</p>
-          <p className="text-sm text-gray-600">Your reservation is confirmed. We look forward to welcoming you.</p>
+          <p className="text-sm text-gray-600">
+            {bookingCount > 1
+              ? `${bookingCount} rooms have been reserved. We look forward to welcoming you.`
+              : 'Your reservation is confirmed. We look forward to welcoming you.'}
+          </p>
           {bookingRef && (
-            <p className="mt-3 text-sm font-mono text-[#7C1A36] font-semibold tracking-wider">Ref: {bookingRef}</p>
+            <p className="mt-3 text-sm font-mono text-[#7C1A36] font-semibold tracking-wider">
+              Ref: {bookingRef}
+            </p>
           )}
         </div>
         <button
@@ -189,7 +219,7 @@ export default function BookingFormCard({
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-4xl mx-auto space-y-4"
     >
-      {/* Title block — left-aligned */}
+      {/* Title block */}
       <div className="text-left px-1 space-y-0.5">
         <h2 className="font-serif text-2xl font-semibold text-gray-900 leading-tight">
           Reserve <span className="text-[#7C1A36]">Your Stay</span>
@@ -197,9 +227,7 @@ export default function BookingFormCard({
         <p className="text-xs text-gray-400">Fill in your details to secure a room</p>
       </div>
 
-      {/* Single continuous form card */}
       <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-
         <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7 space-y-5">
 
           {/* ─── GUEST DETAILS ─── */}
@@ -209,7 +237,6 @@ export default function BookingFormCard({
               Guest Details
             </h3>
 
-            {/* Full Name */}
             <div className="space-y-1">
               <label className="block text-[13px] font-semibold text-gray-800">Full Name</label>
               <div className={inputWrapCls}>
@@ -217,14 +244,13 @@ export default function BookingFormCard({
                 <input
                   type="text"
                   placeholder="John Doe"
-                  {...register('guestName', { required: 'Name is required' })}
+                  {...register('guestName')}
                   className={inputCls}
                 />
               </div>
               {errors.guestName && <p className="text-xs text-red-600 pl-1">⚠ {errors.guestName.message}</p>}
             </div>
 
-            {/* Phone Number */}
             <div className="space-y-1">
               <label className="block text-[13px] font-semibold text-gray-800">Phone Number</label>
               <div className={inputWrapCls}>
@@ -232,7 +258,7 @@ export default function BookingFormCard({
                 <input
                   type="tel"
                   placeholder="+91 98765 43210"
-                  {...register('phone', { required: 'Phone is required' })}
+                  {...register('phone')}
                   className={inputCls}
                 />
               </div>
@@ -249,7 +275,6 @@ export default function BookingFormCard({
               Stay Details
             </h3>
 
-            {/* Date pickers */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <label className="block text-[13px] font-semibold text-gray-800">Check-in</label>
@@ -279,117 +304,102 @@ export default function BookingFormCard({
                 {errors.checkOut && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkOut.message}</p>}
               </div>
             </div>
-
-            {/* Guest stepper */}
-            <div className="flex items-center justify-between py-2">
-              <div className="flex items-center gap-3">
-                <Users className="w-4 h-4 text-[#7C1A36]" strokeWidth={2} />
-                <div>
-                  <p className="text-[13px] font-semibold text-gray-900 leading-tight">Guests</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5">Max {selectedRoom?.capacity || 4}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setValue('guests', Math.max(1, (guests || 1) - 1))}
-                  disabled={(guests || 1) <= 1}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-sm font-medium"
-                >
-                  −
-                </button>
-                <span className="text-sm font-bold text-gray-900 w-4 text-center">{guests || 1}</span>
-                <button
-                  type="button"
-                  onClick={() => setValue('guests', Math.min(selectedRoom?.capacity || 4, (guests || 1) + 1))}
-                  disabled={(guests || 1) >= (selectedRoom?.capacity || 4)}
-                  className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-[#7C1A36] bg-white hover:border-[#7C1A36]/40 hover:bg-[#7C1A36]/5 transition-all disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer text-sm font-medium"
-                >
-                  +
-                </button>
-              </div>
-            </div>
           </section>
 
           <div className="border-t border-gray-100" />
 
-          {/* ─── CHOOSE YOUR ROOM ─── */}
+          {/* ─── CHOOSE YOUR ROOMS ─── */}
           <section className="space-y-3">
             <h3 className="flex items-center gap-2 text-[11px] font-bold text-[#7C1A36] uppercase tracking-wider">
               <BedDouble className="w-3.5 h-3.5" />
-              Choose Your Room
+              Choose Your Room{roomIds.length > 1 ? 's' : ''}
               {rooms.length > 0 && (
                 <span className="ml-1 px-2 py-0.5 bg-[#7C1A36]/10 text-[#7C1A36] text-[10px] rounded-full normal-case font-semibold">
                   {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} available
                 </span>
               )}
+              {roomIds.length > 0 && (
+                <span className="ml-auto px-2 py-0.5 bg-green-50 text-green-700 text-[10px] rounded-full font-semibold border border-green-200">
+                  {roomIds.length} selected
+                </span>
+              )}
             </h3>
 
-            {/* Placeholder */}
-            {rooms.length === 0 && !loadingRooms && (
+            {/* No dates entered yet */}
+            {!checkIn || !checkOut || new Date(checkOut) <= new Date(checkIn) ? (
               <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/60 rounded-xl py-6 px-4 flex items-center justify-center gap-2">
                 <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                <span className="text-xs text-gray-400 font-medium">
-                  {checkIn && checkOut ? 'No rooms available for the selected dates' : 'Pick your dates above to see available rooms'}
-                </span>
+                <span className="text-xs text-gray-400 font-medium">Pick your dates above to see available rooms</span>
               </div>
-            )}
+            ) : null}
 
+            {/* Loading state */}
             {loadingRooms && (
-              <div className="border border-dashed border-gray-200 rounded-2xl py-10 flex flex-col items-center gap-2">
-                <Loader2 className="w-6 h-6 text-[#7C1A36] animate-spin" />
-                <p className="text-xs text-gray-500">Searching for available rooms...</p>
+              <div className="border border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2">
+                <Loader2 className="w-5 h-5 text-[#7C1A36] animate-spin" />
+                <p className="text-xs text-gray-500">Searching available rooms...</p>
               </div>
             )}
 
-            {/* Available Rooms */}
+            {/* Error state */}
+            {roomsError && !loadingRooms && (
+              <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <p className="text-xs text-amber-800">{roomsError}</p>
+              </div>
+            )}
+
+            {/* Validation error */}
+            {errors.roomIds && (
+              <p className="text-xs text-red-600 pl-1">⚠ {errors.roomIds.message}</p>
+            )}
+
+            {/* Room grid */}
             {rooms.length > 0 && !loadingRooms && (
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 {rooms.map((room) => {
-                  const isSelected = roomId === room.id
+                  const isSelected = roomIds.includes(room.id)
                   return (
                     <motion.button
                       key={room.id}
                       type="button"
-                      onClick={() => setValue('roomId', room.id)}
+                      onClick={() => toggleRoom(room.id)}
                       whileTap={{ scale: 0.99 }}
                       className={cn(
-                        'relative flex flex-col sm:flex-row bg-white rounded-2xl border-2 overflow-hidden transition-all text-left shadow-xs cursor-pointer',
+                        'relative flex items-center gap-4 bg-white rounded-xl border-2 p-3.5 transition-all text-left cursor-pointer',
                         isSelected
-                          ? 'border-[#7C1A36] ring-4 ring-[#7C1A36]/5 shadow-sm'
-                          : 'border-gray-200 hover:shadow-sm'
+                          ? 'border-[#7C1A36] ring-4 ring-[#7C1A36]/5 shadow-sm bg-[#7C1A36]/[0.02]'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                       )}
                     >
-                      <div className="sm:w-44 h-36 sm:h-auto bg-gray-100 relative overflow-hidden shrink-0">
-                        <RoomImagePlaceholder roomType={room.type} />
-                        {isSelected && (
-                          <div className="absolute top-2.5 right-2.5 w-6 h-6 bg-[#7C1A36] rounded-full grid place-items-center shadow-md">
-                            <Check className="w-3.5 h-3.5 text-white" />
-                          </div>
-                        )}
+                      {/* Checkbox indicator */}
+                      <div className={cn(
+                        'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                        isSelected
+                          ? 'bg-[#7C1A36] border-[#7C1A36]'
+                          : 'border-gray-300 bg-white'
+                      )}>
+                        {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
                       </div>
-                      <div className="flex-1 p-4 flex flex-col justify-between">
-                        <div>
-                          <h4 className="font-serif text-lg text-gray-900 mb-0.5">{room.name}</h4>
-                          <p className="text-xs text-gray-500 mb-2.5">{room.type} • {room.capacity} Guests</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded-full font-medium">Free WiFi</span>
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded-full font-medium">Breakfast</span>
-                            <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-[10px] rounded-full font-medium">AC</span>
-                          </div>
+
+                      {/* Room info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <h4 className="font-semibold text-[13px] text-gray-900 truncate">{room.name}</h4>
+                          <RoomTypeBadge type={room.type} />
                         </div>
-                        <div className="flex justify-between items-end mt-4 pt-3 border-t border-gray-100">
-                          <div>
-                            <span className="text-xl font-bold text-[#7C1A36]">₹{room.pricePerNight.toLocaleString('en-IN')}</span>
-                            <span className="text-xs text-gray-400 ml-0.5">/ night</span>
-                          </div>
-                          <span className={cn(
-                            'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all',
-                            isSelected ? 'bg-[#7C1A36] text-white' : 'bg-gray-100 text-gray-600'
-                          )}>
-                            {isSelected ? 'Selected' : 'Select'}
-                          </span>
-                        </div>
+                        <p className="text-[11px] text-gray-500">
+                          Capacity: {room.capacity} {room.capacity === 1 ? 'guest' : 'guests'}
+                          {room.description ? ` · ${room.description}` : ''}
+                        </p>
+                      </div>
+
+                      {/* Price */}
+                      <div className="text-right shrink-0">
+                        <p className="text-base font-bold text-[#7C1A36]">
+                          ₹{room.pricePerNight.toLocaleString('en-IN')}
+                        </p>
+                        <p className="text-[10px] text-gray-400">/ night</p>
                       </div>
                     </motion.button>
                   )
@@ -397,20 +407,25 @@ export default function BookingFormCard({
               </div>
             )}
           </section>
-          {/* Price Summary */}
-          {nights > 0 && selectedRoom && !loadingRooms && (
-            <div className="pt-6 border-t border-gray-100 space-y-4">
-              <h3 className="text-sm font-bold text-gray-900 text-left">Price Summary</h3>
-              <div className="space-y-2 text-xs">
-                <div className="flex justify-between text-gray-500">
-                  <span>₹{selectedRoom.pricePerNight.toLocaleString('en-IN')} × {nights} Night{nights > 1 ? 's' : ''}</span>
-                  <span className="font-semibold text-gray-700">₹{subtotal.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>Taxes & Fees (12%)</span>
+
+          {/* ─── PRICE SUMMARY ─── */}
+          {selectedRooms.length > 0 && nights > 0 && (
+            <div className="pt-4 border-t border-gray-100 space-y-3">
+              <h3 className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Price Summary</h3>
+              <div className="space-y-1.5 text-xs">
+                {selectedRooms.map(r => (
+                  <div key={r.id} className="flex justify-between text-gray-500">
+                    <span>{r.name} × {nights} night{nights > 1 ? 's' : ''}</span>
+                    <span className="font-semibold text-gray-700">
+                      ₹{(r.pricePerNight * nights).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                ))}
+                <div className="flex justify-between text-gray-500 pt-1">
+                  <span>Taxes &amp; Fees (12%)</span>
                   <span className="font-semibold text-gray-700">₹{tax.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between text-base font-bold text-gray-900 pt-3 border-t border-gray-100">
+                <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
                   <span>Total</span>
                   <span className="text-[#7C1A36]">₹{total.toLocaleString('en-IN')}</span>
                 </div>
@@ -418,25 +433,30 @@ export default function BookingFormCard({
             </div>
           )}
 
-          {/* Error */}
+          {/* ─── ERROR ─── */}
           {submitError && (
-            <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
-              <span className="text-red-600">⚠</span>
-              <p className="text-sm text-red-800 text-left">{submitError}</p>
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <p className="text-xs text-red-800">{submitError}</p>
             </div>
           )}
 
-          {/* Submit */}
+          {/* ─── SUBMIT ─── */}
           <div className="pt-1">
             <button
               type="submit"
-              disabled={isSubmitting || loadingRooms}
+              disabled={isSubmitting || loadingRooms || roomIds.length === 0}
               className="w-full h-12 rounded-xl bg-[#7C1A36] text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-[#651227] disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? (
-                <><Loader2 className="w-5 h-5 animate-spin" />Processing...</>
-              ) : 'Confirm Booking'}
+                <><Loader2 className="w-4 h-4 animate-spin" />Processing...</>
+              ) : roomIds.length > 1
+                ? `Confirm ${roomIds.length} Rooms`
+                : 'Confirm Booking'}
             </button>
+            {roomIds.length === 0 && rooms.length > 0 && !loadingRooms && (
+              <p className="text-center text-[11px] text-gray-400 mt-2">Select at least one room to continue</p>
+            )}
           </div>
         </div>
       </form>

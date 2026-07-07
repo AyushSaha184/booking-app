@@ -22,32 +22,35 @@ export interface User {
 export interface BookingFormData {
   guestName: string
   phone: string
-  roomId: string
+  roomIds: string[]   // supports multiple room selection
   checkIn: string
   checkOut: string
-  guests: number
 }
 
 /* ── Prefill hints supplied by the AI ─────────── */
 export interface BookingPrefill {
   checkIn?: string
   checkOut?: string
-  guests?: number
+}
+
+/* ── Individual booking returned from API ──────── */
+export interface BookingRecord {
+  id: string
+  guestName: string
+  phone: string
+  roomId: string
+  checkIn: string
+  checkOut: string
+  guests: number
+  status: string
 }
 
 /* ── Result returned by the /api/bookings route ── */
 export interface BookingResult {
   success: boolean
-  booking?: {
-    id: string
-    guestName: string
-    phone: string
-    roomId: string
-    checkIn: string
-    checkOut: string
-    guests: number
-    status: string
-  }
+  bookings?: BookingRecord[]
+  /** Primary booking id (first room) kept for backward compat */
+  booking?: { id: string }
   error?: string
   retry?: boolean
 }

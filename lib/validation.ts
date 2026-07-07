@@ -24,6 +24,30 @@ export const CreateBookingSchema = z.object({
   path: ['checkOut'],
 })
 
+/** Multi-room booking schema – no guests field, roomIds must be non-empty */
+export const CreateMultiBookingSchema = z.object({
+  guestName: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  phone: z.string().min(10, 'Invalid phone number').max(15, 'Invalid phone number').regex(PHONE_REGEX, 'Invalid phone format'),
+  roomIds: z
+    .array(z.string().min(1))
+    .min(1, 'Please select at least one room')
+    .max(9, 'Cannot book more than 9 rooms at once'),
+  checkIn: z.string().regex(DATE_REGEX, 'Invalid date format').refine(date => {
+    const d = new Date(date)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return d >= today
+  }, 'Check-in date cannot be in the past'),
+  checkOut: z.string().regex(DATE_REGEX, 'Invalid date format'),
+}).refine(data => {
+  const checkIn = new Date(data.checkIn)
+  const checkOut = new Date(data.checkOut)
+  return checkOut > checkIn
+}, {
+  message: 'Check-out must be after check-in',
+  path: ['checkOut'],
+})
+
 export const LookupBookingSchema = z.object({
   phone: z.string().min(10).max(15).regex(PHONE_REGEX),
   bookingId: z.string().min(1, 'Booking ID is required').startsWith('BK-', 'Invalid format'),
