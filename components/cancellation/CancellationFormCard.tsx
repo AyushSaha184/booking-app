@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Loader2, CheckCircle2, AlertCircle, Calendar, User, Phone, Hash } from 'lucide-react'
+import { Search, Loader2, CheckCircle2, AlertCircle, Calendar, User, Phone, Hash, DoorOpen } from 'lucide-react'
 
 interface CancellationFormCardProps {
   onBack: () => void
@@ -120,7 +120,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             className="space-y-4"
           >
             {/* Card */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7 space-y-4">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-8 space-y-4">
 
               {/* Booking ID */}
               <div className="space-y-1">
@@ -219,7 +219,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             exit={{ opacity: 0, scale: 0.95 }}
             className="space-y-5"
           >
-            <div className="bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] space-y-5">
+            <div className="bg-white p-5 sm:p-8 rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] space-y-5">
               <div className="flex items-center justify-center gap-3 pb-4 border-b border-gray-100">
                 <div className="w-12 h-12 rounded-xl bg-accent/5 border border-accent/10 grid place-items-center">
                   <CheckCircle2 className="w-6 h-6 text-accent" />
@@ -229,39 +229,49 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
                   <p className="text-xs text-gray-400 mt-0.5">ID: {bookingDetails.id}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-8">
-                <div className="space-y-1 text-center">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Guest</p>
-                  <p className="text-sm font-bold text-gray-900 flex items-center justify-center gap-1.5">
-                    <User className="w-4 h-4 text-gray-400" />{bookingDetails.guestName}
-                  </p>
+              
+              <div className="grid grid-cols-2 gap-6 pt-2">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center shrink-0">
+                    <User className="w-5 h-5 text-accent" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Guest</span>
+                    <span className="text-sm font-bold text-gray-900">{bookingDetails.guestName}</span>
+                  </div>
                 </div>
-                <div className="space-y-1 text-center">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Room ID</p>
-                  <p className="text-sm font-bold text-gray-900">{bookingDetails.roomId}</p>
-                </div>
-                <div className="space-y-1 text-center">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-in</p>
-                  <p className="text-sm font-bold text-gray-900 flex items-center justify-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-gray-400" />{formatDate(bookingDetails.checkIn)}
-                  </p>
-                </div>
-                <div className="space-y-1 text-center">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Check-out</p>
-                  <p className="text-sm font-bold text-gray-900 flex items-center justify-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-gray-400" />{formatDate(bookingDetails.checkOut)}
-                  </p>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center shrink-0">
+                    <DoorOpen className="w-5 h-5 text-accent" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Room ID</span>
+                    <span className="text-sm font-bold text-gray-900">{bookingDetails.roomId}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-amber-50/60 p-6 sm:p-8 rounded-3xl border border-amber-200 flex flex-col items-center gap-3 text-center">
-              <AlertCircle className="w-6 h-6 text-amber-600 shrink-0" />
-              <div className="space-y-1">
-                <p className="text-sm font-bold text-amber-900">Cancellation Policy</p>
-                <p className="text-xs text-amber-800 leading-relaxed max-w-sm">
-                  Cancellations made within 48 hours of check-in are non-refundable. A cancellation fee of 20% may apply.
-                </p>
+              <div className="border-t border-gray-100 my-2" />
+
+              <div className="grid grid-cols-2 gap-6 pb-2">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center shrink-0">
+                    <Calendar className="w-5 h-5 text-accent" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Check-in</span>
+                    <span className="text-sm font-bold text-gray-900">{formatDate(bookingDetails.checkIn)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center shrink-0">
+                    <Calendar className="w-5 h-5 text-accent" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Check-out</span>
+                    <span className="text-sm font-bold text-gray-900">{formatDate(bookingDetails.checkOut)}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -289,7 +299,7 @@ export default function CancellationFormCard({ onBack }: CancellationFormCardPro
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white p-5 sm:p-7 rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] text-center space-y-5"
+            className="bg-white p-5 sm:p-8 rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] text-center space-y-5"
           >
             <motion.div
               initial={{ scale: 0 }}

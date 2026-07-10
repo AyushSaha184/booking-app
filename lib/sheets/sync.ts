@@ -2,6 +2,16 @@ import { getSheetsClient } from './client'
 import { withSheetsLock, withRetry } from './mutex'
 import { logger } from '../logger'
 
+function formatDateTime(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  const h = String(date.getHours()).padStart(2, '0')
+  const min = String(date.getMinutes()).padStart(2, '0')
+  const s = String(date.getSeconds()).padStart(2, '0')
+  return `${y}-${m}-${d} ${h}:${min}:${s}`
+}
+
 export async function syncBookingToSheet(booking: {
   id: string
   guestName: string
@@ -46,7 +56,7 @@ export async function syncBookingToSheet(booking: {
               booking.checkOut,
               booking.guests,
               booking.status,
-              booking.createdAt?.toISOString() ?? new Date().toISOString(),
+              formatDateTime(booking.createdAt ?? new Date()),
             ]],
           },
         })

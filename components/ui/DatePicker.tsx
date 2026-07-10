@@ -21,7 +21,10 @@ interface DatePickerProps {
 }
 
 function toYMD(d: Date): string {
-  return d.toISOString().split('T')[0]
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const r = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${r}`
 }
 
 function parseYMD(s: string): Date | null {
@@ -152,7 +155,7 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
           align === 'right' ? 'right-0' : 'left-0'
         )}>
           {/* Month/Year header */}
-          <div className="flex items-center justify-between px-3 py-2.5 bg-gradient-to-r from-accent to-brand-red-hover">
+          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-accent to-brand-red-hover">
             <button
               type="button"
               onClick={goPrev}
@@ -174,7 +177,7 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
           </div>
 
           {/* Day labels */}
-          <div className="grid grid-cols-7 px-2 pt-2 pb-1">
+          <div className="grid grid-cols-7 px-4 pt-3 pb-1">
             {DAY_LABELS.map(d => (
               <div key={d} className="text-center text-[10px] font-bold text-gray-400 uppercase py-1">
                 {d}
@@ -183,11 +186,11 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
           </div>
 
           {/* Day cells */}
-          <div className="grid grid-cols-7 px-2 pb-2.5 gap-y-0.5">
+          <div className="grid grid-cols-7 px-4 pb-3 gap-y-1">
             {cells.map((cell, i) => {
               const isToday = cell.dateStr === todayStr
               const isSelected = cell.dateStr === value
-              const isDisabled = !cell.inMonth || (minDate ? new Date(cell.dateStr) < minDate : false)
+              const isDisabled = !cell.inMonth || (min ? cell.dateStr < min : false)
 
               return (
                 <button
@@ -214,7 +217,7 @@ export default function DatePicker({ value, onChange, min, placeholder = 'dd/mm/
           </div>
 
           {/* Footer — Today shortcut */}
-          <div className="border-t border-gray-100 px-3 py-2 flex justify-between items-center">
+          <div className="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
             <button
               type="button"
               onClick={() => {

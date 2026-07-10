@@ -208,250 +208,226 @@ export default function BookingFormCard({
   }
 
   /* ── Main form ─────────────────────────────────── */
+  /* ── Main form ─────────────────────────────────── */
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-4xl mx-auto space-y-4"
+      className="w-full mx-auto max-w-[56rem] px-1"
     >
       {/* Title block */}
-      <div className="text-left px-1 space-y-0.5">
+      <div className="text-left px-1 space-y-0.5 mb-4">
         <h2 className="font-serif text-2xl font-semibold text-gray-900 leading-tight">
           Reserve <span className="text-accent">Your Stay</span>
         </h2>
         <p className="text-xs text-gray-400">Fill in your details to secure a room</p>
       </div>
-      <div
-        style={{ display: 'flex', flexDirection: 'column', gap: '20px', backgroundColor: 'red' }}
-        className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7"
-      ></div>
-      <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-4">
 
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-7 flex flex-col gap-5">
+      <form
+        onSubmit={handleSubmit(onFormSubmit)}
+        className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-5 sm:p-8 flex flex-col gap-6"
+      >
+        {/* ─── GUEST DETAILS ─── */}
+        <section className="flex flex-col gap-4">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
+            <User className="w-3.5 h-3.5" />
+            Guest Details
+          </h3>
 
-          {/* ─── GUEST DETAILS ─── */}
-          <section className="flex flex-col gap-3">
-            <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
-              <User className="w-3.5 h-3.5" />
-              Guest Details
-            </h3>
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-[13px] font-semibold text-gray-800">Full Name</label>
+            <div className={inputWrapCls}>
+              <span className={iconCls}><User className="w-4 h-4" /></span>
+              <input
+                type="text"
+                placeholder="John Doe"
+                {...register('guestName')}
+                className={inputCls}
+              />
+            </div>
+            {errors.guestName && <p className="text-xs text-red-600 pl-1">⚠ {errors.guestName.message}</p>}
+          </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="block text-[13px] font-semibold text-gray-800">Full Name</label>
-              <div className={inputWrapCls}>
-                <span className={iconCls}><User className="w-4 h-4" /></span>
-                <input
-                  type="text"
-                  placeholder="John Doe"
-                  {...register('guestName')}
-                  className={inputCls}
-                />
-              </div>
-              {errors.guestName && <p className="text-xs text-red-600 pl-1">⚠ {errors.guestName.message}</p>}
+          <div className="flex flex-col gap-1.5">
+            <label className="block text-[13px] font-semibold text-gray-800">Phone Number</label>
+            <div className={inputWrapCls}>
+              <span className={iconCls}><Phone className="w-4 h-4" /></span>
+              <input
+                type="tel"
+                placeholder="+91 98765 43210"
+                {...register('phone')}
+                className={inputCls}
+              />
+            </div>
+            {errors.phone && <p className="text-xs text-red-600 pl-1">⚠ {errors.phone.message}</p>}
+          </div>
+        </section>
+
+        <div className="border-t border-gray-100" />
+
+        {/* ─── STAY DETAILS ─── */}
+        <section className="flex flex-col gap-4">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
+            <Calendar className="w-3.5 h-3.5" />
+            Stay Details
+          </h3>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <label className="block text-[13px] font-semibold text-gray-800">Check-in</label>
+              <DatePicker
+                value={checkIn}
+                onChange={(val) => setValue('checkIn', val, { shouldValidate: true })}
+                min={today}
+                placeholder="dd/mm/yyyy"
+                align="left"
+              />
+              {errors.checkIn && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkIn.message}</p>}
             </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="block text-[13px] font-semibold text-gray-800">Phone Number</label>
-              <div className={inputWrapCls}>
-                <span className={iconCls}><Phone className="w-4 h-4" /></span>
-                <input
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  {...register('phone')}
-                  className={inputCls}
-                />
-              </div>
-              {errors.phone && <p className="text-xs text-red-600 pl-1">⚠ {errors.phone.message}</p>}
+            <div className="flex flex-col gap-1.5">
+              <label className="block text-[13px] font-semibold text-gray-800">Check-out</label>
+              <DatePicker
+                value={checkOut}
+                onChange={(val) => setValue('checkOut', val, { shouldValidate: true })}
+                min={checkIn || today}
+                placeholder="dd/mm/yyyy"
+                align="right"
+              />
+              {errors.checkOut && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkOut.message}</p>}
             </div>
-          </section>
+          </div>
+        </section>
 
-          <div className="border-t border-gray-100" />
+        <div className="border-t border-gray-100" />
 
-          {/* ─── STAY DETAILS ─── */}
-          <section className="flex flex-col gap-3">
-            <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
-              <Calendar className="w-3.5 h-3.5" />
-              Stay Details
-            </h3>
+        {/* ─── CHOOSE YOUR ROOMS ─── */}
+        <section className="flex flex-col gap-4">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
+            <BedDouble className="w-3.5 h-3.5" />
+            Choose Your Room{roomIds.length > 1 ? 's' : ''}
+            {rooms.length > 0 && (
+              <span className="ml-1 px-2 py-0.5 bg-accent/10 text-accent text-[10px] rounded-full normal-case font-semibold">
+                {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} available
+              </span>
+            )}
+            {roomIds.length > 0 && (
+              <span className="ml-auto px-2 py-0.5 bg-green-50 text-green-700 text-[10px] rounded-full font-semibold border border-green-200">
+                {roomIds.length} selected
+              </span>
+            )}
+          </h3>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="block text-[13px] font-semibold text-gray-800">Check-in</label>
-                <DatePicker
-                  value={checkIn}
-                  onChange={(val) => setValue('checkIn', val, { shouldValidate: true })}
-                  min={today}
-                  placeholder="dd/mm/yyyy"
-                  align="left"
-                />
-                {errors.checkIn && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkIn.message}</p>}
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="block text-[13px] font-semibold text-gray-800">Check-out</label>
-                <DatePicker
-                  value={checkOut}
-                  onChange={(val) => setValue('checkOut', val, { shouldValidate: true })}
-                  min={checkIn || today}
-                  placeholder="dd/mm/yyyy"
-                  align="right"
-                />
-                {errors.checkOut && <p className="text-xs text-red-600 pl-1">⚠ {errors.checkOut.message}</p>}
-              </div>
+          {!checkIn || !checkOut || new Date(checkOut) <= new Date(checkIn) ? (
+            <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/60 rounded-xl py-6 px-4 flex items-center justify-center gap-2">
+              <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+              <span className="text-xs text-gray-400 font-medium">Pick your dates above to see available rooms</span>
             </div>
-          </section>
+          ) : null}
 
-          <div className="border-t border-gray-100" />
-
-          {/* ─── CHOOSE YOUR ROOMS ─── */}
-          <section className="flex flex-col gap-3">
-            <h3 className="flex items-center gap-2 text-[11px] font-bold text-accent uppercase tracking-wider">
-              <BedDouble className="w-3.5 h-3.5" />
-              Choose Your Room{roomIds.length > 1 ? 's' : ''}
-              {rooms.length > 0 && (
-                <span className="ml-1 px-2 py-0.5 bg-accent/10 text-accent text-[10px] rounded-full normal-case font-semibold">
-                  {rooms.length} {rooms.length === 1 ? 'room' : 'rooms'} available
-                </span>
-              )}
-              {roomIds.length > 0 && (
-                <span className="ml-auto px-2 py-0.5 bg-green-50 text-green-700 text-[10px] rounded-full font-semibold border border-green-200">
-                  {roomIds.length} selected
-                </span>
-              )}
-            </h3>
-
-            {/* No dates entered yet */}
-            {!checkIn || !checkOut || new Date(checkOut) <= new Date(checkIn) ? (
-              <div className="border border-dashed border-gray-200 bg-[#FAFAF9]/60 rounded-xl py-6 px-4 flex items-center justify-center gap-2">
-                <Calendar className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-                <span className="text-xs text-gray-400 font-medium">Pick your dates above to see available rooms</span>
-              </div>
-            ) : null}
-
-            {/* Loading state */}
-            {loadingRooms && (
-              <div className="border border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2">
-                <Loader2 className="w-5 h-5 text-accent animate-spin" />
-                <p className="text-xs text-gray-500">Searching available rooms...</p>
-              </div>
-            )}
-
-            {/* Error state */}
-            {roomsError && !loadingRooms && (
-              <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-                <p className="text-xs text-amber-800">{roomsError}</p>
-              </div>
-            )}
-
-            {/* Validation error */}
-            {errors.roomIds && (
-              <p className="text-xs text-red-600 pl-1">⚠ {errors.roomIds.message}</p>
-            )}
-
-            {/* Room grid */}
-            {rooms.length > 0 && !loadingRooms && (
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 gap-3">
-                  {rooms.map((room) => {
-                    const isSelected = roomIds.includes(room.id)
-                    return (
-                      <motion.button
-                        key={room.id}
-                        type="button"
-                        onClick={() => toggleRoom(room.id)}
-                        whileTap={{ scale: 0.99 }}
-                        className={cn(
-                          'relative flex items-center gap-4 bg-white rounded-xl border-2 p-3.5 transition-all text-left cursor-pointer',
-                          isSelected
-                            ? 'border-accent ring-4 ring-accent/5 shadow-sm bg-accent/[0.02]'
-                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                        )}
-                      >
-                        {/* Checkbox indicator */}
-                        <div className={cn(
-                          'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
-                          isSelected
-                            ? 'bg-accent border-accent'
-                            : 'border-gray-300 bg-white'
-                        )}>
-                          {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-                        </div>
-
-                        {/* Room info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <h4 className="font-semibold text-[13px] text-gray-900 truncate">{room.name}</h4>
-                            <RoomTypeBadge type={room.type} />
-                          </div>
-                          <p className="text-[11px] text-gray-500">
-                            Capacity: {room.capacity} {room.capacity === 1 ? 'guest' : 'guests'}
-                            {room.description ? ` · ${room.description}` : ''}
-                          </p>
-                        </div>
-
-                        {/* Price */}
-                        <div className="text-right shrink-0">
-                          <p className="text-base font-bold text-accent">
-                            ₹{room.pricePerNight.toLocaleString('en-IN')}
-                          </p>
-                          <p className="text-[10px] text-gray-400">/ night</p>
-                        </div>
-                      </motion.button>
-                    )
-                  })}
-                </div>
-
-                {/* ─── PRICE SUMMARY ─── */}
-                {selectedRooms.length > 0 && (
-                  <div className="pt-4 border-t border-gray-100 space-y-3 mt-3">
-                    <h3 className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Price Summary</h3>
-                    <div className="space-y-1.5 text-xs">
-                      <div className="flex justify-between text-gray-500">
-                        <span>{selectedRooms.length} Room{selectedRooms.length > 1 ? 's' : ''} × ₹5,000 / night</span>
-                        <span className="font-semibold text-gray-700">
-                          ₹{total.toLocaleString('en-IN')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
-                        <span>Total (per night)</span>
-                        <span className="text-accent">₹{total.toLocaleString('en-IN')}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
-
-
-
-          {/* ─── ERROR ─── */}
-          {submitError && (
-            <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-red-800">{submitError}</p>
+          {loadingRooms && (
+            <div className="border border-dashed border-gray-200 rounded-xl py-8 flex flex-col items-center gap-2">
+              <Loader2 className="w-5 h-5 text-accent animate-spin" />
+              <p className="text-xs text-gray-500">Searching available rooms...</p>
             </div>
           )}
 
-          {/* ─── SUBMIT ─── */}
-          <div className="pt-1">
-            <button
-              type="submit"
-              disabled={isSubmitting || loadingRooms || roomIds.length === 0}
-              className="w-full h-12 rounded-xl bg-accent text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-brand-red-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
-            >
-              {isSubmitting ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Processing...</>
-              ) : roomIds.length > 1
-                ? `Confirm ${roomIds.length} Rooms`
-                : 'Confirm Booking'}
-            </button>
-            {roomIds.length === 0 && rooms.length > 0 && !loadingRooms && (
-              <p className="text-center text-[11px] text-gray-400 mt-2">Select at least one room to continue</p>
-            )}
+          {roomsError && !loadingRooms && (
+            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+              <p className="text-xs text-amber-800">{roomsError}</p>
+            </div>
+          )}
+
+          {errors.roomIds && (
+            <p className="text-xs text-red-600 pl-1">⚠ {errors.roomIds.message}</p>
+          )}
+
+          {rooms.length > 0 && !loadingRooms && (
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 gap-3">
+                {rooms.map((room) => {
+                  const isSelected = roomIds.includes(room.id)
+                  return (
+                    <motion.button
+                      key={room.id}
+                      type="button"
+                      onClick={() => toggleRoom(room.id)}
+                      whileTap={{ scale: 0.99 }}
+                      className={cn(
+                        'relative flex items-center gap-4 bg-white rounded-xl border-2 p-3.5 transition-all text-left cursor-pointer',
+                        isSelected
+                          ? 'border-accent ring-4 ring-accent/5 shadow-sm bg-accent/[0.02]'
+                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                      )}
+                    >
+                      <div className={cn(
+                        'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                        isSelected ? 'bg-accent border-accent' : 'border-gray-300 bg-white'
+                      )}>
+                        {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <h4 className="font-semibold text-[13px] text-gray-900 truncate">{room.name}</h4>
+                          <RoomTypeBadge type={room.type} />
+                        </div>
+                        <p className="text-[11px] text-gray-500">
+                          Capacity: {room.capacity} {room.capacity === 1 ? 'guest' : 'guests'}
+                          {room.description ? ` · ${room.description}` : ''}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-base font-bold text-accent">
+                          ₹{room.pricePerNight.toLocaleString('en-IN')}
+                        </p>
+                        <p className="text-[10px] text-gray-400">/ night</p>
+                      </div>
+                    </motion.button>
+                  )
+                })}
+              </div>
+
+              {selectedRooms.length > 0 && (
+                <div className="pt-4 border-t border-gray-100 space-y-3">
+                  <h3 className="text-[11px] font-bold text-gray-700 uppercase tracking-wider">Price Summary</h3>
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between text-gray-500">
+                      <span>{selectedRooms.length} Room{selectedRooms.length > 1 ? 's' : ''} × ₹5,000 / night</span>
+                      <span className="font-semibold text-gray-700">₹{total.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-100">
+                      <span>Total (per night)</span>
+                      <span className="text-accent">₹{total.toLocaleString('en-IN')}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        {submitError && (
+          <div className="p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
+            <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+            <p className="text-xs text-red-800">{submitError}</p>
           </div>
-        </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={isSubmitting || loadingRooms || roomIds.length === 0}
+          className="w-full h-12 rounded-xl bg-accent text-white text-sm font-semibold shadow-[0_4px_12px_rgba(124,26,54,0.18)] hover:bg-brand-red-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+        >
+          {isSubmitting ? (
+            <><Loader2 className="w-4 h-4 animate-spin" />Processing...</>
+          ) : roomIds.length > 1
+            ? `Confirm ${roomIds.length} Rooms`
+            : 'Confirm Booking'}
+        </button>
+        {roomIds.length === 0 && rooms.length > 0 && !loadingRooms && (
+          <p className="text-center text-[11px] text-gray-400 -mt-3">Select at least one room to continue</p>
+        )}
       </form>
     </motion.div>
   )
