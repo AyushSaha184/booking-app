@@ -39,15 +39,6 @@ function formatPhoneE164(phone: string): string {
   return phone.startsWith('+') ? phone : `+${digits}`
 }
 
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
 
 export function buildUserBookingMessage(data: BookingNotificationData): string {
   const { guestName, checkIn, checkOut, bookings } = data
