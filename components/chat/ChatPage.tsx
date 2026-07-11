@@ -9,7 +9,7 @@ import CancellationFormCard from '@/components/cancellation/CancellationFormCard
 import PhotoGallery from '@/components/photos/PhotoGallery'
 import { transitions } from '@/lib/animations'
 import { cn } from '@/lib/utils'
-import type { Room, BookingFormData } from '@/types/booking'
+import type { Room, BookingFormData, BookingResult } from '@/types/booking'
 
 /* ─────────────────────────────────────────────────
    Main ChatPage - Responsive Layout
@@ -26,17 +26,17 @@ export default function ChatPage() {
     return res.json() as Promise<Room[]>
   }, [])
 
-  const handleSubmit = useCallback(async (data: BookingFormData) => {
+  const handleSubmit = useCallback(async (data: BookingFormData): Promise<BookingResult> => {
     const res = await fetch('/api/bookings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     })
-    const result = await res.json() as { success: boolean; booking?: { id: string }; error?: string }
+    const result = await res.json() as BookingResult
     if (!res.ok || !result.success) {
       throw new Error(result.error ?? 'Booking failed.')
     }
-    return result as { success: true; booking: { id: string } }
+    return result
   }, [])
 
   const handleSelectView = useCallback((newView: ChatView) => {

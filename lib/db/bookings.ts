@@ -28,17 +28,21 @@ async function _createBookingLegacy(data: unknown) {
   const totalPrice = totalNights * (room?.pricePerNight || 0)
 
   sendBookingNotifications({
-    bookingId: booking.id,
     guestName: validated.guestName,
     phone: validated.phone,
-    roomName: room?.name || 'Unknown Room',
-    roomType: room?.type || 'Standard',
     checkIn: validated.checkIn,
     checkOut: validated.checkOut,
-    guests: validated.guests,
-    pricePerNight: room?.pricePerNight || 0,
     totalNights,
     totalPrice,
+    bookings: [
+      {
+        bookingId: booking.id,
+        roomName: room?.name || 'Unknown Room',
+        roomType: room?.type || 'Standard',
+        pricePerNight: room?.pricePerNight || 0,
+        totalPrice,
+      },
+    ],
   }).catch((err) => {
     console.error('Booking notification error (non-blocking):', err)
   })

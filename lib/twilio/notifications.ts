@@ -1,18 +1,22 @@
 import { twilioClient, twilioFromPhone, twilioOwnerPhone } from './client'
 import { logger } from '../logger'
 
-export interface BookingNotificationData {
+export interface BookingItem {
   bookingId: string
-  guestName: string
-  phone: string
   roomName: string
   roomType: string
+  pricePerNight: number
+  totalPrice: number
+}
+
+export interface BookingNotificationData {
+  guestName: string
+  phone: string
   checkIn: string
   checkOut: string
-  guests: number
-  pricePerNight: number
   totalNights: number
   totalPrice: number
+  bookings: BookingItem[]
 }
 
 export interface CancellationNotificationData {
@@ -46,88 +50,23 @@ function formatDate(dateStr: string): string {
 }
 
 export function buildUserBookingMessage(data: BookingNotificationData): string {
-  const {
-    bookingId,
-    guestName,
-    roomName,
-    roomType,
-    checkIn,
-    checkOut,
-    guests,
-    totalNights,
-    totalPrice,
-  } = data
-
-  return `Hi ${guestName}! Your booking is confirmed.
-
-Reservation ID: ${bookingId}
-Room: ${roomName} (${roomType})
-Dates: ${formatDate(checkIn)} → ${formatDate(checkOut)}
-Guests: ${guests}
-Nights: ${totalNights}
-Total: $${totalPrice.toFixed(2)}
-
-We look forward to welcoming you! If you need to modify or cancel your booking, contact us anytime.
-
-— Resort Booking Team`
+  const { guestName, checkIn, checkOut, bookings } = data
+  const ids = bookings.map(b => b.bookingId).join(',')
+  return `Booking confirmed: ${guestName}. Dates: ${checkIn} to ${checkOut}. IDs: ${ids}`
 }
 
 export function buildUserCancellationMessage(data: CancellationNotificationData): string {
-  return `Hi ${data.guestName},
-
-Your booking has been cancelled successfully.
-
-Reservation ID: ${data.bookingId}
-Room: ${data.roomName}
-Dates: ${formatDate(data.checkIn)} → ${formatDate(data.checkOut)}
-
-We're sorry to see you go. If you'd like to rebook in the future, we'd love to welcome you!
-
-— Resort Booking Team`
+  return `Booking cancelled: ${data.guestName}. ID: ${data.bookingId}. Room: ${data.roomName}. Dates: ${data.checkIn} to ${data.checkOut}.`
 }
 
 export function buildOwnerBookingMessage(data: BookingNotificationData): string {
-  const {
-    bookingId,
-    guestName,
-    phone,
-    roomName,
-    roomType,
-    checkIn,
-    checkOut,
-    guests,
-    totalNights,
-    totalPrice,
-  } = data
-
-  return `NEW BOOKING ALERT
-
-Guest: ${guestName}
-Phone: ${phone}
-Booking ID: ${bookingId}
-Room: ${roomName} (${roomType})
-Dates: ${formatDate(checkIn)} → ${formatDate(checkOut)}
-Guests: ${guests}
-Nights: ${totalNights}
-Revenue: $${totalPrice.toFixed(2)}
-
-Status: CONFIRMED
-
-— Booking System`
+  const { guestName, checkIn, checkOut, bookings } = data
+  const ids = bookings.map(b => b.bookingId).join(',')
+  return `New booking: ${guestName}. Dates: ${checkIn} to ${checkOut}. IDs: ${ids}`
 }
 
 export function buildOwnerCancellationMessage(data: CancellationNotificationData): string {
-  return `BOOKING CANCELLED ALERT
-
-Guest: ${data.guestName}
-Phone: ${data.phone}
-Booking ID: ${data.bookingId}
-Room: ${data.roomName}
-Dates: ${formatDate(data.checkIn)} → ${formatDate(data.checkOut)}
-
-Status: CANCELLED
-
-— Booking System`
+  return `Cancelled booking: ${data.guestName}. ID: ${data.bookingId}. Room: ${data.roomName}. Dates: ${data.checkIn} to ${data.checkOut}.`
 }
 
 async function sendSMS(to: string, body: string): Promise<{ success: boolean; sid?: string; error?: string }> {

@@ -9,14 +9,14 @@ import DatePicker from '@/components/ui/DatePicker'
 import { CreateMultiBookingSchema } from '@/lib/validation'
 import { checkmarkDraw, bounceIn } from '@/lib/animations'
 import { cn } from '@/lib/utils'
-import type { Room, BookingFormData, BookingPrefill } from '@/types/booking'
+import type { Room, BookingFormData, BookingPrefill, BookingResult } from '@/types/booking'
 import type { z } from 'zod'
 
 type FormValues = z.infer<typeof CreateMultiBookingSchema>
 
 interface BookingFormCardProps {
   prefill?: BookingPrefill
-  onSubmit: (data: BookingFormData) => Promise<{ success: boolean; booking?: { id: string } }>
+  onSubmit: (data: BookingFormData) => Promise<BookingResult>
   onBack: () => void
   onFetchRooms?: (checkIn: string, checkOut: string) => Promise<Room[]>
 }
@@ -56,6 +56,7 @@ export default function BookingFormCard({
   const [submitError, setSubmitError] = useState('')
   const [confirmed, setConfirmed] = useState(false)
   const [bookingRef, setBookingRef] = useState('')
+  const [bookingRefs, setBookingRefs] = useState<string[]>([])
   const [bookingCount, setBookingCount] = useState(0)
   const [rooms, setRooms] = useState<Room[]>([])
   const [loadingRooms, setLoadingRooms] = useState(false)
@@ -144,6 +145,11 @@ export default function BookingFormCard({
       const result = await onSubmit({ ...data } as unknown as BookingFormData)
       if (result.success && result.booking) {
         setBookingRef(result.booking.id)
+        if (result.bookings) {
+          setBookingRefs(result.bookings.map(b => b.id))
+        } else {
+          setBookingRefs([result.booking.id])
+        }
         setBookingCount(data.roomIds.length)
         setConfirmed(true)
       } else {
@@ -190,11 +196,27 @@ export default function BookingFormCard({
               ? `${bookingCount} rooms have been reserved. We look forward to welcoming you.`
               : 'Your reservation is confirmed. We look forward to welcoming you.'}
           </p>
-          {bookingRef && (
+          {bookingRefs && bookingRefs.length > 0 ? (
+            <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col items-center gap-2 max-w-sm mx-auto">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Booking ID{bookingRefs.length > 1 ? 's' : ''}
+              </span>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {bookingRefs.map((id) => (
+                  <span
+                    key={id}
+                    className="px-3 py-1 bg-accent/5 hover:bg-accent/10 border border-accent/15 rounded-lg text-sm font-mono text-accent font-semibold tracking-wider transition-colors"
+                  >
+                    {id}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : bookingRef ? (
             <p className="mt-3 text-sm font-mono text-accent font-semibold tracking-wider">
               Ref: {bookingRef}
             </p>
-          )}
+          ) : null}
         </div>
         <button
           onClick={onBack}

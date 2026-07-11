@@ -79,39 +79,55 @@ export async function POST(req: Request) {
       bookingIds: result.bookings.map((b) => b.id),
     })
 
-    // Fire notifications + sheet sync for each booking (non-blocking)
+    // Resolve room details, compute totals, sync sheets, and prepare consolidated notification
+    const bookingsData = []
+    let totalNights = 0
+    let totalBookingPrice = 0
+
     for (const booking of result.bookings) {
       const room = await getRoomById(booking.roomId)
       const checkInDate = new Date(booking.checkIn)
       const checkOutDate = new Date(booking.checkOut)
-      const totalNights = Math.ceil(
+      const nights = Math.ceil(
         (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
       )
-      const totalPrice = totalNights * (room?.pricePerNight || 0)
+      const price = nights * (room?.pricePerNight || 0)
 
-      sendBookingNotifications({
+      totalNights = nights
+      totalBookingPrice += price
+
+      bookingsData.push({
         bookingId: booking.id,
-        guestName: booking.guestName,
-        phone: booking.phone,
         roomName: room?.name || 'Unknown Room',
         roomType: room?.type || 'Standard',
-        checkIn: booking.checkIn,
-        checkOut: booking.checkOut,
-        guests: booking.guests,
         pricePerNight: room?.pricePerNight || 0,
-        totalNights,
-        totalPrice,
-      }).catch((err) => {
-        logger.error('Booking notification error (non-blocking)', {
-          error: err instanceof Error ? err.message : String(err),
-          bookingId: booking.id,
-        })
+        totalPrice: price,
       })
 
+      // Sync booking to sheet (non-blocking)
       syncBookingToSheet(booking).catch((err) => {
         logger.error('Background Sheets sync failed', {
           error: err instanceof Error ? err.message : String(err),
           bookingId: booking.id,
+        })
+      })
+    }
+
+    // Send single consolidated Twilio notification for the booking group (non-blocking)
+    if (result.bookings.length > 0) {
+      const firstBooking = result.bookings[0]
+      sendBookingNotifications({
+        guestName: firstBooking.guestName,
+        phone: firstBooking.phone,
+        checkIn: firstBooking.checkIn,
+        checkOut: firstBooking.checkOut,
+        totalNights,
+        totalPrice: totalBookingPrice,
+        bookings: bookingsData,
+      }).catch((err) => {
+        logger.error('Booking notification error (non-blocking)', {
+          error: err instanceof Error ? err.message : String(err),
+          bookingIds: result.bookings.map((b) => b.id),
         })
       })
     }
