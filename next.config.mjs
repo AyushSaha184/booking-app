@@ -8,7 +8,26 @@ const __dirname = path.dirname(__filename)
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+        pathname: '/f/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'uploadthing.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.ufs.sh',
+        pathname: '/f/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.uploader.store',
+      },
+    ],
   },
   outputFileTracingRoot: path.join(__dirname),
 }
