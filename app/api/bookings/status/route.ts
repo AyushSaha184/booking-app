@@ -3,6 +3,7 @@ import { checkRateLimit } from '@/lib/ratelimit'
 import { logger } from '@/lib/logger'
 import { getSheetsClient } from '@/lib/sheets/client'
 import { getBookingsWithRooms, updateBookingFromSheet } from '@/lib/db/bookings'
+import { normalizeStatusString, parseRoomIdsString } from '@/lib/utils'
 
 function getClientIp(req: Request): string {
   const forwarded = req.headers.get('x-forwarded-for')
@@ -56,25 +57,17 @@ export async function GET(req: Request) {
           if (booking.status === 'pending') {
             const row = rows.find(r => r[0] === booking.id)
             if (row && row[7]) {
-              const sheetStatus = String(row[7]).trim().toLowerCase()
-              let normalizedStatus: string | null = null
-
-              if (['yes', 'y', 'confirmed', 'approved', 'true', '1'].includes(sheetStatus)) {
-                normalizedStatus = 'confirmed'
-              } else if (['no', 'n', 'cancelled', 'canceled', 'rejected', 'declined', 'false', '0'].includes(sheetStatus)) {
-                normalizedStatus = 'cancelled'
-              }
+              const sheetStatus = String(row[7])
+              const normalizedStatus = normalizeStatusString(sheetStatus)
 
               if (normalizedStatus && normalizedStatus !== booking.status) {
-                const sheetRoomIds = row[3]
-                  ? String(row[3]).split(',').map(s => s.trim()).filter(Boolean)
-                  : booking.roomIds
+                const sheetRoomIds = row[3] ? parseRoomIdsString(row[3]) : booking.roomIds
 
                 await updateBookingFromSheet({
                   id: booking.id,
                   guestName: booking.guestName,
                   phone: booking.phone,
-                  roomIds: sheetRoomIds,
+                  roomIds: sheetRoomIds.length > 0 ? sheetRoomIds : booking.roomIds,
                   checkIn: booking.checkIn,
                   checkOut: booking.checkOut,
                   guests: booking.guests,

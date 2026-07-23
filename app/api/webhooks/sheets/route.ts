@@ -4,6 +4,7 @@ import { db } from '@/lib/db/client'
 import { bookings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { logger } from '@/lib/logger'
+import { normalizeStatusString, parseRoomIdsString } from '@/lib/utils'
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -98,22 +99,14 @@ export async function POST(req: Request) {
       })
     }
 
-    // 4. Preprocess roomIds if sent as comma-separated string or single roomId
-    if (typeof data.roomId === 'string' && !data.roomIds) {
-      data.roomIds = data.roomId.split(',').map((s: string) => s.trim()).filter(Boolean)
-    } else if (typeof data.roomIds === 'string') {
-      data.roomIds = (data.roomIds as string).split(',').map((s: string) => s.trim()).filter(Boolean)
-    }
+    // 4. Preprocess roomIds using robust parser (handles "124", "1 2 4", "1,2,4", etc.)
+    data.roomIds = parseRoomIdsString(data.roomIds || data.roomId)
 
-    // 5. Normalize status string (e.g. "yes", "Yes", "confirmed", "no", "cancelled", etc.)
-    if (typeof data.status === 'string') {
-      const rawStatus = data.status.trim().toLowerCase()
-      if (['yes', 'y', 'confirmed', 'approved', 'true', '1'].includes(rawStatus)) {
-        data.status = 'confirmed'
-      } else if (['no', 'n', 'cancelled', 'canceled', 'rejected', 'declined', 'false', '0'].includes(rawStatus)) {
-        data.status = 'cancelled'
-      } else if (['pending', 'waiting'].includes(rawStatus)) {
-        data.status = 'pending'
+    // 5. Normalize status string with robust fuzzy matching (handles "cancle", "cancled", "no", "yes", etc.)
+    if (data.status) {
+      const normalized = normalizeStatusString(data.status)
+      if (normalized) {
+        data.status = normalized
       }
     }
 

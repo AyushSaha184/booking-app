@@ -110,9 +110,9 @@ export async function cancelBooking(bookingId: string, phone: string) {
 
   const roomIds = await getRoomIdsForBooking(updated.id)
 
-  // Sync cancellation status to Google Sheets (non-blocking)
+  // Sync cancellation status to Google Sheets
   const { updateBookingStatusInSheet } = require('../sheets/sync')
-  updateBookingStatusInSheet(updated.id, 'cancelled').catch((err: any) => {
+  await updateBookingStatusInSheet(updated.id, 'cancelled').catch((err: any) => {
     console.error('Google Sheets cancellation sync failed:', err)
   })
 
@@ -135,37 +135,40 @@ export async function updateBookingFromSheet(data: unknown): Promise<
   }
 
   try {
-    const uniqueRoomIds = [...new Set(validated.roomIds)]
-    if (uniqueRoomIds.length === 0) {
-      return { success: false, error: 'At least one valid room ID is required', code: 'VALIDATION' }
-    }
+    const rawRoomIds = [...new Set(validated.roomIds)]
 
-    // Check that booking exists
+    // Check existing booking
     const [existing] = await db()
       .select()
       .from(bookings)
       .where(eq(bookings.id, validated.id))
       .limit(1)
 
+    // Validate which room IDs actually exist in DB rooms table
+    let validRoomIds: string[] = []
+    if (rawRoomIds.length > 0) {
+      const dbRooms = await db()
+        .select({ id: rooms.id })
+        .from(rooms)
+        .where(inArray(rooms.id, rawRoomIds))
+      validRoomIds = dbRooms.map(r => r.id)
+    }
+
+    // Fallback: If raw room IDs from sheet are invalid (e.g., date strings, column misalignments), use existing room IDs from DB
+    let targetRoomIds = validRoomIds
+    if (targetRoomIds.length === 0 && existing) {
+      targetRoomIds = await getRoomIdsForBooking(existing.id)
+    }
+
+    if (targetRoomIds.length === 0) {
+      return { success: false, error: 'At least one valid room ID is required', code: 'VALIDATION' }
+    }
+
     // Check overlap conflicts for each room if status is changing to confirmed
     if (validated.status === 'confirmed') {
-      for (const rId of uniqueRoomIds) {
-        const overlapping = await db()
-          .select({ count: sql<number>`count(*)::int` })
-          .from(bookingRooms)
-          .innerJoin(bookings, eq(bookingRooms.bookingId, bookings.id))
-          .where(
-            and(
-              eq(bookingRooms.roomId, rId),
-              eq(bookings.status, 'confirmed'),
-              ne(bookings.id, validated.id),
-              lt(bookings.checkIn, validated.checkOut),
-              gt(bookings.checkOut, validated.checkIn)
-            )
-          )
-
-        const count = Number(overlapping[0]?.count ?? 0)
-        if (count > 0) {
+      for (const rId of targetRoomIds) {
+        const overlapping = await txCountOverlaps(rId, validated.id, validated.checkIn, validated.checkOut)
+        if (overlapping > 0) {
           return {
             success: false,
             error: `Room ${rId} is already booked for selected dates`,
@@ -211,9 +214,9 @@ export async function updateBookingFromSheet(data: unknown): Promise<
         bookingHeader = updated
       }
 
-      // Sync booking_rooms junction entries
+      // Sync booking_rooms junction entries safely
       await tx.delete(bookingRooms).where(eq(bookingRooms.bookingId, validated.id))
-      for (const rId of uniqueRoomIds) {
+      for (const rId of targetRoomIds) {
         await tx.insert(bookingRooms).values({
           bookingId: validated.id,
           roomId: rId,
@@ -232,7 +235,7 @@ export async function updateBookingFromSheet(data: unknown): Promise<
       let totalBookingPrice = 0
       const bookingsData = []
 
-      for (const rId of uniqueRoomIds) {
+      for (const rId of targetRoomIds) {
         const room = await getRoomById(rId)
         const price = totalNights * (room?.pricePerNight || 0)
         totalBookingPrice += price
@@ -260,11 +263,62 @@ export async function updateBookingFromSheet(data: unknown): Promise<
       success: true,
       booking: {
         ...resultBooking,
-        roomIds: uniqueRoomIds,
+        roomIds: targetRoomIds,
       },
     }
   } catch (err: any) {
     console.error('updateBookingFromSheet error:', err)
     return { success: false, error: 'Internal database error', code: 'INTERNAL' }
+  }
+}
+
+async function txCountOverlaps(roomId: string, bookingId: string, checkIn: string, checkOut: string): Promise<number> {
+  const overlapping = await db()
+    .select({ count: sql<number>`count(*)::int` })
+    .from(bookingRooms)
+    .innerJoin(bookings, eq(bookingRooms.bookingId, bookings.id))
+    .where(
+      and(
+        eq(bookingRooms.roomId, roomId),
+        eq(bookings.status, 'confirmed'),
+        ne(bookings.id, bookingId),
+        lt(bookings.checkIn, checkOut),
+        gt(bookings.checkOut, checkIn)
+      )
+    )
+  return Number(overlapping[0]?.count ?? 0)
+}
+
+export async function autoCancelExpiredPendingBookings(maxAgeMinutes: number = 45): Promise<number> {
+  try {
+    const cutoff = new Date(Date.now() - maxAgeMinutes * 60 * 1000)
+    const expired = await db()
+      .select({ id: bookings.id })
+      .from(bookings)
+      .where(
+        and(
+          eq(bookings.status, 'pending'),
+          lt(bookings.createdAt, cutoff)
+        )
+      )
+
+    if (expired.length === 0) return 0
+
+    const expiredIds = expired.map(b => b.id)
+
+    await db()
+      .update(bookings)
+      .set({ status: 'cancelled' })
+      .where(inArray(bookings.id, expiredIds))
+
+    const { updateBookingStatusInSheet } = require('../sheets/sync')
+    for (const id of expiredIds) {
+      updateBookingStatusInSheet(id, 'cancelled').catch(() => {})
+    }
+
+    return expiredIds.length
+  } catch (err) {
+    console.error('Error auto-cancelling expired pending bookings:', err)
+    return 0
   }
 }

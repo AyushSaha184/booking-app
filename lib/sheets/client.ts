@@ -5,9 +5,18 @@ export function getSheetsClient() {
   if (!raw) {
     throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY is not configured')
   }
-  let credentials: Record<string, unknown>
+  let credentials: Record<string, any>
   try {
-    credentials = JSON.parse(raw)
+    let jsonStr = raw.trim()
+    if (!jsonStr.startsWith('{') && jsonStr.length > 20) {
+      try {
+        jsonStr = Buffer.from(jsonStr, 'base64').toString('utf-8')
+      } catch {}
+    }
+    credentials = JSON.parse(jsonStr)
+    if (typeof credentials.private_key === 'string') {
+      credentials.private_key = credentials.private_key.replace(/\\n/g, '\n')
+    }
   } catch {
     throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY is not valid JSON')
   }
@@ -17,3 +26,4 @@ export function getSheetsClient() {
   })
   return google.sheets({ version: 'v4', auth })
 }
+

@@ -188,10 +188,75 @@ export default function BookingFormCard({
     setTimeout(() => setCopiedPhone(false), 2000)
   }
 
+  const [cancelling, setCancelling] = useState(false)
+  const [timeLeftSeconds, setTimeLeftSeconds] = useState(45 * 60)
+
+  /* ── 45-Minute Hold Countdown Effect ────────────── */
+  useEffect(() => {
+    if (bookingStatus !== 'pending_payment') return
+    setTimeLeftSeconds(45 * 60)
+
+    const timer = setInterval(() => {
+      setTimeLeftSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          setBookingStatus('declined')
+          if (bookingRef && submittedData?.phone) {
+            fetch('/api/cancellations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'cancel',
+                bookingId: bookingRef,
+                phone: submittedData.phone,
+              }),
+            }).catch(() => {})
+          }
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+
+    return () => clearInterval(timer)
+  }, [bookingStatus, bookingRef, submittedData?.phone])
+
+  const formatTimer = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+  }
+
+  const handleCancelAndReturnHome = async () => {
+    if (!bookingRef || cancelling) {
+      onBack()
+      return
+    }
+    setCancelling(true)
+    try {
+      if (submittedData?.phone) {
+        await fetch('/api/cancellations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'cancel',
+            bookingId: bookingRef,
+            phone: submittedData.phone,
+          }),
+        })
+      }
+    } catch (err) {
+      console.error('Cancellation error on return home:', err)
+    } finally {
+      setCancelling(false)
+      onBack()
+    }
+  }
+
   /* ── PENDING PAYMENT SCREEN ─────────────────────── */
   if (bookingStatus === 'pending_payment') {
     const waText = encodeURIComponent(
-      `Hi! I have placed a booking request (Booking ID: ${bookingRef}) for ${submittedData?.guestName || 'Guest'} (${bookingCount} room${bookingCount > 1 ? 's' : ''}, ${submittedData?.checkIn} to ${submittedData?.checkOut}). I would like to complete the payment to confirm my reservation.`
+      `Hi! My name is ${submittedData?.guestName || 'Guest'}. I have placed a booking request (Booking ID: ${bookingRef}) for ${bookingCount} room${bookingCount > 1 ? 's' : ''} from ${submittedData?.checkIn} to ${submittedData?.checkOut}. I would like to complete the payment to confirm my reservation.`
     )
     const waUrl = `https://wa.me/${OWNER_PHONE.replace('+', '')}?text=${waText}`
 
@@ -206,11 +271,8 @@ export default function BookingFormCard({
           
           {/* Header Status Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-            </span>
-            Pending Payment Verification
+            <Clock className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+            <span>Hold Expires In: <span className="font-mono font-bold text-accent">{formatTimer(timeLeftSeconds)}</span></span>
           </div>
 
           {/* Title block */}
@@ -219,7 +281,7 @@ export default function BookingFormCard({
               Call Owner to Complete Booking
             </h2>
             <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">
-              Your booking request is received! Please call or message the hotel owner at the number below to complete your payment.
+              Your room hold is active for 45 minutes! Please call or message the hotel owner at the number below to complete your payment.
             </p>
           </div>
 
@@ -290,10 +352,15 @@ export default function BookingFormCard({
           </div>
 
           <button
-            onClick={onBack}
-            className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors pt-2"
+            onClick={handleCancelAndReturnHome}
+            disabled={cancelling}
+            className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors pt-2 disabled:opacity-50 flex items-center gap-1.5"
           >
-            Cancel & Return Home
+            {cancelling ? (
+              <><Loader2 className="w-3 h-3 animate-spin text-gray-400" /> Cancelling booking...</>
+            ) : (
+              'Cancel & Return Home'
+            )}
           </button>
         </div>
       </motion.div>

@@ -35,34 +35,46 @@ export async function withSheetsLock<T>(
   operation: () => Promise<T>,
   maxWaitMs: number = 5000
 ): Promise<T> {
+  const url = process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN
+
+  if (!url || !token) {
+    logger.debug('Redis not configured, executing Sheets operation without lock', { bookingId })
+    return await operation()
+  }
+
   const startTime = Date.now()
 
-  while (Date.now() - startTime < maxWaitMs) {
-    const acquired = await acquireSheetsLock(bookingId)
+  try {
+    while (Date.now() - startTime < maxWaitMs) {
+      const acquired = await acquireSheetsLock(bookingId).catch(() => false)
+      if (acquired) {
+        logger.debug('Acquired Sheets mutex lock', { bookingId })
+        try {
+          return await operation()
+        } finally {
+          await releaseSheetsLock(bookingId).catch(() => {})
+          logger.debug('Released Sheets mutex lock', { bookingId })
+        }
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+
+    const acquired = await acquireSheetsLock(bookingId, 30).catch(() => false)
     if (acquired) {
-      logger.debug('Acquired Sheets mutex lock', { bookingId })
       try {
         return await operation()
       } finally {
-        await releaseSheetsLock(bookingId)
-        logger.debug('Released Sheets mutex lock', { bookingId })
+        await releaseSheetsLock(bookingId).catch(() => {})
       }
     }
-
-    await new Promise(resolve => setTimeout(resolve, 100))
+  } catch (lockErr) {
+    logger.warn('Sheets lock failed, falling back to direct execution', { bookingId, error: String(lockErr) })
+    return await operation()
   }
 
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  const acquired = await acquireSheetsLock(bookingId, 30)
-  if (acquired) {
-    try {
-      return await operation()
-    } finally {
-      await releaseSheetsLock(bookingId)
-    }
-  }
-
-  throw new Error('Google Sheets temporarily unavailable. Booking created but sync pending.')
+  return await operation()
 }
 
 export async function withRetry<T>(

@@ -42,8 +42,10 @@ function formatPhoneE164(phone: string): string {
 
 export function buildUserBookingMessage(data: BookingNotificationData): string {
   const { guestName, checkIn, checkOut, bookings } = data
-  const ids = bookings.map(b => b.bookingId).join(',')
-  return `Booking confirmed: ${guestName}. Dates: ${checkIn} to ${checkOut}. IDs: ${ids}`
+  const uniqueIds = Array.from(new Set(bookings.map(b => b.bookingId)))
+  const idStr = uniqueIds.join(', ')
+  const label = uniqueIds.length > 1 ? 'IDs' : 'ID'
+  return `Booking confirmed: ${guestName}. Dates: ${checkIn} to ${checkOut}. ${label}: ${idStr}`
 }
 
 export function buildUserCancellationMessage(data: CancellationNotificationData): string {
@@ -52,8 +54,10 @@ export function buildUserCancellationMessage(data: CancellationNotificationData)
 
 export function buildOwnerBookingMessage(data: BookingNotificationData): string {
   const { guestName, checkIn, checkOut, bookings } = data
-  const ids = bookings.map(b => b.bookingId).join(',')
-  return `New booking: ${guestName}. Dates: ${checkIn} to ${checkOut}. IDs: ${ids}`
+  const uniqueIds = Array.from(new Set(bookings.map(b => b.bookingId)))
+  const idStr = uniqueIds.join(', ')
+  const label = uniqueIds.length > 1 ? 'IDs' : 'ID'
+  return `New booking: ${guestName}. Dates: ${checkIn} to ${checkOut}. ${label}: ${idStr}`
 }
 
 export function buildOwnerCancellationMessage(data: CancellationNotificationData): string {
