@@ -600,9 +600,9 @@ export default function BookingFormCard({
         >
           {isSubmitting ? (
             <><Loader2 className="w-4 h-4 animate-spin" />Processing...</>
-          ) : roomIds.length > 1
-            ? `Confirm ${roomIds.length} Rooms`
-            : 'Confirm Booking'}
+          ) : (
+            'Next'
+          )}
         </button>
         {roomIds.length === 0 && rooms.length > 0 && !loadingRooms && (
           <p className="text-center text-[11px] text-gray-400 -mt-3">Select at least one room to continue</p>
