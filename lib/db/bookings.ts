@@ -1,53 +1,63 @@
 import { db } from './client'
-import { bookings, rooms } from './schema'
-import { and, eq, lt, gt, ne, sql } from 'drizzle-orm'
-import { nanoid } from 'nanoid'
-import { CreateBookingSchema, LookupBookingSchema, CancelBookingSchema, UpdateBookingSchema } from '../validation'
-import { sendBookingNotifications, sendCancellationNotifications } from '../twilio/notifications'
+import { bookings, bookingRooms, rooms } from './schema'
+import { and, eq, lt, gt, ne, inArray, sql } from 'drizzle-orm'
+import { LookupBookingSchema, CancelBookingSchema, UpdateBookingSchema } from '../validation'
+import { sendBookingNotifications } from '../twilio/notifications'
 import { getRoomById } from './rooms'
 
-async function _createBookingLegacy(data: unknown) {
-  const validated = CreateBookingSchema.parse(data)
+export async function getBookingWithRooms(bookingId: string) {
+  const [booking] = await db()
+    .select()
+    .from(bookings)
+    .where(eq(bookings.id, bookingId))
+    .limit(1)
 
-  const id = 'BK-' + nanoid(6).toUpperCase()
-  const [booking] = await db().insert(bookings).values({
-    guestName: validated.guestName,
-    phone: validated.phone,
-    roomId: validated.roomId,
-    checkIn: validated.checkIn,
-    checkOut: validated.checkOut,
-    guests: validated.guests,
-    id,
-  }).returning()
+  if (!booking) return null
 
-  const room = await getRoomById(validated.roomId)
+  const roomLinks = await db()
+    .select({ roomId: bookingRooms.roomId })
+    .from(bookingRooms)
+    .where(eq(bookingRooms.bookingId, bookingId))
 
-  const checkInDate = new Date(validated.checkIn)
-  const checkOutDate = new Date(validated.checkOut)
-  const totalNights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
-  const totalPrice = totalNights * (room?.pricePerNight || 0)
+  return {
+    ...booking,
+    roomIds: roomLinks.map(r => r.roomId),
+  }
+}
 
-  sendBookingNotifications({
-    guestName: validated.guestName,
-    phone: validated.phone,
-    checkIn: validated.checkIn,
-    checkOut: validated.checkOut,
-    totalNights,
-    totalPrice,
-    bookings: [
-      {
-        bookingId: booking.id,
-        roomName: room?.name || 'Unknown Room',
-        roomType: room?.type || 'Standard',
-        pricePerNight: room?.pricePerNight || 0,
-        totalPrice,
-      },
-    ],
-  }).catch((err) => {
-    console.error('Booking notification error (non-blocking):', err)
-  })
+export async function getBookingsWithRooms(ids: string[]) {
+  if (ids.length === 0) return []
 
-  return booking
+  const fetchedBookings = await db()
+    .select()
+    .from(bookings)
+    .where(inArray(bookings.id, ids))
+
+  if (fetchedBookings.length === 0) return []
+
+  const roomLinks = await db()
+    .select()
+    .from(bookingRooms)
+    .where(inArray(bookingRooms.bookingId, ids))
+
+  const roomMap: Record<string, string[]> = {}
+  for (const link of roomLinks) {
+    if (!roomMap[link.bookingId]) roomMap[link.bookingId] = []
+    roomMap[link.bookingId].push(link.roomId)
+  }
+
+  return fetchedBookings.map(b => ({
+    ...b,
+    roomIds: roomMap[b.id] ?? [],
+  }))
+}
+
+export async function getRoomIdsForBooking(bookingId: string): Promise<string[]> {
+  const links = await db()
+    .select({ roomId: bookingRooms.roomId })
+    .from(bookingRooms)
+    .where(eq(bookingRooms.bookingId, bookingId))
+  return links.map(l => l.roomId)
 }
 
 export async function lookupBooking(phone: string, bookingId: string) {
@@ -60,12 +70,18 @@ export async function lookupBooking(phone: string, bookingId: string) {
       and(
         eq(bookings.id, validated.bookingId),
         eq(bookings.phone, validated.phone),
-        eq(bookings.status, 'confirmed')
+        ne(bookings.status, 'cancelled')
       )
     )
     .limit(1)
 
-  return booking ?? null
+  if (!booking) return null
+
+  const roomIds = await getRoomIdsForBooking(booking.id)
+  return {
+    ...booking,
+    roomIds,
+  }
 }
 
 export async function cancelBooking(bookingId: string, phone: string) {
@@ -77,16 +93,12 @@ export async function cancelBooking(bookingId: string, phone: string) {
     .where(
       and(
         eq(bookings.id, validated.bookingId),
-        eq(bookings.status, 'confirmed')
+        ne(bookings.status, 'cancelled')
       )
     )
     .limit(1)
 
-  if (!booking[0]) {
-    return null
-  }
-
-  if (booking[0].phone !== validated.phone) {
+  if (!booking[0] || booking[0].phone !== validated.phone) {
     return null
   }
 
@@ -96,30 +108,22 @@ export async function cancelBooking(bookingId: string, phone: string) {
     .where(eq(bookings.id, validated.bookingId))
     .returning()
 
-  const room = await getRoomById(updated.roomId)
+  const roomIds = await getRoomIdsForBooking(updated.id)
 
-  // Sync the cancellation status to Google Sheets (non-blocking)
+  // Sync cancellation status to Google Sheets (non-blocking)
   const { updateBookingStatusInSheet } = require('../sheets/sync')
   updateBookingStatusInSheet(updated.id, 'cancelled').catch((err: any) => {
     console.error('Google Sheets cancellation sync failed:', err)
   })
 
-  sendCancellationNotifications({
-    bookingId: updated.id,
-    guestName: updated.guestName,
-    phone: validated.phone,
-    roomName: room?.name || 'Unknown Room',
-    checkIn: updated.checkIn,
-    checkOut: updated.checkOut,
-  }).catch((err) => {
-    console.error('Cancellation notification error (non-blocking):', err)
-  })
-
-  return updated
+  return {
+    ...updated,
+    roomIds,
+  }
 }
 
 export async function updateBookingFromSheet(data: unknown): Promise<
-  | { success: true; booking: typeof bookings.$inferSelect }
+  | { success: true; booking: typeof bookings.$inferSelect & { roomIds: string[] } }
   | { success: false; error: string; code: 'NOT_FOUND' | 'VALIDATION' | 'CONFLICT' | 'INTERNAL' }
 > {
   let validated: ReturnType<typeof UpdateBookingSchema.parse> extends Promise<infer T> ? T : ReturnType<typeof UpdateBookingSchema.parse>
@@ -131,83 +135,134 @@ export async function updateBookingFromSheet(data: unknown): Promise<
   }
 
   try {
-    // Check that the booking exists
+    const uniqueRoomIds = [...new Set(validated.roomIds)]
+    if (uniqueRoomIds.length === 0) {
+      return { success: false, error: 'At least one valid room ID is required', code: 'VALIDATION' }
+    }
+
+    // Check that booking exists
     const [existing] = await db()
       .select()
       .from(bookings)
       .where(eq(bookings.id, validated.id))
       .limit(1)
 
-    // If status is changing to confirmed, or room/dates are changing on a confirmed booking,
-    // or if this is a new confirmed booking, check for overlapping bookings
-    const needsOverlapCheck =
-      validated.status === 'confirmed' && (
-        !existing ||
-        existing.roomId !== validated.roomId ||
-        existing.checkIn !== validated.checkIn ||
-        existing.checkOut !== validated.checkOut ||
-        existing.status !== 'confirmed'
-      )
-
-    if (needsOverlapCheck) {
-      const overlapping = await db()
-        .select({ count: sql<number>`count(*)::int` })
-        .from(bookings)
-        .where(
-          and(
-            eq(bookings.roomId, validated.roomId),
-            eq(bookings.status, 'confirmed'),
-            ne(bookings.id, validated.id),
-            lt(bookings.checkIn, validated.checkOut),
-            gt(bookings.checkOut, validated.checkIn)
+    // Check overlap conflicts for each room if status is changing to confirmed
+    if (validated.status === 'confirmed') {
+      for (const rId of uniqueRoomIds) {
+        const overlapping = await db()
+          .select({ count: sql<number>`count(*)::int` })
+          .from(bookingRooms)
+          .innerJoin(bookings, eq(bookingRooms.bookingId, bookings.id))
+          .where(
+            and(
+              eq(bookingRooms.roomId, rId),
+              eq(bookings.status, 'confirmed'),
+              ne(bookings.id, validated.id),
+              lt(bookings.checkIn, validated.checkOut),
+              gt(bookings.checkOut, validated.checkIn)
+            )
           )
-        )
 
-      const overlapCount = Number(overlapping[0]?.count ?? 0)
-      if (overlapCount > 0) {
-        return {
-          success: false,
-          error: `Room ${validated.roomId} is already booked for those dates`,
-          code: 'CONFLICT',
+        const count = Number(overlapping[0]?.count ?? 0)
+        if (count > 0) {
+          return {
+            success: false,
+            error: `Room ${rId} is already booked for selected dates`,
+            code: 'CONFLICT',
+          }
         }
       }
     }
 
-    if (!existing) {
-      // Create new booking (owner manually added to sheet)
-      const [inserted] = await db()
-        .insert(bookings)
-        .values({
-          id: validated.id,
-          guestName: validated.guestName,
-          phone: validated.phone,
-          roomId: validated.roomId,
-          checkIn: validated.checkIn,
-          checkOut: validated.checkOut,
-          guests: validated.guests,
-          status: validated.status,
-        })
-        .returning()
+    const wasPending = existing ? existing.status === 'pending' : false
 
-      return { success: true, booking: inserted }
+    // Perform database updates atomically in a transaction
+    const resultBooking = await db().transaction(async (tx) => {
+      let bookingHeader: typeof bookings.$inferSelect
+
+      if (!existing) {
+        const [inserted] = await tx
+          .insert(bookings)
+          .values({
+            id: validated.id,
+            guestName: validated.guestName,
+            phone: validated.phone,
+            checkIn: validated.checkIn,
+            checkOut: validated.checkOut,
+            guests: validated.guests,
+            status: validated.status,
+          })
+          .returning()
+        bookingHeader = inserted
+      } else {
+        const [updated] = await tx
+          .update(bookings)
+          .set({
+            guestName: validated.guestName,
+            phone: validated.phone,
+            checkIn: validated.checkIn,
+            checkOut: validated.checkOut,
+            guests: validated.guests,
+            status: validated.status,
+          })
+          .where(eq(bookings.id, validated.id))
+          .returning()
+        bookingHeader = updated
+      }
+
+      // Sync booking_rooms junction entries
+      await tx.delete(bookingRooms).where(eq(bookingRooms.bookingId, validated.id))
+      for (const rId of uniqueRoomIds) {
+        await tx.insert(bookingRooms).values({
+          bookingId: validated.id,
+          roomId: rId,
+        })
+      }
+
+      return bookingHeader
+    })
+
+    // Trigger SMS notification ONLY when status transitions from pending -> confirmed (or new sheet addition as confirmed)
+    if ((wasPending || !existing) && resultBooking.status === 'confirmed') {
+      const checkInDate = new Date(resultBooking.checkIn)
+      const checkOutDate = new Date(resultBooking.checkOut)
+      const totalNights = Math.max(1, Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)))
+
+      let totalBookingPrice = 0
+      const bookingsData = []
+
+      for (const rId of uniqueRoomIds) {
+        const room = await getRoomById(rId)
+        const price = totalNights * (room?.pricePerNight || 0)
+        totalBookingPrice += price
+        bookingsData.push({
+          bookingId: resultBooking.id,
+          roomName: room?.name || `Room ${rId}`,
+          roomType: room?.type || 'Standard',
+          pricePerNight: room?.pricePerNight || 0,
+          totalPrice: price,
+        })
+      }
+
+      sendBookingNotifications({
+        guestName: resultBooking.guestName,
+        phone: resultBooking.phone,
+        checkIn: resultBooking.checkIn,
+        checkOut: resultBooking.checkOut,
+        totalNights,
+        totalPrice: totalBookingPrice,
+        bookings: bookingsData,
+      }).catch((err) => console.error('Owner approval SMS notification error:', err))
     }
 
-    // Update the existing booking
-    const [updated] = await db()
-      .update(bookings)
-      .set({
-        guestName: validated.guestName,
-        phone: validated.phone,
-        roomId: validated.roomId,
-        checkIn: validated.checkIn,
-        checkOut: validated.checkOut,
-        guests: validated.guests,
-        status: validated.status,
-      })
-      .where(eq(bookings.id, validated.id))
-      .returning()
-
-    return { success: true, booking: updated }
+    return {
+      success: true,
+      booking: {
+        ...resultBooking,
+        roomIds: uniqueRoomIds,
+      },
+    }
   } catch (err: any) {
     console.error('updateBookingFromSheet error:', err)
     return { success: false, error: 'Internal database error', code: 'INTERNAL' }

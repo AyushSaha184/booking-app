@@ -1,23 +1,24 @@
 import { db } from './client'
-import { bookings, rooms } from './schema'
-import { and, eq, lt, gt, not, inArray } from 'drizzle-orm'
+import { bookings, bookingRooms, rooms } from './schema'
+import { and, eq, ne, lt, gt, not, inArray } from 'drizzle-orm'
 import { logger } from '../logger'
 
 export async function getAvailableRooms(checkIn: string, checkOut: string) {
-  // Find room IDs that have a confirmed booking overlapping the requested dates
+  // Find room IDs that have an active (non-cancelled) booking overlapping the requested dates
   const overlapping = await db()
-    .select({ roomId: bookings.roomId })
-    .from(bookings)
+    .select({ roomId: bookingRooms.roomId })
+    .from(bookingRooms)
+    .innerJoin(bookings, eq(bookingRooms.bookingId, bookings.id))
     .where(
       and(
-        eq(bookings.status, 'confirmed'),
+        ne(bookings.status, 'cancelled'),
         // Overlap: existing check_in < requested check_out AND existing check_out > requested check_in
         lt(bookings.checkIn, checkOut),
         gt(bookings.checkOut, checkIn),
       )
     )
 
-  const bookedIds = overlapping.map(b => b.roomId)
+  const bookedIds = [...new Set(overlapping.map(b => b.roomId))]
   logger.debug('Executing getAvailableRooms query', { checkIn, checkOut, bookedCount: bookedIds.length })
 
   if (bookedIds.length === 0) return db().select().from(rooms)

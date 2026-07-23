@@ -1,10 +1,8 @@
-'use client'
-
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { motion } from 'framer-motion'
-import { User, ChevronLeft, Loader2, BedDouble, Calendar, Check, Phone, AlertCircle } from 'lucide-react'
+import { User, ChevronLeft, Loader2, BedDouble, Calendar, Check, Phone, AlertCircle, MessageCircle, Clock, Copy, ShieldAlert } from 'lucide-react'
 import DatePicker from '@/components/ui/DatePicker'
 import { CreateMultiBookingSchema } from '@/lib/validation'
 import { checkmarkDraw, bounceIn } from '@/lib/animations'
@@ -53,11 +51,15 @@ export default function BookingFormCard({
   const inputCls =
     'flex-1 h-11 px-3 bg-transparent text-base text-gray-900 outline-none placeholder:text-[#C37A8C]/50'
 
+  const OWNER_PHONE = '+917679081423'
+  const OWNER_PHONE_DISPLAY = '+91 76790 81423'
+
   const [submitError, setSubmitError] = useState('')
-  const [confirmed, setConfirmed] = useState(false)
+  const [bookingStatus, setBookingStatus] = useState<'form' | 'pending_payment' | 'confirmed' | 'declined'>('form')
   const [bookingRef, setBookingRef] = useState('')
-  const [bookingRefs, setBookingRefs] = useState<string[]>([])
   const [bookingCount, setBookingCount] = useState(0)
+  const [copiedPhone, setCopiedPhone] = useState(false)
+  const [submittedData, setSubmittedData] = useState<FormValues | null>(null)
   const [rooms, setRooms] = useState<Room[]>([])
   const [loadingRooms, setLoadingRooms] = useState(false)
   const [roomsError, setRoomsError] = useState('')
@@ -120,6 +122,30 @@ export default function BookingFormCard({
     return () => clearTimeout(timer)
   }, [checkIn, checkOut, onFetchRooms, setValue])
 
+  /* ── Status Polling Effect ──────────────────────── */
+  useEffect(() => {
+    if (bookingStatus !== 'pending_payment' || !bookingRef) return
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/bookings/status?id=${bookingRef}`)
+        if (!res.ok) return
+        const data = await res.json()
+        if (data.success && data.booking) {
+          if (data.booking.status === 'confirmed') {
+            setBookingStatus('confirmed')
+          } else if (data.booking.status === 'cancelled') {
+            setBookingStatus('declined')
+          }
+        }
+      } catch (err) {
+        console.error('Status poll error:', err)
+      }
+    }, 3000)
+
+    return () => clearInterval(pollInterval)
+  }, [bookingStatus, bookingRef])
+
   /* ── Toggle room selection ──────────────────────── */
   const toggleRoom = (id: string) => {
     const current = roomIds ?? []
@@ -145,23 +171,165 @@ export default function BookingFormCard({
       const result = await onSubmit({ ...data } as unknown as BookingFormData)
       if (result.success && result.booking) {
         setBookingRef(result.booking.id)
-        if (result.bookings) {
-          setBookingRefs(result.bookings.map(b => b.id))
-        } else {
-          setBookingRefs([result.booking.id])
-        }
         setBookingCount(data.roomIds.length)
-        setConfirmed(true)
+        setSubmittedData(data)
+        setBookingStatus('pending_payment')
       } else {
-        throw new Error('Booking could not be confirmed. Please try again.')
+        throw new Error('Booking could not be created. Please try again.')
       }
     } catch (err: unknown) {
       setSubmitError(err instanceof Error ? err.message : 'Something went wrong.')
     }
   }
 
-  /* ── Confirmed screen ──────────────────────────── */
-  if (confirmed) {
+  const copyPhoneNumber = () => {
+    navigator.clipboard.writeText(OWNER_PHONE_DISPLAY)
+    setCopiedPhone(true)
+    setTimeout(() => setCopiedPhone(false), 2000)
+  }
+
+  /* ── PENDING PAYMENT SCREEN ─────────────────────── */
+  if (bookingStatus === 'pending_payment') {
+    const waText = encodeURIComponent(
+      `Hi! I have placed a booking request (Booking ID: ${bookingRef}) for ${submittedData?.guestName || 'Guest'} (${bookingCount} room${bookingCount > 1 ? 's' : ''}, ${submittedData?.checkIn} to ${submittedData?.checkOut}). I would like to complete the payment to confirm my reservation.`
+    )
+    const waUrl = `https://wa.me/${OWNER_PHONE.replace('+', '')}?text=${waText}`
+
+    return (
+      <motion.div
+        variants={bounceIn}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-xl mx-auto space-y-6"
+      >
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.07)] p-6 sm:p-8 flex flex-col items-center text-center space-y-6">
+          
+          {/* Header Status Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+            Pending Payment Verification
+          </div>
+
+          {/* Title block */}
+          <div className="space-y-2">
+            <h2 className="text-2xl font-serif font-bold text-gray-900 leading-snug">
+              Call Owner to Complete Booking
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">
+              Your booking request is received! Please call or message the hotel owner at the number below to complete your payment.
+            </p>
+          </div>
+
+          {/* Owner Phone Card */}
+          <div className="w-full bg-[#FAFAF9] border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3 text-left">
+              <div className="w-10 h-10 rounded-xl bg-accent/10 grid place-items-center shrink-0">
+                <Phone className="w-5 h-5 text-accent" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Hotel Owner Contact</span>
+                <span className="text-lg font-bold font-mono text-gray-900">{OWNER_PHONE_DISPLAY}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={copyPhoneNumber}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors shrink-0"
+            >
+              {copiedPhone ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5 text-gray-500" />}
+              {copiedPhone ? 'Copied' : 'Copy Number'}
+            </button>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <a
+              href={`tel:${OWNER_PHONE}`}
+              className="h-12 rounded-xl bg-accent text-white text-sm font-semibold shadow-md hover:bg-brand-red-hover transition-all flex items-center justify-center gap-2"
+            >
+              <Phone className="w-4 h-4" />
+              Call Owner Now
+            </a>
+
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="h-12 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-md hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Message on WhatsApp
+            </a>
+          </div>
+
+          {/* Live Status Poller Radar Bar */}
+          <div className="w-full pt-4 border-t border-gray-100 flex flex-col items-center gap-3">
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Loader2 className="w-4 h-4 text-accent animate-spin" />
+              <span>Waiting for owner to confirm payment in Google Sheet...</span>
+            </div>
+
+            {/* Booking Details Summary */}
+            <div className="w-full bg-gray-50 rounded-xl p-3.5 border border-gray-100 flex flex-wrap items-center justify-between gap-2 text-left">
+              <div>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Booking ID</span>
+                <span className="text-xs font-mono font-bold text-accent">{bookingRef}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Reserved Rooms</span>
+                <span className="text-xs font-semibold text-gray-800">{bookingCount} Room{bookingCount > 1 ? 's' : ''}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block">Guest</span>
+                <span className="text-xs font-semibold text-gray-800">{submittedData?.guestName}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={onBack}
+            className="text-xs text-gray-400 hover:text-gray-600 underline transition-colors pt-2"
+          >
+            Cancel & Return Home
+          </button>
+        </div>
+      </motion.div>
+    )
+  }
+
+  /* ── DECLINED SCREEN ───────────────────────────── */
+  if (bookingStatus === 'declined') {
+    return (
+      <motion.div
+        variants={bounceIn}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md mx-auto bg-white rounded-2xl border border-gray-200 shadow-lg p-8 text-center space-y-6"
+      >
+        <div className="w-20 h-20 rounded-full bg-red-50 grid place-items-center mx-auto">
+          <ShieldAlert className="w-10 h-10 text-red-600" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-2xl font-serif text-gray-900 font-bold">Booking Declined</h3>
+          <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+            The booking request was not confirmed by the hotel owner. Please try selecting different dates or contact support.
+          </p>
+        </div>
+        <button
+          onClick={onBack}
+          className="w-full h-12 rounded-xl bg-accent text-white text-sm font-semibold shadow-md hover:bg-brand-red-hover transition-all"
+        >
+          Return Home
+        </button>
+      </motion.div>
+    )
+  }
+
+  /* ── CONFIRMED SCREEN ──────────────────────────── */
+  if (bookingStatus === 'confirmed') {
     return (
       <motion.div
         variants={bounceIn}
@@ -196,26 +364,15 @@ export default function BookingFormCard({
               ? `${bookingCount} rooms have been reserved. We look forward to welcoming you.`
               : 'Your reservation is confirmed. We look forward to welcoming you.'}
           </p>
-          {bookingRefs && bookingRefs.length > 0 ? (
+          {bookingRef ? (
             <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100 flex flex-col items-center gap-2 max-w-sm mx-auto">
               <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                Booking ID{bookingRefs.length > 1 ? 's' : ''}
+                Booking ID
               </span>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {bookingRefs.map((id) => (
-                  <span
-                    key={id}
-                    className="px-3 py-1 bg-accent/5 hover:bg-accent/10 border border-accent/15 rounded-lg text-sm font-mono text-accent font-semibold tracking-wider transition-colors"
-                  >
-                    {id}
-                  </span>
-                ))}
-              </div>
+              <span className="px-3 py-1 bg-accent/5 border border-accent/15 rounded-lg text-sm font-mono text-accent font-semibold tracking-wider">
+                {bookingRef}
+              </span>
             </div>
-          ) : bookingRef ? (
-            <p className="mt-3 text-sm font-mono text-accent font-semibold tracking-wider">
-              Ref: {bookingRef}
-            </p>
           ) : null}
         </div>
         <button

@@ -62,11 +62,11 @@ export const UpdateBookingSchema = z.object({
   id: z.string().min(1, 'Booking ID is required').startsWith('BK-', 'Invalid booking ID format'),
   guestName: z.string().min(1, 'Name is required').max(100, 'Name too long'),
   phone: z.string().min(10, 'Invalid phone number').max(15, 'Invalid phone number').regex(PHONE_REGEX, 'Invalid phone format'),
-  roomId: z.string().min(1, 'Room selection required'),
+  roomIds: z.array(z.string().min(1)).min(1, 'At least 1 room required'),
   checkIn: z.string().regex(DATE_REGEX, 'Invalid date format'),
   checkOut: z.string().regex(DATE_REGEX, 'Invalid date format'),
   guests: z.number().int().min(1, 'At least 1 guest').max(20, 'Too many guests'),
-  status: z.enum(['confirmed', 'cancelled'], { message: 'Status must be "confirmed" or "cancelled"' }),
+  status: z.enum(['pending', 'confirmed', 'cancelled'], { message: 'Status must be pending, confirmed, or cancelled' }),
 }).refine(data => {
   const checkIn = new Date(data.checkIn)
   const checkOut = new Date(data.checkOut)

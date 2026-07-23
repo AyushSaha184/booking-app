@@ -98,7 +98,26 @@ export async function POST(req: Request) {
       })
     }
 
-    // 4. Update the database
+    // 4. Preprocess roomIds if sent as comma-separated string or single roomId
+    if (typeof data.roomId === 'string' && !data.roomIds) {
+      data.roomIds = data.roomId.split(',').map((s: string) => s.trim()).filter(Boolean)
+    } else if (typeof data.roomIds === 'string') {
+      data.roomIds = (data.roomIds as string).split(',').map((s: string) => s.trim()).filter(Boolean)
+    }
+
+    // 5. Normalize status string (e.g. "yes", "Yes", "confirmed", "no", "cancelled", etc.)
+    if (typeof data.status === 'string') {
+      const rawStatus = data.status.trim().toLowerCase()
+      if (['yes', 'y', 'confirmed', 'approved', 'true', '1'].includes(rawStatus)) {
+        data.status = 'confirmed'
+      } else if (['no', 'n', 'cancelled', 'canceled', 'rejected', 'declined', 'false', '0'].includes(rawStatus)) {
+        data.status = 'cancelled'
+      } else if (['pending', 'waiting'].includes(rawStatus)) {
+        data.status = 'pending'
+      }
+    }
+
+    // 6. Update the database
     const result = await updateBookingFromSheet(data)
 
     if (!result.success) {

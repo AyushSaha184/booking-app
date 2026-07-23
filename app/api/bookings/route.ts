@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 import { atomicCreateMultipleBookings } from '@/lib/db/atomic'
-import { getRoomById } from '@/lib/db/rooms'
-import { sendBookingNotifications } from '@/lib/twilio/notifications'
 import { syncBookingToSheet } from '@/lib/sheets/sync'
 import { validateRequestSize, CreateMultiBookingSchema } from '@/lib/validation'
 import { checkRateLimit } from '@/lib/ratelimit'
@@ -60,7 +58,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // Deduplicate room IDs (guard against client sending duplicates)
+    // Deduplicate room IDs
     const uniqueRoomIds = [...new Set(parsed.roomIds)]
     if (uniqueRoomIds.length === 0) {
       return NextResponse.json({ error: 'Please select at least one room' }, { status: 400 })
@@ -74,69 +72,46 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: result.error }, { status: statusCode })
     }
 
-    logger.info('Multi-booking successfully created', {
-      count: result.bookings.length,
-      bookingIds: result.bookings.map((b) => b.id),
+    logger.info('Single multi-room booking created successfully', {
+      bookingId: result.booking.id,
+      roomCount: uniqueRoomIds.length,
+      roomIds: uniqueRoomIds,
     })
 
-    // Resolve room details, compute totals, sync sheets, and prepare consolidated notification
-    const bookingsData = []
-    let totalNights = 0
-    let totalBookingPrice = 0
-
-    for (const booking of result.bookings) {
-      const room = await getRoomById(booking.roomId)
-      const checkInDate = new Date(booking.checkIn)
-      const checkOutDate = new Date(booking.checkOut)
-      const nights = Math.ceil(
-        (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
-      )
-      const price = nights * (room?.pricePerNight || 0)
-
-      totalNights = nights
-      totalBookingPrice += price
-
-      bookingsData.push({
-        bookingId: booking.id,
-        roomName: room?.name || 'Unknown Room',
-        roomType: room?.type || 'Standard',
-        pricePerNight: room?.pricePerNight || 0,
-        totalPrice: price,
+    // Sync SINGLE booking row to Google Sheet (non-blocking)
+    syncBookingToSheet({
+      id: result.booking.id,
+      guestName: result.booking.guestName,
+      phone: result.booking.phone,
+      roomIds: uniqueRoomIds,
+      checkIn: result.booking.checkIn,
+      checkOut: result.booking.checkOut,
+      guests: result.booking.guests,
+      status: result.booking.status,
+      createdAt: result.booking.createdAt ? new Date(result.booking.createdAt) : new Date(),
+    }).catch((err) => {
+      logger.error('Background Sheets sync failed', {
+        error: err instanceof Error ? err.message : String(err),
+        bookingId: result.booking.id,
       })
+    })
 
-      // Sync booking to sheet (non-blocking)
-      syncBookingToSheet(booking).catch((err) => {
-        logger.error('Background Sheets sync failed', {
-          error: err instanceof Error ? err.message : String(err),
-          bookingId: booking.id,
-        })
-      })
-    }
-
-    // Send single consolidated Twilio notification for the booking group (non-blocking)
-    if (result.bookings.length > 0) {
-      const firstBooking = result.bookings[0]
-      sendBookingNotifications({
-        guestName: firstBooking.guestName,
-        phone: firstBooking.phone,
-        checkIn: firstBooking.checkIn,
-        checkOut: firstBooking.checkOut,
-        totalNights,
-        totalPrice: totalBookingPrice,
-        bookings: bookingsData,
-      }).catch((err) => {
-        logger.error('Booking notification error (non-blocking)', {
-          error: err instanceof Error ? err.message : String(err),
-          bookingIds: result.bookings.map((b) => b.id),
-        })
-      })
-    }
+    logger.info('Booking created with pending payment status (SMS deferred)', {
+      bookingId: result.booking.id,
+    })
 
     return NextResponse.json({
       success: true,
-      bookings: result.bookings,
-      // Backward-compat: expose first booking as `booking`
-      booking: { id: result.bookings[0].id },
+      booking: {
+        id: result.booking.id,
+        roomIds: uniqueRoomIds,
+        status: result.booking.status,
+      },
+      bookings: [{
+        id: result.booking.id,
+        roomIds: uniqueRoomIds,
+        status: result.booking.status,
+      }],
     })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Unknown error'

@@ -16,7 +16,8 @@ export async function syncBookingToSheet(booking: {
   id: string
   guestName: string
   phone: string
-  roomId: string
+  roomIds?: string[]
+  roomId?: string
   checkIn: string
   checkOut: string
   guests: number
@@ -42,6 +43,10 @@ export async function syncBookingToSheet(booking: {
           return
         }
 
+        const roomIdsStr = Array.isArray(booking.roomIds)
+          ? booking.roomIds.join(', ')
+          : booking.roomId || ''
+
         await sheets.spreadsheets.values.append({
           spreadsheetId: sheetId,
           range: 'Bookings!A:I',
@@ -51,7 +56,7 @@ export async function syncBookingToSheet(booking: {
               booking.id,
               booking.guestName,
               booking.phone,
-              booking.roomId,
+              roomIdsStr,
               booking.checkIn,
               booking.checkOut,
               booking.guests,

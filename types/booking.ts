@@ -38,7 +38,7 @@ export interface BookingRecord {
   id: string
   guestName: string
   phone: string
-  roomId: string
+  roomIds: string[]
   checkIn: string
   checkOut: string
   guests: number
@@ -48,9 +48,8 @@ export interface BookingRecord {
 /* ── Result returned by the /api/bookings route ── */
 export interface BookingResult {
   success: boolean
-  bookings?: BookingRecord[]
-  /** Primary booking id (first room) kept for backward compat */
-  booking?: { id: string }
+  booking?: { id: string; roomIds?: string[]; status?: string }
+  bookings?: { id: string; roomIds?: string[]; status?: string }[]
   error?: string
   retry?: boolean
 }

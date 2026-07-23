@@ -98,7 +98,7 @@ function handleLookup(data: Record<string, unknown>) {
         booking: {
           id: booking.id,
           guestName: booking.guestName,
-          roomId: booking.roomId,
+          roomIds: booking.roomIds,
           checkIn: booking.checkIn,
           checkOut: booking.checkOut,
           guests: booking.guests,
@@ -144,6 +144,7 @@ function handleCancel(data: Record<string, unknown>) {
       return NextResponse.json({
         success: true,
         bookingId: updated.id,
+        roomIds: updated.roomIds,
         checkIn: updated.checkIn,
         checkOut: updated.checkOut,
       })
