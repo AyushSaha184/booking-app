@@ -33,7 +33,7 @@ export async function releaseSheetsLock(bookingId: string): Promise<void> {
 export async function withSheetsLock<T>(
   bookingId: string,
   operation: () => Promise<T>,
-  maxWaitMs: number = 5000
+  maxWaitMs: number = 2000
 ): Promise<T> {
   const url = process.env.UPSTASH_REDIS_REST_URL
   const token = process.env.UPSTASH_REDIS_REST_TOKEN

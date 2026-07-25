@@ -12,6 +12,15 @@ function formatDateTime(date: Date): string {
   return `${y}-${m}-${d} ${h}:${min}:${s}`
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Timeout after ${ms}ms: ${label}`)), ms)
+    ),
+  ])
+}
+
 export async function syncBookingToSheet(booking: {
   id: string
   guestName: string
@@ -26,14 +35,26 @@ export async function syncBookingToSheet(booking: {
 }): Promise<boolean> {
   return withSheetsLock(booking.id, async () => {
     try {
+      logger.info('Starting Google Sheets sync', { bookingId: booking.id })
+
       await withRetry(async () => {
+        logger.debug('Initializing Sheets client', { bookingId: booking.id })
         const sheets = getSheetsClient()
         const sheetId = process.env.GOOGLE_SHEET_ID!
 
-        const checkResponse = await sheets.spreadsheets.values.get({
-          spreadsheetId: sheetId,
-          range: 'Bookings!A:A',
-        })
+        if (!sheetId) {
+          throw new Error('GOOGLE_SHEET_ID is not configured')
+        }
+
+        logger.debug('Reading existing rows from Sheet', { bookingId: booking.id })
+        const checkResponse = await withTimeout(
+          sheets.spreadsheets.values.get({
+            spreadsheetId: sheetId,
+            range: 'Bookings!A:A',
+          }),
+          5000,
+          'Google Sheets read'
+        )
 
         const existingRows = checkResponse.data.values ?? []
         const alreadyExists = existingRows.some(row => row[0] === booking.id)
@@ -47,24 +68,29 @@ export async function syncBookingToSheet(booking: {
           ? booking.roomIds.join(', ')
           : booking.roomId || ''
 
-        await sheets.spreadsheets.values.append({
-          spreadsheetId: sheetId,
-          range: 'Bookings!A:I',
-          valueInputOption: 'USER_ENTERED',
-          requestBody: {
-            values: [[
-              booking.id,
-              booking.guestName,
-              booking.phone,
-              roomIdsStr,
-              booking.checkIn,
-              booking.checkOut,
-              booking.guests,
-              booking.status,
-              formatDateTime(booking.createdAt ?? new Date()),
-            ]],
-          },
-        })
+        logger.debug('Appending row to Sheet', { bookingId: booking.id })
+        await withTimeout(
+          sheets.spreadsheets.values.append({
+            spreadsheetId: sheetId,
+            range: 'Bookings!A:I',
+            valueInputOption: 'USER_ENTERED',
+            requestBody: {
+              values: [[
+                booking.id,
+                booking.guestName,
+                booking.phone,
+                roomIdsStr,
+                booking.checkIn,
+                booking.checkOut,
+                booking.guests,
+                booking.status,
+                formatDateTime(booking.createdAt ?? new Date()),
+              ]],
+            },
+          }),
+          5000,
+          'Google Sheets append'
+        )
         logger.info('Booking appended to Google Sheet', { bookingId: booking.id })
       }, 3, 1000)
 
@@ -79,14 +105,25 @@ export async function syncBookingToSheet(booking: {
 export async function updateBookingStatusInSheet(bookingId: string, status: string): Promise<boolean> {
   return withSheetsLock(`${bookingId}:status`, async () => {
     try {
+      logger.info('Starting Google Sheets status update', { bookingId, status })
+
       await withRetry(async () => {
         const sheets = getSheetsClient()
         const sheetId = process.env.GOOGLE_SHEET_ID!
 
-        const response = await sheets.spreadsheets.values.get({
-          spreadsheetId: sheetId,
-          range: 'Bookings!A:A',
-        })
+        if (!sheetId) {
+          throw new Error('GOOGLE_SHEET_ID is not configured')
+        }
+
+        logger.debug('Reading rows for status update', { bookingId })
+        const response = await withTimeout(
+          sheets.spreadsheets.values.get({
+            spreadsheetId: sheetId,
+            range: 'Bookings!A:A',
+          }),
+          5000,
+          'Google Sheets read for status'
+        )
 
         const rows = response.data.values ?? []
         const rowIndex = rows.findIndex(row => row[0] === bookingId)
@@ -97,12 +134,17 @@ export async function updateBookingStatusInSheet(bookingId: string, status: stri
         }
 
         const rowNumber = rowIndex + 1
-        await sheets.spreadsheets.values.update({
-          spreadsheetId: sheetId,
-          range: `Bookings!H${rowNumber}`,
-          valueInputOption: 'USER_ENTERED',
-          requestBody: { values: [[status]] },
-        })
+        logger.debug('Updating status in Sheet', { bookingId, rowNumber })
+        await withTimeout(
+          sheets.spreadsheets.values.update({
+            spreadsheetId: sheetId,
+            range: `Bookings!H${rowNumber}`,
+            valueInputOption: 'USER_ENTERED',
+            requestBody: { values: [[status]] },
+          }),
+          5000,
+          'Google Sheets status update'
+        )
         logger.info('Google Sheet booking status updated', { bookingId, status, rowNumber })
       }, 3, 1000)
 
