@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
 import { atomicCreateMultipleBookings } from '@/lib/db/atomic'
 import { syncBookingToSheet } from '@/lib/sheets/sync'
 import { validateRequestSize, CreateMultiBookingSchema } from '@/lib/validation'
@@ -78,25 +78,27 @@ export async function POST(req: Request) {
       roomIds: uniqueRoomIds,
     })
 
-    // Sync SINGLE booking row to Google Sheet (awaited for Vercel serverless execution)
-    try {
-      await syncBookingToSheet({
-        id: result.booking.id,
-        guestName: result.booking.guestName,
-        phone: result.booking.phone,
-        roomIds: uniqueRoomIds,
-        checkIn: result.booking.checkIn,
-        checkOut: result.booking.checkOut,
-        guests: result.booking.guests,
-        status: result.booking.status,
-        createdAt: result.booking.createdAt ? new Date(result.booking.createdAt) : new Date(),
-      })
-    } catch (err) {
-      logger.error('Background Sheets sync failed', {
-        error: err instanceof Error ? err.message : String(err),
-        bookingId: result.booking.id,
-      })
-    }
+    // Non-blocking background sync to Google Sheet via Next.js 15 after()
+    after(async () => {
+      try {
+        await syncBookingToSheet({
+          id: result.booking.id,
+          guestName: result.booking.guestName,
+          phone: result.booking.phone,
+          roomIds: uniqueRoomIds,
+          checkIn: result.booking.checkIn,
+          checkOut: result.booking.checkOut,
+          guests: result.booking.guests,
+          status: result.booking.status,
+          createdAt: result.booking.createdAt ? new Date(result.booking.createdAt) : new Date(),
+        })
+      } catch (err) {
+        logger.error('Background Sheets sync failed', {
+          error: err instanceof Error ? err.message : String(err),
+          bookingId: result.booking.id,
+        })
+      }
+    })
 
     logger.info('Booking created with pending payment status (SMS deferred)', {
       bookingId: result.booking.id,

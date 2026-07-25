@@ -283,6 +283,11 @@ export default function BookingFormCard({
             <p className="text-xs sm:text-sm text-gray-500 max-w-md leading-relaxed">
               Your room hold is active for 45 minutes! Please call or message the hotel owner at the number below to complete your payment.
             </p>
+            <div className="pt-1">
+              <p className="text-xs text-amber-700 bg-amber-50/80 border border-amber-200/60 rounded-lg px-3 py-2 text-center max-w-md mx-auto font-medium">
+                💡 <span className="font-semibold">Note:</span> If the line is busy, please try calling again after a few minutes or reach out on WhatsApp.
+              </p>
+            </div>
           </div>
 
           {/* Owner Phone Card */}

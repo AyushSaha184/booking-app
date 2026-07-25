@@ -1,6 +1,6 @@
 import { db } from './client'
 import { bookings, bookingRooms } from './schema'
-import { and, eq, ne, sql, lt, gt } from 'drizzle-orm'
+import { and, eq, ne, sql, lt, gt, inArray } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 import { logger } from '../logger'
 
@@ -32,27 +32,26 @@ export async function atomicCreateMultipleBookings(data: {
 
       const createdBooking = await db().transaction(
         async (tx) => {
-          // ── 1. Check ALL rooms for date conflicts through booking_rooms -> bookings ──
-          for (const roomId of uniqueRoomIds) {
-            const overlapping = await tx
-              .select({ count: sql<number>`count(*)::int` })
-              .from(bookingRooms)
-              .innerJoin(bookings, eq(bookingRooms.bookingId, bookings.id))
-              .where(
-                and(
-                  eq(bookingRooms.roomId, roomId),
-                  ne(bookings.status, 'cancelled'),
-                  lt(bookings.checkIn, data.checkOut),
-                  gt(bookings.checkOut, data.checkIn)
-                )
+          // ── 1. Check ALL rooms for date conflicts in a SINGLE query ──
+          const overlapping = await tx
+            .select({ roomId: bookingRooms.roomId, count: sql<number>`count(*)::int` })
+            .from(bookingRooms)
+            .innerJoin(bookings, eq(bookingRooms.bookingId, bookings.id))
+            .where(
+              and(
+                inArray(bookingRooms.roomId, uniqueRoomIds),
+                ne(bookings.status, 'cancelled'),
+                lt(bookings.checkIn, data.checkOut),
+                gt(bookings.checkOut, data.checkIn)
               )
+            )
+            .groupBy(bookingRooms.roomId)
 
-            const overlapCount = Number(overlapping[0]?.count ?? 0)
-            if (overlapCount > 0) {
-              const err: any = new Error(`Room ${roomId} is no longer available for selected dates`)
-              err.conflictRoomId = roomId
-              throw err
-            }
+          if (overlapping.length > 0) {
+            const conflictRoomId = overlapping[0].roomId
+            const err: any = new Error(`Room ${conflictRoomId} is no longer available for selected dates`)
+            err.conflictRoomId = conflictRoomId
+            throw err
           }
 
           // ── 2. Insert ONE booking header ──────────────────────────────
@@ -70,13 +69,13 @@ export async function atomicCreateMultipleBookings(data: {
             })
             .returning()
 
-          // ── 3. Bulk insert linked rooms into booking_rooms ────────────
-          for (const roomId of uniqueRoomIds) {
-            await tx.insert(bookingRooms).values({
+          // ── 3. Bulk insert linked rooms in a SINGLE query ──────────────
+          await tx.insert(bookingRooms).values(
+            uniqueRoomIds.map((roomId) => ({
               bookingId: id,
               roomId,
-            })
-          }
+            }))
+          )
 
           return {
             ...header,

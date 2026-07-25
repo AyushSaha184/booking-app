@@ -18,7 +18,7 @@ function getRateLimiter(): Ratelimit {
     _ratelimit = new Ratelimit({
       redis,
       limiter: Ratelimit.slidingWindow(20, '1 m'),
-      analytics: true,
+      analytics: false,
       prefix: 'resort-booking',
     })
   }
