@@ -61,12 +61,40 @@ export function parseRoomIdsString(rawInput: unknown): string[] {
   const inputStr = String(rawInput).trim()
   if (!inputStr) return []
 
-  const tokens = inputStr.split(/[\s,/\\+]+/).map(t => t.trim()).filter(Boolean)
   const result: string[] = []
+
+  // Check if Google Sheets auto-converted manual entry "1, 3, 5" to a date (e.g. "2005-01-03", "1/3/2005", "1, 3 and 2005")
+  const yearMatch = inputStr.match(/\b(200[0-9]|201[0-9]|202[0-9])\b/)
+  if (yearMatch) {
+    const fullYear = parseInt(yearMatch[1], 10)
+    const shortYear = fullYear % 2000 // e.g. 2005 -> 5
+    if (shortYear > 0 && shortYear < 100) {
+      result.push(String(shortYear))
+    }
+
+    // Extract all single/double digit numbers from the string
+    const digits = inputStr.match(/\b\d{1,3}\b/g)
+    if (digits) {
+      for (const d of digits) {
+        const num = parseInt(d, 10)
+        if (num !== fullYear) {
+          result.push(String(num))
+        }
+      }
+    }
+  }
+
+  const tokens = inputStr.split(/[\s,/\\+]+/).map(t => t.trim()).filter(Boolean)
 
   for (const token of tokens) {
     if (token.includes('GMT') || token.includes('00:00:00') || token.length > 30) {
       continue
+    }
+
+    // Strip "Room" or "R" prefix if typed manually (e.g. "Room 1" -> "1")
+    const cleanToken = token.replace(/^(room|rm|r)\.?\s*/i, '')
+    if (cleanToken) {
+      result.push(cleanToken)
     }
 
     result.push(token)

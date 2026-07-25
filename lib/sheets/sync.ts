@@ -6,10 +6,14 @@ function formatDateTime(date: Date): string {
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const d = String(date.getDate()).padStart(2, '0')
-  const h = String(date.getHours()).padStart(2, '0')
+  let hours = date.getHours()
+  const ampm = hours >= 12 ? 'PM' : 'AM'
+  hours = hours % 12
+  hours = hours ? hours : 12 // hour 0 is 12
+  const h = String(hours).padStart(2, '0')
   const min = String(date.getMinutes()).padStart(2, '0')
   const s = String(date.getSeconds()).padStart(2, '0')
-  return `${y}-${m}-${d} ${h}:${min}:${s}`
+  return `${y}-${m}-${d} ${h}:${min}:${s} ${ampm}`
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -50,7 +54,7 @@ export async function syncBookingToSheet(booking: {
         const checkResponse = await withTimeout(
           sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
-            range: 'Bookings!A:A',
+            range: 'Booking!A:A',
           }),
           5000,
           'Google Sheets read'
@@ -64,15 +68,16 @@ export async function syncBookingToSheet(booking: {
           return
         }
 
-        const roomIdsStr = Array.isArray(booking.roomIds)
+        const rawRoomIds = Array.isArray(booking.roomIds)
           ? booking.roomIds.join(', ')
           : booking.roomId || ''
+        const roomIdsStr = rawRoomIds ? `'${rawRoomIds}` : ''
 
         logger.debug('Appending row to Sheet', { bookingId: booking.id })
         await withTimeout(
           sheets.spreadsheets.values.append({
             spreadsheetId: sheetId,
-            range: 'Bookings!A:I',
+            range: 'Booking!A:I',
             valueInputOption: 'USER_ENTERED',
             requestBody: {
               values: [[
@@ -119,7 +124,7 @@ export async function updateBookingStatusInSheet(bookingId: string, status: stri
         const response = await withTimeout(
           sheets.spreadsheets.values.get({
             spreadsheetId: sheetId,
-            range: 'Bookings!A:A',
+            range: 'Booking!A:A',
           }),
           5000,
           'Google Sheets read for status'
@@ -138,7 +143,7 @@ export async function updateBookingStatusInSheet(bookingId: string, status: stri
         await withTimeout(
           sheets.spreadsheets.values.update({
             spreadsheetId: sheetId,
-            range: `Bookings!H${rowNumber}`,
+            range: `Booking!H${rowNumber}`,
             valueInputOption: 'USER_ENTERED',
             requestBody: { values: [[status]] },
           }),
