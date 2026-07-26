@@ -190,17 +190,7 @@ export default function PhotoGallery({ onBack }: { onBack?: () => void }) {
                 />
               </div>
 
-              {/* Caption */}
-              <div className="mt-4 text-center">
-                <p className="text-white font-semibold text-lg">{PHOTOS[lightboxIndex].name}</p>
-                <p className="text-white/60 text-sm">{PHOTOS[lightboxIndex].type}</p>
-              </div>
             </motion.div>
-
-            {/* Counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-xs text-white text-sm font-medium">
-              {lightboxIndex + 1} / {PHOTOS.length}
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
